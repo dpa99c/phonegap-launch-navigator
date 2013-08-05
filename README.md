@@ -8,9 +8,9 @@ An iOS version of this plugin is unnecessary as the native navigation app on iOS
 ## Contents
 
 * [Installing](#installing)
-* [Using the Android plugin](#using)
-* [Opening the native navigation app on iOS](#opening)
-* [Repository contents](#repository)
+* [Using the Android plugin](#using-the-android-plugin)
+* [Opening the native navigation app on iOS](#opening-the-native-navigation-app-on-ios)
+* [Repository contents](#repository-contents)
 * [License](#license)
  
 # Installing
@@ -85,21 +85,21 @@ On iOS 5.x this will launch Google Maps and on iOS 6 this will launch Apple Maps
 You can detect whether the app is running on Android or iOS and therefore whether the plugin is required using the PhoneGap Device API:
 
     if(device.platform == "Android"){
-	cordova.require('cordova/plugin/phonenavigator').doNavigate(lat, lon, successFn, errorFn);
+        cordova.require('cordova/plugin/phonenavigator').doNavigate(lat, lon, successFn, errorFn);
     }else if(device.platform == "iOS"){
-	window.location = "maps:daddr="+lat+","+lon;
+        window.location = "maps:daddr="+lat+","+lon;
     }else{
-	console.error("Unknown platform");
+        console.error("Unknown platform");
     }
 
 # Repository contents
 
 The contents of this Git repository:
 
-* example/ - Folder containing Eclipse test project illustrating how to use the plugin and the resulting compiled APK.
-* src/ - Folder containing the Java source code for the plugin
-* www/ - Folder containing the Javascript source for the plugin
-* README.md - the file you are currently reading
+* [example/](example) - Eclipse test project illustrating how to use the plugin and the resulting compiled APK.
+* [src/](src) - Java source code for the plugin
+* [www/](www) - Javascript source for the plugin
+* [README.md/](README.md) - the file you are currently reading
 
 License
 ================
