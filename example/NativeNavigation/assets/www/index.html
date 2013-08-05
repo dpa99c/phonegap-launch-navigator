@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<script type="text/javascript" charset="utf-8" src="cordova-2.9.0.js"></script>
+		<script type="text/javascript" charset="utf-8" src="jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" charset="utf-8" src="phonenavigator.js"></script>
+
+		<script type="text/javascript">
+
+		function navigateTo(lat, lon, successFn, errorFn){
+		    if(device.platform == "Android"){
+		        cordova.require('cordova/plugin/phonenavigator').doNavigate(lat, lon, successFn, errorFn);
+		    }else if(device.platform == "iOS"){
+		        var url = "maps:daddr="+lat+","+lon;
+		        successFn();
+		        window.location = url;
+		    }else{
+		    	console.error("Unknown platform");
+		    }
+    	}
+
+		function init() {
+
+			$("#go").click(function(){
+				navigateTo($("#lat").val(), $("#lon").val(), function(){
+					console.log("Successfully opened navigator");
+				}, function(errMsg){
+					console.log("Error opening navigator: "+errMsg);
+				})
+			});
+		}
+		$(document).on("deviceready", init);
+		</script>
+	</head>
+	<body>
+		<p>Destination</p>
+		<div>
+			<label>Latitude: </label>
+			<input id="lat" value="50.620286295667356"/>
+		</div>
+		<div>
+			<label>Longitude: </label>
+			<input id="lon" value="-4.724767506122589"/>
+		</div>
+
+
+		<button id="go" style="padding: 10px;">Navigate</button>
+
+	</body>
+</html>
