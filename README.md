@@ -25,11 +25,11 @@ Get the latest source code
 
 Copy the Java source files from src/android/src/ of phonegap-native-navigation project into the source directory of your Android project.
 
-    $ cp -R phonegap-native-navigation/src/android/src/ $YOUR_PROJECT/src
+    $ cp -R phonegap-native-navigation/src/ $YOUR_PROJECT/src
     
 For windows use xcopy
 
-    c:\> xcopy phonegap-native-navigation\src\android\src %YOUR_PROJECT%\src /S
+    c:\> xcopy phonegap-native-navigation\src %YOUR_PROJECT%\src /S
 
 ## config.xml 
 
