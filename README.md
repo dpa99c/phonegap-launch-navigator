@@ -3,9 +3,9 @@ Launch Navigator Phonegap Plugin
 
 This PhoneGap Plugin provides a mechanism to launch the Google Navigator app on Android to get driving directions to a desired location. 
 
-An iOS version of this plugin is unnecessary as the Apple Maps app on iOS can be launched using pure Javascript using the *magic* "maps" protocol ([see below](#opening)).
+An iOS version of this plugin is unnecessary as the Apple Maps app on iOS can be launched using pure Javascript using the *magic* "maps" protocol ([see below](#opening-the-native-navigation-app-on-ios)).
 
-This is for Phonegap 3.x
+This plugin is for Phonegap 3.x. There is also an [example Phonegap 3 project](https://github.com/dpa99c/phonegap-launch-navigator-example) which demonstrates how to use the plugin on Android and how the same can be achieved without a plugin on iOS.
 
 ## Contents
 
