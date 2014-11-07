@@ -50,7 +50,7 @@ $ git clone https://github.com/dpa99c/phonegap-launch-navigator.git
 
 4\. Copy `www/launchnavigator.js` into your root www folder
     
-    e.g. `$YOUR_PROJECT/www.launchnavigator.js`
+    e.g. `$YOUR_PROJECT/www/launchnavigator.js`
 
     
 5\. Include launchnavigator.js in index.html.  Ensure that launchnavigator.js is *after* cordova.js
