@@ -12,7 +12,8 @@ This is for Phonegap 3.x
 * [Installing](#installing)
 * [Using the Android plugin](#using)
 * [Opening the native navigation app on iOS](#opening)
-* [Repository contents](#repository)
+* [Detecting the platform](#detecting)
+* [Example project](#example)
 * [License](#license)
  
 # Installing
@@ -58,9 +59,11 @@ $ git clone https://github.com/dpa99c/phonegap-launch-navigator.git
 <script type="text/javascript" src="launchnavigator.js"></script>        
 ```
 
-# Using the plugin
+# Using the Android plugin
 
-The plugin has a two methods:
+The plugin has two methods, both of which open Google Navigator; one sets the destination as a longitude/latitude, the other sets the destination using a place name.
+
+You can see this working in an [example project](https://github.com/dpa99c/phonegap-launch-navigator-example).
 
 ## navigateByLatLon
 
@@ -95,7 +98,8 @@ launchnavigator.navigateByPlaceName(name, successFn, errorFn);
 
 # Opening the native navigation app on iOS
 
-There's no need for an iOS version of this plugin because the native navigation app on iOS can be launched using pure Javascript using the *magic* "maps" protocol:
+There's no need for an iOS version of this plugin because the native navigation app on iOS can be launched using pure Javascript using the *magic* "maps" protocol. 
+You can see this working in an [example project](https://github.com/dpa99c/phonegap-launch-navigator-example).
 
 ## Navigate to latitude/longitude
 ```
@@ -119,6 +123,17 @@ You can detect whether the app is running on Android or iOS and therefore whethe
 	  console.error("Unknown platform");
     }
 
+# Example project
+
+I've created an [example Phonegap 3 project](https://github.com/dpa99c/phonegap-launch-navigator-example) which demonstrates how to use the plugin on Android and how the same can be achieved without a plugin on iOS.
+
+To try it out, clone the project using git:
+```
+$ git clone https://github.com/dpa99c/phonegap-launch-navigator-example.git
+
+```
+
+Then build and run the Android project and the iOS project. See the [example project page](https://github.com/dpa99c/phonegap-launch-navigator-example) for details.
 
 License
 ================
