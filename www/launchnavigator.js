@@ -25,7 +25,7 @@
  *  
  */
     
-var LaunchNavigator = function() {};
+var launchnavigator = {};
     
    /**
  * Opens navigator app to navigate to given lat/lon destination
@@ -36,7 +36,7 @@ var LaunchNavigator = function() {};
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.     
  */
-LaunchNavigator.prototype.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
+launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
     return cordova.exec(successCallback,
                         errorCallback,
                         'LaunchNavigator',
@@ -52,10 +52,11 @@ LaunchNavigator.prototype.navigateByLatLon = function(lat, lon, successCallback,
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.     
  */
-LaunchNavigator.prototype.navigateByPlaceName = function(name, successCallback, errorCallback) {
+launchnavigator.navigateByPlaceName = function(name, successCallback, errorCallback) {
     return cordova.exec(successCallback,
                         errorCallback,
                         'LaunchNavigator',
                         'navigateByPlaceName',
                         [name]);
 };
+module.exports = launchnavigator;
