@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+    xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="uk.co.workingedge.phonegap.plugin.LaunchNavigator"
+    version="2.0.0">
+
+    <name>Launch Navigator</name>
+	<description>Phonegap plugin for Android to launch Google Navigator app to navigate to a custom destination.</description>
+	<author>Dave Alden</author>
+    
+    <engines>
+        <engine name="cordova" version=">=3.0.0" />
+    
+    </engines>
+    <repo>https://github.com/dpa99c/phonegap-launch-navigator.git</repo>
+    <issue>https://github.com/dpa99c/phonegap-launch-navigator/issues</issue>
+	
+	<license>MIT</license>
+    <keywords>cordova,phonegap,ios,android,navigation,navigator</keywords>
+
+
+    <!-- android -->
+    <platform name="android">
+        <js-module src="www/launchnavigator.js" name="LaunchNavigator">
+            <clobbers target="launchnavigator" />
+        </js-module>
+
+        <!-- Cordova >= 3.0.0 -->
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="LaunchNavigator">   
+				<param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
+			</feature>
+        </config-file>
+        
+		<source-file src="src/android/uk/co/workingedge/phonegap/plugin/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+    </platform>
+
+</plugin>
