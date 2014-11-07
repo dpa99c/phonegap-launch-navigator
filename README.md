@@ -10,10 +10,10 @@ This is for Phonegap 3.x
 ## Contents
 
 * [Installing](#installing)
-* [Using the Android plugin](#using)
-* [Opening the native navigation app on iOS](#opening)
-* [Detecting the platform](#detecting)
-* [Example project](#example)
+* [Using the Android plugin](#using-the-android-plugin)
+* [Opening the native navigation app on iOS](#opening-the-native-navigation-app-on-ios)
+* [Detecting the platform](#detecting-the-platform)
+* [Example project](#example-project)
 * [License](#license)
  
 # Installing
