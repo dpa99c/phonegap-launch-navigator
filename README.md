@@ -8,9 +8,7 @@ This is for Cordova/Phonegap 3+
 ## Contents
 
 * [Installing](#installing)
-* [Using the plugin](#using)
-* [Opening the native navigation app on iOS](#opening)
-* [Repository contents](#repository)
+* [Using the plugin](#using-the-plugin)
 * [License](#license)
  
 # Installing
