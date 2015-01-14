@@ -38,7 +38,7 @@ var launchnavigator = {};
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.     
  */
-launchnavigator.navigateByLatLon = function(platform, lat, lon, successCallback, errorCallback) {
+launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
     successCallback();
     window.location = "maps:daddr="+lat+","+lon;
 };
