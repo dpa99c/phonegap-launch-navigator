@@ -22,18 +22,30 @@
 
     <!-- android -->
     <platform name="android">
-        <js-module src="www/launchnavigator.js" name="LaunchNavigator">
+        <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
             <clobbers target="launchnavigator" />
         </js-module>
 
-        <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="LaunchNavigator">   
-				<param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
-			</feature>
+                <param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
+            </feature>
         </config-file>
         
-		<source-file src="src/android/uk/co/workingedge/phonegap/plugin/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+        <source-file src="src/android/uk/co/workingedge/phonegap/plugin/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+    </platform>
+    
+    <!-- ios -->
+    <platform name="ios">
+        <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
+            <clobbers target="launchnavigator" />
+        </js-module>
+        
+        <config-file target="config.xml" parent="/*">
+            <feature name="LaunchNavigator">
+                <param name="ios-package" value="LaunchNavigator"/>
+            </feature>
+        </config-file>
     </platform>
 
 </plugin>
