@@ -10,6 +10,7 @@ This is for Cordova/Phonegap 3+
 * [Installing](#installing)
 * [Using the plugin](#using-the-plugin)
     * [Example usage](#example-usage)
+        * [Example project](#example-project)
     * [Deprecate functions](#deprecated-functions)
 * [Caveats](#caveats)
     * [Windows](#windows)
@@ -81,6 +82,13 @@ Navigate from current location:
       function(error){
           alert("Plugin error: "+ error):
       });
+
+### Example project
+
+https://github.com/dpa99c/phonegap-launch-navigator-example
+
+The above link is to an example Cordova 3 project which demonstrates usage of this plugin.
+The examples currently run on Android and iOS platforms (Windows Phone 8 example will be added when I have time).
 
 ## Deprecated functions
 
