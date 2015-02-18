@@ -5,47 +5,54 @@
     id="uk.co.workingedge.phonegap.plugin.LaunchNavigator"
     version="2.0.0">
 
-    <name>Launch Navigator</name>
-	<description>Phonegap plugin for Android to launch Google Navigator app to navigate to a custom destination.</description>
-	<author>Dave Alden</author>
-    
-    <engines>
-        <engine name="cordova" version=">=3.0.0" />
-    
-    </engines>
-    <repo>https://github.com/dpa99c/phonegap-launch-navigator.git</repo>
-    <issue>https://github.com/dpa99c/phonegap-launch-navigator/issues</issue>
-	
-	<license>MIT</license>
-    <keywords>cordova,phonegap,ios,android,navigation,navigator</keywords>
+  <name>Launch Navigator</name>
+  <description>Phonegap plugin for Android, iOS, and Windows to launch Google Navigator app to navigate to a custom destination.</description>
+  <author>Dave Alden</author>
+
+  <engines>
+    <engine name="cordova" version=">=3.0.0" />
+
+  </engines>
+  <repo>https://github.com/dpa99c/phonegap-launch-navigator.git</repo>
+  <issue>https://github.com/dpa99c/phonegap-launch-navigator/issues</issue>
+
+  <license>MIT</license>
+  <keywords>cordova,phonegap,ios,android,windows,navigation,navigator</keywords>
 
 
-    <!-- android -->
-    <platform name="android">
-        <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
-            <clobbers target="launchnavigator" />
-        </js-module>
+  <!-- android -->
+  <platform name="android">
+    <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
+      <clobbers target="launchnavigator" />
+    </js-module>
 
-        <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="LaunchNavigator">   
-                <param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
-            </feature>
-        </config-file>
-        
-        <source-file src="src/android/uk/co/workingedge/phonegap/plugin/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
-    </platform>
-    
-    <!-- ios -->
-    <platform name="ios">
-        <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
-            <clobbers target="launchnavigator" />
-        </js-module>
-        
-        <config-file target="config.xml" parent="/*">
-            <feature name="LaunchNavigator">
-                <param name="ios-package" value="LaunchNavigator"/>
-            </feature>
-        </config-file>
-    </platform>
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="LaunchNavigator">
+        <param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
+      </feature>
+    </config-file>
+
+    <source-file src="src/android/uk/co/workingedge/phonegap/plugin/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+  </platform>
+
+  <!-- ios -->
+  <platform name="ios">
+    <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
+      <clobbers target="launchnavigator" />
+    </js-module>
+
+    <config-file target="config.xml" parent="/*">
+      <feature name="LaunchNavigator">
+        <param name="ios-package" value="LaunchNavigator"/>
+      </feature>
+    </config-file>
+  </platform>
+
+  <!-- windows -->
+  <platform name="windows">
+    <js-module src="www/windows/launchnavigator.js" name="LaunchNavigator">
+      <clobbers target="launchnavigator" />
+    </js-module>     
+  </platform>
 
 </plugin>
