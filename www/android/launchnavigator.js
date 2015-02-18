@@ -27,18 +27,59 @@
     
 var launchnavigator = {};
 
+/**
+ * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
+ * If a start location is not also specified, current location will be used for the start.
+ *
+ * @param {Mixed} destination (required) - destination location to use for navigation.
+ * Either:
+ * - a {String} containing the place name. e.g. "London"
+ * - an {Array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
+ * @param {Mixed} start (optional) - start location to use for navigation. If not specified, the current location of the device will be used.
+ * Either:
+ * - a {String} containing the place name. e.g. "London"
+ * - an {Array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
+ * @param {Function} successCallback (optional) - A callback which will be called when plugin call is successful.
+ * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
+ * This callback function have a string param with the error.
+ */
+launchnavigator.navigate = function(destination, start, successCallback, errorCallback) {
+    var dType, sType = "none";
+    if(typeof(destination) == "object"){
+        dType = "pos";
+    }else{
+        dType = "name";
+    }
+
+    if(start){
+        if(typeof(start) == "object"){
+            sType = "pos";
+        }else{
+            sType = "name";
+        }
+    }
+
+    return cordova.exec(
+        successCallback,
+        errorCallback,
+        'LaunchNavigator',
+        'navigate',
+        [dType, destination, sType, start]);
+
+};
 
     
 /**
  * Opens navigator app to navigate to given lat/lon destination
  *
- * @param {Number} lat - destintation latitude as decimal number
- * @param {Number} lon - destintation longitude as decimal number 
+ * @param {Number} lat - destination latitude as decimal number
+ * @param {Number} lon - destination longitude as decimal number
  * @param {Function} successCallback - The callback which will be called when plugin call is successful.
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.     
  */
 launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
+    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByLatLon() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
     return cordova.exec(successCallback,
         errorCallback,
         'LaunchNavigator',
@@ -55,6 +96,7 @@ launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCall
  * This callback function have a string param with the error.     
  */
 launchnavigator.navigateByPlaceName = function(name, successCallback, errorCallback) {
+    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByPlaceName() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
     return cordova.exec(successCallback,
         errorCallback,
         'LaunchNavigator',
