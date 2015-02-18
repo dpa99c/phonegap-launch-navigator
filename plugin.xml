@@ -6,7 +6,7 @@
     version="2.1.0">
 
   <name>Launch Navigator</name>
-  <description>Phonegap plugin for Android, iOS, and Windows to launch Google Navigator app to navigate to a custom destination.</description>
+  <description>Cordova/Phonegap plugin to launch native navigation app for Android (Google Navigator), iOS (Apple Maps), and Windows Phone (Bing Maps) to navigate to a destination.</description>
   <author>Dave Alden</author>
 
   <engines>

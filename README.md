@@ -18,16 +18,17 @@ This is for Cordova/Phonegap 3+
 # Installing
 
 ## Automatically with CLI / Plugman
+
 Launch Navigator can be installed with [Cordova Plugman](https://github.com/apache/cordova-plugman) and the [PhoneGap CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html).
 
 Here's how to install it with the CLI:
 
 
-    $ cordova plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
+    $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
 OR
 
-    $ phonegap plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
+    $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
 
 # Using the plugin
