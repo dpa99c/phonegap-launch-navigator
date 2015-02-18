@@ -9,11 +9,10 @@ This is for Cordova/Phonegap 3+
 
 * [Installing](#installing)
 * [Using the plugin](#using-the-plugin)
-** [Example usage](#example-usage)
-** [Deprecate functions](#deprecated-functions)
+    * [Example usage](#example-usage)
+    * [Deprecate functions](#deprecated-functions)
 * [Caveats](#caveats)
-** [Windows](#windows)
-** [Android](#android)
+    * [Windows](#windows)
 * [License](#license)
  
 # Installing
@@ -24,21 +23,18 @@ Launch Navigator can be installed with [Cordova Plugman](https://github.com/apac
 Here's how to install it with the CLI:
 
 
-```
-$ cordova plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
+    $ cordova plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
+
 OR
-$ phonegap plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
-```
+
+    $ phonegap plugin add https://github.com/dpa99c/phonegap-launch-navigator.git
 
 
 # Using the plugin
 
 The plugin has single function which launches the navigation app with the location specified as the destination.
 
-
-```
-launchnavigator.navigate(destination, start, successCallback, errorCallback);
-```
+    launchnavigator.navigate(destination, start, successCallback, errorCallback);
 
 ## Parameters
 
@@ -51,45 +47,39 @@ launchnavigator.navigate(destination, start, successCallback, errorCallback);
 
 Navigate by place name:
 
-```
-launchnavigator.navigate(
-  "London, UK", 
-  "Manchester, UK", 
-  function(){
-      alert("Plugin success"):
-  }, 
-  function(error){
-      alert("Plugin error: "+ error):
-  });
-```
+    launchnavigator.navigate(
+      "London, UK",
+      "Manchester, UK",
+      function(){
+          alert("Plugin success"):
+      },
+      function(error){
+          alert("Plugin error: "+ error):
+      });
 
 Navigate by latitude/longitude:
 
-```
-launchnavigator.navigate(
-  [50.279306, -5.163158],
-  [50.342847, -4.749904],
-  function(){
-      alert("Plugin success"):
-  }, 
-  function(error){
-      alert("Plugin error: "+ error):
-  });
-```
+    launchnavigator.navigate(
+      [50.279306, -5.163158],
+      [50.342847, -4.749904],
+      function(){
+          alert("Plugin success"):
+      },
+      function(error){
+          alert("Plugin error: "+ error):
+      });
 
 Navigate from current location:
 
-```
-launchnavigator.navigate(
-  "London, UK", 
-  null, 
-  function(){
-      alert("Plugin success"):
-  }, 
-  function(error){
-      alert("Plugin error: "+ error):
-  });
-```
+    launchnavigator.navigate(
+      "London, UK",
+      null,
+      function(){
+          alert("Plugin success"):
+      },
+      function(error){
+          alert("Plugin error: "+ error):
+      });
 
 ## Deprecated functions
 
