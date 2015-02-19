@@ -29,7 +29,7 @@ var launchnavigator = {};
 
 /**
  * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
- * If a start location is not also specified, current location will be used for the start.
+ * If a start location is not also specified, current location will be used for the start. User will be requried to hit the enter key.
  *
  * @param {Mixed} destination (required) - destination location to use for navigation.
  * Either:
