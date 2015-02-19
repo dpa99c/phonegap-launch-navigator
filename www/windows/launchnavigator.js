@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015 opadro  (https://github.com/opadro)
  * Copyright (c) 2015 Dave Alden  (http://github.com/dpa99c)
+ * Copyright (c) 2015 Oscar A. Padró (https://github.com/opadro)
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
