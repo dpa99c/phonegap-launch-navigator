@@ -88,7 +88,7 @@ Navigate from current location:
 https://github.com/dpa99c/phonegap-launch-navigator-example
 
 The above link is to an example Cordova 3 project which demonstrates usage of this plugin.
-The examples currently run on Android, iOS, and Windows Phone 8.1 and Windows 8.1 (PC) platforms.
+The examples currently run on Android, iOS, Windows Phone 8.1, and Windows 8.1 (PC) platforms.
 
 ## Deprecated functions
 
