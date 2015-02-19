@@ -11,9 +11,10 @@ This is for Cordova/Phonegap 3+
 * [Using the plugin](#using-the-plugin)
     * [Example usage](#example-usage)
         * [Example project](#example-project)
-    * [Deprecate functions](#deprecated-functions)
+    * [Deprecated functions](#deprecated-functions)
 * [Caveats](#caveats)
     * [Windows](#windows)
+* [Credits](#credits)
 * [License](#license)
  
 # Installing
@@ -104,6 +105,9 @@ These functions are still present in the plugin for backward compatibility, but 
 
 - Bing Maps will require the user to press the enter key to initiate navigation if you don't provide the start location. The Geolocation plugin can be used to find the current location of the user: `org.apache.cordova.geolocation`.
 
+# Credits
+
+Thanks to [opadro](https://github.com/opadro) for Windows implementation
 
 License
 ================
