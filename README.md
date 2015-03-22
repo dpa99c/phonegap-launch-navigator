@@ -14,6 +14,7 @@ This is for Cordova/Phonegap 3+
     * [Deprecated functions](#deprecated-functions)
 * [Caveats](#caveats)
     * [Windows](#windows)
+* [Reporting issues](#reporting-issues)
 * [Credits](#credits)
 * [License](#license)
  
@@ -117,6 +118,29 @@ The Geolocation plugin can be used to find the current location of the user: `or
                 alert("Plugin error: "+ error):
             });
         });
+
+# Reporting issues
+
+Before reporting issues with this plugin, please first do the following:
+
+- Check the existing lists of [open issues](https://github.com/dpa99c/phonegap-launch-navigator/issues) and [closed issues](https://github.com/dpa99c/phonegap-launch-navigator/issues?q=is%3Aissue+is%3Aclosed)
+- Check your target country is supported for turn-by-turn by the native navigation app
+  - [Apple Maps country list for iOS](https://www.apple.com/ios/feature-availability/#maps-turn-by-turn-navigation)
+  - [Google Maps country list for Android](https://support.google.com/gmm/answer/3137767?hl=en-GB)
+  - TBC: Bing Maps country list for Windows
+- If possible, test using the [example project](https://github.com/dpa99c/phonegap-launch-navigator-example) to eliminate the possibility of a bug in your code rather than the plugin.
+
+
+When reporting issues, please give the following information:
+
+- A clear description of the problem
+
+- OS version(s) and device (or emulator) model(s) on which the problem was observed
+
+- Code example of calling the plugin which results in the observed issue
+
+- Example parameters (locations or place names) which results in the observed issue
+
 
 # Credits
 
