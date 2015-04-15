@@ -51,13 +51,15 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         url += destination;
     }
 
+    url += "&saddr=";
     if(start){
-        url += "&saddr=";
         if(typeof(start) == "object"){
             url += start[0]+","+start[1];
         }else{
             url += start;
         }
+    }else{
+        url += "Current Location";
     }
 
     try{

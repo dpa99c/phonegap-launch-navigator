@@ -3,7 +3,7 @@
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="uk.co.workingedge.phonegap.plugin.LaunchNavigator"
-    version="2.1.0">
+    version="2.2.0">
 
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to launch native navigation app for Android (Google Navigator), iOS (Apple Maps), and Windows Phone (Bing Maps) to navigate to a destination.</description>
