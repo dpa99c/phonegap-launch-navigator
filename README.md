@@ -55,10 +55,10 @@ Navigate by place name:
       "London, UK",
       "Manchester, UK",
       function(){
-          alert("Plugin success"):
+          alert("Plugin success");
       },
       function(error){
-          alert("Plugin error: "+ error):
+          alert("Plugin error: "+ error);
       });
 
 Navigate by latitude/longitude:
@@ -67,10 +67,10 @@ Navigate by latitude/longitude:
       [50.279306, -5.163158],
       [50.342847, -4.749904],
       function(){
-          alert("Plugin success"):
+          alert("Plugin success");
       },
       function(error){
-          alert("Plugin error: "+ error):
+          alert("Plugin error: "+ error);
       });
 
 Navigate from current location:
@@ -79,10 +79,10 @@ Navigate from current location:
       "London, UK",
       null,
       function(){
-          alert("Plugin success"):
+          alert("Plugin success");
       },
       function(error){
-          alert("Plugin error: "+ error):
+          alert("Plugin error: "+ error);
       });
 
 ### Example project
@@ -112,10 +112,10 @@ The Geolocation plugin can be used to find the current location of the user: `or
             "London, UK",
             [pos.coords.latitude, pos.coords.longitude],
             function(){
-                alert("Plugin success"):
+                alert("Plugin success");
             },
             function(error){
-                alert("Plugin error: "+ error):
+                alert("Plugin error: "+ error);
             });
         });
 
