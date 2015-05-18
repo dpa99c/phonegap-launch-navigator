@@ -46,6 +46,9 @@
         <param name="ios-package" value="LaunchNavigator"/>
       </feature>
     </config-file>
+    
+    <header-file src="src/ios/LaunchNavigator.h" />
+    <source-file src="src/ios/LaunchNavigator.m" />
   </platform>
 
   <!-- windows -->
