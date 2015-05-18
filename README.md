@@ -163,7 +163,7 @@ Before reporting issues with this plugin, please first do the following:
 - Check your target country is supported for turn-by-turn by the native navigation app
   - [Apple Maps country list for iOS](https://www.apple.com/ios/feature-availability/#maps-turn-by-turn-navigation)
   - [Google Maps country list for Android](https://support.google.com/gmm/answer/3137767?hl=en-GB)
-  - TBC: Bing Maps country list for Windows
+  - [Bing Maps country list for Windows Phone](https://msdn.microsoft.com/en-us/library/dd435699.aspx)
 - If possible, test using the [example project](https://github.com/dpa99c/phonegap-launch-navigator-example) to eliminate the possibility of a bug in your code rather than the plugin.
 
 
