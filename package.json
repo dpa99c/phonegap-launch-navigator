@@ -12,13 +12,15 @@
         "ios",
         "android",
         "windows",
+        "wp8",
         "navigation",
         "navigator"
     ],
     "platforms": [
         "android",
         "ios",
-        "windows"
+        "windows",
+        "wp8"
     ],
     "engines": [
         {
