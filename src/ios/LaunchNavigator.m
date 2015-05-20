@@ -16,7 +16,7 @@ NSLog((@"[LaunchNavigator objc]: " fmt), ##__VA_ARGS__); \
     NSString *destination = [command.arguments objectAtIndex:0];
     NSString *start = [command.arguments objectAtIndex:1];
     BOOL preferGoogleMaps = [[command argumentAtIndex:2] boolValue];
-    NSString *urlScheme = [command.arguments objectAtIndex:3];
+    id urlScheme = [command.arguments objectAtIndex:3];
     NSString *backButtonText = [command.arguments objectAtIndex:4];
     
     if (![destination isKindOfClass:[NSString class]]) {
@@ -38,7 +38,7 @@ NSLog((@"[LaunchNavigator objc]: " fmt), ##__VA_ARGS__); \
    
     
     if (preferGoogleMaps && googleMapsSupported) {
-        if(urlScheme != nil){
+        if(urlScheme != [NSNull null] && urlScheme != nil){
             protocol = @"comgooglemaps-x-callback://?";
             callbackParams = [NSString stringWithFormat:@"%@/%@/%@/%@", @"&x-success=", urlScheme, @"://?resume=true&x-source=", backButtonText];
 
@@ -54,12 +54,13 @@ NSLog((@"[LaunchNavigator objc]: " fmt), ##__VA_ARGS__); \
         protocol = @"http://maps.apple.com/?";
     }
     
-    directionsRequest = [NSString stringWithFormat:@"%@/%@/%@/%@", protocol, @"daddr=", destination, callbackParams];
+    directionsRequest = [NSString stringWithFormat:@"%@%@%@", protocol, @"daddr=", destination];
     
     if(start != nil){
-        directionsRequest = [NSString stringWithFormat:@"%@/%@/%@", directionsRequest, @"&saddr=", start];
+        directionsRequest = [NSString stringWithFormat:@"%@%@%@", directionsRequest, @"&saddr=", start];
     }
 
+    directionsRequest = [NSString stringWithFormat:@"%@%@", directionsRequest, callbackParams];
     
     NSURL *directionsURL = [NSURL URLWithString:directionsRequest];
     [app openURL:directionsURL];
