@@ -40,9 +40,13 @@ For example, to install for the Android platform
 
 ## PhoneGap Build
 
-Add the following xml to your config.xml to use the latest version of this plugin from on [plugins.cordova.io](http://plugins.cordova.io):
+Add the following xml to your config.xml to use the latest version of this plugin from [plugins.cordova.io](http://plugins.cordova.io):
 
     <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="plugins.cordova.io" />
+
+or from [npmjs.com](https://npmjs.com/):
+
+    <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
 
 
 # Using the plugin
