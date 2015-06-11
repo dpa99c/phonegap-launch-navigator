@@ -25,18 +25,18 @@ This Cordova/Phonegap plugin can be used to navigate to a destination using the 
  
 # Installing
 
-## Automatically with CLI / Plugman
-
-Launch Navigator can be installed with [Cordova Plugman](https://github.com/apache/cordova-plugman) and the [PhoneGap CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html).
-
-Here's how to install it with the CLI:
-
+## Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-
-OR
-
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
+
+## Using [Cordova Plugman](https://github.com/apache/cordova-plugman)
+
+    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --plaform=<platform> --project=<project_path> --plugins_dir=plugins
+
+For example, to install for the Android platform
+
+    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --plaform=android --project=platforms/android --plugins_dir=plugins
 
 ## PhoneGap Build
 
