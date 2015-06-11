@@ -32,11 +32,11 @@ This Cordova/Phonegap plugin can be used to navigate to a destination using the 
 
 ## Using [Cordova Plugman](https://github.com/apache/cordova-plugman)
 
-    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --plaform=<platform> --project=<project_path> --plugins_dir=plugins
+    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=<platform> --project=<project_path> --plugins_dir=plugins
 
 For example, to install for the Android platform
 
-    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --plaform=android --project=platforms/android --plugins_dir=plugins
+    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=android --project=platforms/android --plugins_dir=plugins
 
 ## PhoneGap Build
 
