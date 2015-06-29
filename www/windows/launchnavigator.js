@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015 Dave Alden  (http://github.com/dpa99c)
- * Copyright (c) 2015 Oscar A. Padró (https://github.com/opadro)
+ * Copyright (c) 2015 Oscar A. Padrï¿½ (https://github.com/opadro)
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -42,31 +42,50 @@ var launchnavigator = {};
  * @param {Function} successCallback (optional) - A callback which will be called when plugin call is successful.
  * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.
+ * @param {Object} options (optional) - platform-specific options:
+ * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
  */
-launchnavigator.navigate = function(destination, start, successCallback, errorCallback) {
+launchnavigator.navigate = function(destination, start, successCallback, errorCallback, options) {
+    options = options ? options : {};
     var url ="bingmaps:?rtp=";
-    if(start){
-        if(typeof(start) == "object"){
-            url += "pos." + start[0] + "_" + start[1];
+
+    function doNavigate(url){
+        url += "~";
+        if(typeof(destination) == "object"){
+            url += "pos." + destination[0] + "_" + destination[1];
         }else{
-            url += "adr." + start;
+            url += "adr." + destination;
+        }
+
+        try{
+            window.location = url;
+            if(successCallback) successCallback();
+        }catch(e){
+            if(errorCallback) errorCallback(e);
         }
     }
 
-    url += "~";
-    if(typeof(destination) == "object"){
-        url += "pos." + destination[0] + "_" + destination[1];
+    if(start){
+        if(typeof(start) == "object"){
+            url += "pos." + start[0] + "_" + start[1];
+            doNavigate(url);
+        }else{
+            url += "adr." + start;
+            doNavigate(url);
+        }
+    }else if(!options.disableAutoGeolocation && navigator.geolocation){ // if cordova-plugin-geolocation is available/enabled
+        navigator.geolocation.getCurrentPosition(function(position){ // attempt to use current location as start position
+            url += "pos." + position.coords.latitude + "_" + position.coords.longitude;
+            doNavigate(url);
+        },function(error){
+            doNavigate(url);
+        },{
+            maxAge: 60000,
+            timeout: 500
+        });
     }else{
-        url += "adr." + destination;
+        doNavigate(url);
     }
-
-    try{
-        window.location = url;
-        if(successCallback) successCallback();
-    }catch(e){
-        if(errorCallback) errorCallback(e);
-    }
-
 };
 
 
@@ -74,12 +93,12 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
  * Opens navigator app to navigate to given lat/lon destination
  *
  * @param {Number} lat - destination latitude as decimal number
- * @param {Number} lon - destination longitude as decimal number 
+ * @param {Number} lon - destination longitude as decimal number
  * @param {Function} successCallback - The callback which will be called when plugin call is successful.
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * @param {Number} lat_start - start latitude as decimal number
- * @param {Number} lon_start - start longitude as decimal number 
- * This callback function have a string param with the error.     
+ * @param {Number} lon_start - start longitude as decimal number
+ * This callback function have a string param with the error.
  */
 launchnavigator.navigateByLatLon = function (lat, lon, successCallback, errorCallback, lat_start, lon_start) {
     if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByLatLon() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
@@ -98,8 +117,8 @@ launchnavigator.navigateByLatLon = function (lat, lon, successCallback, errorCal
  * @param {Function} successCallback - The callback which will be called when plugin call is successful.
  * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
  * @param {Number} lat_start - start latitude as decimal number
- * @param {Number} lon_start - start longitude as decimal number 
- * This callback function have a string param with the error.     
+ * @param {Number} lon_start - start longitude as decimal number
+ * This callback function have a string param with the error.
  */
 launchnavigator.navigateByPlaceName = function (name, successCallback, errorCallback, lat_start, lon_start) {
     if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByPlaceName() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");

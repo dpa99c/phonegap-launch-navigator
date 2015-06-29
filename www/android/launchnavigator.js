@@ -42,13 +42,26 @@ var launchnavigator = {};
  * @param {Function} successCallback (optional) - A callback which will be called when plugin call is successful.
  * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.
+ * @param {Object} options (optional) - platform-specific options:
+ * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
  */
-launchnavigator.navigate = function(destination, start, successCallback, errorCallback) {
+launchnavigator.navigate = function(destination, start, successCallback, errorCallback, options) {
+    options = options ? options : {};
     var dType, sType = "none";
     if(typeof(destination) == "object"){
         dType = "pos";
     }else{
         dType = "name";
+    }
+
+    function doNavigate(sType){
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            'LaunchNavigator',
+            'navigate',
+            [dType, destination, sType, start]
+        );
     }
 
     if(start){
@@ -57,15 +70,20 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         }else{
             sType = "name";
         }
+        doNavigate(sType);
+    }else if(!options.disableAutoGeolocation && navigator.geolocation){ // if cordova-plugin-geolocation is available/enabled
+        navigator.geolocation.getCurrentPosition(function(position){ // attempt to use current location as start position
+            start = [position.coords.latitude, position.coords.longitude];
+            doNavigate("pos");
+        },function(error){
+            doNavigate(sType); // Fallback to default current location on error
+        },{
+            maxAge: 60000,
+            timeout: 500
+        });
+    }else{
+        doNavigate(sType);
     }
-
-    return cordova.exec(
-        successCallback,
-        errorCallback,
-        'LaunchNavigator',
-        'navigate',
-        [dType, destination, sType, start]);
-
 };
 
     
