@@ -44,6 +44,10 @@ var launchnavigator = {};
  * This callback function have a string param with the error.
  * @param {Object} options (optional) - platform-specific options:
  * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
+ * {String} navigationMode - navigation mode in which to open Google Maps app: "maps" or "turn-by-turn". Defaults to "maps" if not specified.
+ * In "turn-by-turn" mode, transportMode can be specified but start location cannot be specified (defaults to current location).
+ * In "maps" mode, transportMode cannot be specified but start location can be specified.
+ * {String} transportMode - transportation mode for navigation. Can only be specified if navigationMode == "turn-by-turn". Accepted values are "driving", "walking", "bicycling" or "transit". Defaults to "driving" if not specified.
  */
 launchnavigator.navigate = function(destination, start, successCallback, errorCallback, options) {
     options = options ? options : {};
@@ -54,13 +58,21 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         dType = "name";
     }
 
+    var transportMode = null;
+    if(options.transportMode){
+        transportMode = options.transportMode.charAt(0);
+    }
+
+    var turnByTurnMode = options.navigationMode === "turn-by-turn";
+
     function doNavigate(sType){
+
         cordova.exec(
             successCallback,
             errorCallback,
             'LaunchNavigator',
             'navigate',
-            [dType, destination, sType, start]
+            [dType, destination, sType, start, transportMode, turnByTurnMode]
         );
     }
 
@@ -84,41 +96,5 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
     }else{
         doNavigate(sType);
     }
-};
-
-    
-/**
- * Opens navigator app to navigate to given lat/lon destination
- *
- * @param {Number} lat - destination latitude as decimal number
- * @param {Number} lon - destination longitude as decimal number
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * This callback function have a string param with the error.     
- */
-launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByLatLon() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    return cordova.exec(successCallback,
-        errorCallback,
-        'LaunchNavigator',
-        'navigateByLatLon',
-        [lat, lon]);
-};
-
-/**
- * Opens navigator app to navigate to given place name destination
- *
- * @param {String} name - place name to navigate to
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * This callback function have a string param with the error.     
- */
-launchnavigator.navigateByPlaceName = function(name, successCallback, errorCallback) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByPlaceName() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    return cordova.exec(successCallback,
-        errorCallback,
-        'LaunchNavigator',
-        'navigateByPlaceName',
-        [name]);
 };
 module.exports = launchnavigator;

@@ -42,6 +42,8 @@ public class LaunchNavigator extends CordovaPlugin {
 
 	private static final String LOG_TAG = "LaunchNavigator";
 	private static final String NO_GOOGLE_NAVIGATOR = "No Activity found to handle Intent";
+	private static final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
+	private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
 
 	@Override
 	public boolean execute(String action, JSONArray args,
@@ -50,12 +52,10 @@ public class LaunchNavigator extends CordovaPlugin {
 
 		if ("navigate".equals(action)){
 			result = this.navigate(args, callbackContext);
-		}else if ("navigateByLatLon".equals(action)){
-			result = this.navigateByLatLon(args, callbackContext);
-		} else if ("navigateByPlaceName".equals(action)){
-			result = this.navigateByPlaceName(args, callbackContext);
 		}else {
-			Log.e(LOG_TAG, "Invalid action");
+			String msg = "Invalid action";
+			Log.e(LOG_TAG, msg);
+			callbackContext.error(msg);
 			result = false;
 		}
 		
@@ -70,7 +70,7 @@ public class LaunchNavigator extends CordovaPlugin {
 		try {
 			String destination;
 			String start = null;
-			
+
 			String dType = args.getString(0);
 			if(dType.equals("pos")){
 				JSONArray pos = args.getJSONArray(1);
@@ -78,19 +78,23 @@ public class LaunchNavigator extends CordovaPlugin {
 				String dLat = pos.getString(0);
 	        	String dLon = pos.getString(1);
 				if (dLat == null || dLat.length() == 0 || dLon == null || dLon.length() == 0) {
-					Log.e(LOG_TAG, "Expected two non-empty string arguments for destination lat/lon." );
+					String msg = "Expected two non-empty string arguments for destination lat/lon.";
+                	Log.e(LOG_TAG, msg);
+                	callbackContext.error(msg);
 					return false;
 	            }
 				destination = dLat + "," + dLon;
 			}else{
 				String dName = args.getString(1);
 				if (dName == null || dName.length() == 0) {
-					Log.e(LOG_TAG, "Expected non-empty string argument for destination name." );
+					String msg = "Expected non-empty string argument for destination name.";
+					Log.e(LOG_TAG, msg);
+					callbackContext.error(msg);
 		        	return false;
 		        }
 				destination = dName;
 			}
-			
+
 			String sType = args.getString(2);
 			if(sType.equals("pos")){
 				JSONArray pos = args.getJSONArray(3);
@@ -98,96 +102,62 @@ public class LaunchNavigator extends CordovaPlugin {
 				String sLat = pos.getString(0);
 	        	String sLon = pos.getString(1);
 				if (sLat == null || sLat.length() == 0 || sLon == null || sLon.length() == 0) {
-					Log.e(LOG_TAG, "Expected two non-empty string arguments for start lat/lon." );
+					String msg = "Expected two non-empty string arguments for start lat/lon.";
+					Log.e(LOG_TAG, msg);
+					callbackContext.error(msg);
 					return false;
 	            }
 				start = sLat + "," + sLon;
 			}else if(sType.equals("name")){
 				String sName = args.getString(3);
 				if (sName == null || sName.length() == 0) {
-					Log.e(LOG_TAG, "Expected non-empty string argument for start name." );
+					String msg = "Expected non-empty string argument for start name.";
+					Log.e(LOG_TAG, msg);
+					callbackContext.error(msg);
 		        	return false;
 		        }
 				start = sName;
 			}
-			
-			result = this.doNavigate(destination, start, callbackContext);
+			String transportMode = args.getString(4);
+			boolean turnByTurnMode = args.getBoolean(5);
 
-		}catch( JSONException e ) {
-			Log.e(LOG_TAG, "Exception occurred: ".concat(e.getMessage()));
-        	result = false;
-		}
-        return result;
-    }
-	
-	private boolean navigateByLatLon(JSONArray args, CallbackContext callbackContext){
-		boolean result;
-		try {
-			String lat = args.getString(0);
-        	String lon = args.getString(1);
-
-        	if (lat != null && lat.length() > 0 && lon != null && lon.length() > 0) {
-        		result = this.doNavigate(lat +","+ lon, null, callbackContext);
-            } else {
-            	Log.e(LOG_TAG, "Expected two non-empty string arguments for 'lat' and 'lon'." );
-            	result = false;
-            }
-		}catch( JSONException e ) {
-			Log.e(LOG_TAG, "Exception occurred: ".concat(e.getMessage()));
-        	result = false;
-		}
-        return result;
-    }
-	
-	private boolean navigateByPlaceName(JSONArray args, CallbackContext callbackContext){
-		boolean result;
-		try {
-			String name = args.getString(0);
-	    	if (name != null && name.length() > 0) {
-	            result = this.doNavigate(name, null, callbackContext);
-	        } else {
-	        	Log.e(LOG_TAG, "Expected non-empty string argument for 'name'." );
-	        	result = false;
-	        }
-		}catch( JSONException e ) {
-			Log.e(LOG_TAG, "Exception occurred: ".concat(e.getMessage()));
-        	result = false;
-		}
-		
-        return result;
-    }
-	
-	private boolean doNavigate(String destination, String start, CallbackContext callbackContext){
-		boolean result;
-		try {
 			String logMsg = "Navigating to "+destination;
 			String url;
 
-			if(start != null){
-				logMsg += " from " + start;
-				url = "http://maps.google.com/maps?daddr=" + destination + "&saddr=" + start;
+			if(turnByTurnMode){
+				logMsg += " in turn-by-turn mode";
+				url = TURN_BY_TURN_PROTOCOL + "q=" + destination;
+				if(transportMode != null){
+					logMsg += " by transportMode=" + transportMode;
+					url += "&mode=" + transportMode;
+				}
 			}else{
-				logMsg += " from current location";
-				url = "google.navigation:q=" + destination;
+				logMsg += " in maps mode";
+				url = MAPS_PROTOCOL + "daddr=" + destination;
+				if(start != null){
+					logMsg += " from " + start;
+					url += "&saddr=" + start;
+				}else{
+					logMsg += " from current location";
+				}
 			}
 			Log.d(LOG_TAG, logMsg);
-			
-	        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-	        if(start != null){
-	        	intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
-	        }
-	        this.cordova.getActivity().startActivity(intent);
-	        result = true;
-		}catch( Exception e ) {
+
+			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+			if(!turnByTurnMode){
+				intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+			}
+			this.cordova.getActivity().startActivity(intent);
+			result = true;
+		}catch( JSONException e ) {
 			String msg = e.getMessage();
 			if(msg.contains(NO_GOOGLE_NAVIGATOR)){
-				msg = "Google Navigator app is not installed on this device";
+				msg = "Google Maps app is not installed on this device";
 			}
 			Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
 			callbackContext.error(msg);
         	result = false;
 		}
         return result;
-	}
-
+    }
 }
