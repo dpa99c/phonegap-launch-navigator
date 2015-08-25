@@ -43,6 +43,7 @@ var launchnavigator = {};
  * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.
  * @param {Object} options (optional) - platform-specific options:
+ * {String} transportMode - transportation mode for navigation: "driving", "walking" or "transit". Defaults to "driving" if not specified.
  * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
  */
 launchnavigator.navigate = function(destination, start, successCallback, errorCallback, options) {
@@ -55,6 +56,10 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
             url += "pos." + destination[0] + "_" + destination[1];
         }else{
             url += "adr." + destination;
+        }
+
+        if(options.transportMode){
+            url += "&mode=" + options.transportMode.charAt(0);
         }
 
         try{
