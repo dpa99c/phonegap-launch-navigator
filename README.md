@@ -14,9 +14,9 @@ This Cordova/Phonegap plugin can be used to navigate to a destination using the 
 * [Installing](#installing)
 * [Using the plugin](#using-the-plugin)
     * [Example usage](#example-usage)
-        * [Example project](#example-project)
-    * [Deprecated functions](#deprecated-functions)
+    * [Example project](#example-project)
 * [Caveats](#caveats)
+    * [Android](#android)
     * [Windows](#windows)
     * [iOS](#ios)
 * [Reporting issues](#reporting-issues)
@@ -101,7 +101,7 @@ Navigate from current location:
           alert("Plugin error: "+ error);
       });
 
-### Example project
+## Example project
 
 https://github.com/dpa99c/phonegap-launch-navigator-example
 
