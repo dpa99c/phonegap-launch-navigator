@@ -43,6 +43,7 @@
 @property (nonatomic,retain) MKMapItem* dest_mapItem;
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
+- (void) googleMapsAvailable:(CDVInvokedUrlCommand*)command;
 
 
 @end

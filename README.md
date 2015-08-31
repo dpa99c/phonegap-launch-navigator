@@ -195,6 +195,21 @@ For example:
         disableAutoGeolocation: true
     });
 
+The iOS plugin interface also provides the additional function to check if Google Maps is installed and available on the iOS device:
+
+    launchnavigator.isGoogleMapsAvailable(successFn);
+
+Where `successFn` is a callback function which is passed a single parameter which is a boolean indicating if Google Maps is available. For example:
+
+    launchnavigator.isGoogleMapsAvailable(
+      function(available){
+        if(available){
+          alert("Google Maps is available");
+        }else{
+          alert("Google Maps is NOT available");
+        }
+      });
+
 # Reporting issues
 
 Before reporting issues with this plugin, please first do the following:

@@ -62,13 +62,8 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
         return;
     }
     
-    // Acquire a reference to the local UIApplication singleton
-    UIApplication* app = [UIApplication sharedApplication];
-    
-    NSURL *testURL = [NSURL URLWithString:@"comgooglemaps://"];
-    BOOL googleMapsSupported = [app canOpenURL:testURL];
-
-    if (preferGoogleMaps && googleMapsSupported) {
+    BOOL googleMapsAvailable = [self isGoogleMapsAvailable];
+    if (preferGoogleMaps && googleMapsAvailable) {
         [self openGoogleMaps:command];
     } else {
         if (preferGoogleMaps){
@@ -76,6 +71,29 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
         }
         [self openAppleMaps:command];
     }
+}
+
+- (void) googleMapsAvailable:(CDVInvokedUrlCommand*)command;
+{
+    BOOL googleMapsAvailable = [self isGoogleMapsAvailable];
+    CDVPluginResult* pluginResult;
+    if(googleMapsAvailable) {   
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:1];   
+    }
+    else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:0];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (BOOL) isGoogleMapsAvailable
+{
+    // Acquire a reference to the local UIApplication singleton
+    UIApplication* app = [UIApplication sharedApplication];
+    
+    NSURL *testURL = [NSURL URLWithString:@"comgooglemaps://"];
+    BOOL googleMapsAvailable = [app canOpenURL:testURL];
+    return googleMapsAvailable;
 }
 
 - (void) openGoogleMaps:(CDVInvokedUrlCommand*)command;

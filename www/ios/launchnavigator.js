@@ -117,41 +117,16 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
     }else{
         doNavigate(null); // Fallback to native current location if geolocation plugin not found/disabled
     }
-
-
-    
-};
-
-
-    
-/**
- * Opens navigator app to navigate to given lat/lon destination
- * @deprecated
- *
- * @param {Number} lat - destintation latitude as decimal number
- * @param {Number} lon - destintation longitude as decimal number 
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * This callback function have a string param with the error.     
- */
-launchnavigator.navigateByLatLon = function(lat, lon, successCallback, errorCallback) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByLatLon() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    successCallback();
-    window.location = "maps:daddr="+lat+","+lon;
 };
 
 /**
- * Opens navigator app to navigate to given place name destination
- * @deprecated
+ * Checks if the Google Maps app is installed and available on an iOS device.
  *
- * @param {String} name - place name to navigate to
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * This callback function have a string param with the error.     
+ * @return {boolean} true if Google Maps is installed on the current device
  */
-launchnavigator.navigateByPlaceName = function(name, successCallback, errorCallback) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByPlaceName() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    successCallback();
-    window.location = "maps:daddr="+name;
+launchnavigator.isGoogleMapsAvailable = function(successCallback) {
+    var exec = require('cordova/exec');
+    exec(successCallback, 'LaunchNavigator', 'googleMapsAvailable', []);
 };
+
 module.exports = launchnavigator;
