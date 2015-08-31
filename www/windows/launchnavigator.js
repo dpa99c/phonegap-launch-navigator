@@ -93,46 +93,4 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
     }
 };
 
-
-/**
- * Opens navigator app to navigate to given lat/lon destination
- *
- * @param {Number} lat - destination latitude as decimal number
- * @param {Number} lon - destination longitude as decimal number
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * @param {Number} lat_start - start latitude as decimal number
- * @param {Number} lon_start - start longitude as decimal number
- * This callback function have a string param with the error.
- */
-launchnavigator.navigateByLatLon = function (lat, lon, successCallback, errorCallback, lat_start, lon_start) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByLatLon() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    successCallback();
-    var start = "";
-    if (lat_start && lon_start)
-        start = "pos." + lat_start + "_" + lon_start;
-
-    window.open("bingmaps:?rtp=" + start + "~pos." + lat + "_" + lon);
-};
-
-/**
- * Opens navigator app to navigate to given place name destination
- *
- * @param {String} name - place name to navigate to
- * @param {Function} successCallback - The callback which will be called when plugin call is successful.
- * @param {Function} errorCallback - The callback which will be called when plugin encounters an error.
- * @param {Number} lat_start - start latitude as decimal number
- * @param {Number} lon_start - start longitude as decimal number
- * This callback function have a string param with the error.
- */
-launchnavigator.navigateByPlaceName = function (name, successCallback, errorCallback, lat_start, lon_start) {
-    if(typeof(console) != "undefined") console.warn("launchnavigator.navigateByPlaceName() has been deprecated and will be removed in a future version of this plugin. Please use launchnavigator.navigate()");
-    successCallback();
-
-    var start = "";
-    if (lat_start && lon_start)
-        start = "pos." + lat_start + "_" + lon_start;
-
-    window.location = "bingmaps:?rtp=" + start + "~adr." + name;
-};
 module.exports = launchnavigator;
