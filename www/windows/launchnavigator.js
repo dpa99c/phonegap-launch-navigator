@@ -44,7 +44,7 @@ var launchnavigator = {};
  * This callback function have a string param with the error.
  * @param {Object} options (optional) - platform-specific options:
  * {String} transportMode - transportation mode for navigation: "driving", "walking" or "transit". Defaults to "driving" if not specified.
- * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
+ * {Boolean} disableAutoGeolocation - if TRUE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to FALSE.
  */
 launchnavigator.navigate = function(destination, start, successCallback, errorCallback, options) {
     options = options ? options : {};

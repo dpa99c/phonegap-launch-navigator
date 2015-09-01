@@ -44,7 +44,7 @@ var launchnavigator = {};
  * This callback function have a string param with the error.     
  * @param {Object} options (optional) - platform-specific options:
  * {Boolean} preferGoogleMaps - if true, plugin will attempt to launch Google Maps instead of Apple Maps. If Google Maps is not available, it will fall back to Apple Maps.
- * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
+ * {Boolean} disableAutoGeolocation - if TRUE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to FALSE.
  * {String} transportMode - transportation mode for navigation.
  * For Apple Maps, valid options are "driving" or "walking".
  * For Google Maps, valid options are "driving", "walking", "bicycling" or "transit".
@@ -79,28 +79,18 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
 
         if(options.preferGoogleMaps){
             options.backButtonText = options.backButtonText ? options.backButtonText : "Back";
-            exec(successCallback, errorCallback, 'LaunchNavigator', 'navigate', [
-                destination,
-                start,
-                options.enableDebug,
-                options.preferGoogleMaps,
-                options.transportMode,
-                options.urlScheme,
-                options.backButtonText
-            ]);
-        }else{
-            exec(successCallback, errorCallback, 'LaunchNavigator', 'navigate', [
-                destination,
-                start,
-                options.enableDebug,
-                options.preferGoogleMaps,
-                options.transportMode,
-                options.startType,
-                options.destType
-            ]);
         }
-
-
+        exec(successCallback, errorCallback, 'LaunchNavigator', 'navigate', [
+            destination,
+            start,
+            options.enableDebug,
+            options.preferGoogleMaps,
+            options.transportMode,
+            options.startType,
+            options.destType,
+            options.urlScheme,
+            options.backButtonText
+        ]);
     }
 
     if(start){

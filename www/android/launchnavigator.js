@@ -43,7 +43,7 @@ var launchnavigator = {};
  * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
  * This callback function have a string param with the error.
  * @param {Object} options (optional) - platform-specific options:
- * {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
+ * {Boolean} disableAutoGeolocation - if TRUE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to FALSE.
  * {String} navigationMode - navigation mode in which to open Google Maps app: "maps" or "turn-by-turn". Defaults to "maps" if not specified.
  * In "turn-by-turn" mode, transportMode can be specified but start location cannot be specified (defaults to current location).
  * In "maps" mode, transportMode cannot be specified but start location can be specified.

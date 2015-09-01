@@ -102,8 +102,8 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
     NSString *destination = [command.arguments objectAtIndex:0];
     NSString *start = [command.arguments objectAtIndex:1];
     NSString *transportMode = [command.arguments objectAtIndex:4];
-    NSString *urlScheme = [command.arguments objectAtIndex:5];
-    NSString *backButtonText = [command.arguments objectAtIndex:6];
+    NSString *urlScheme = [command.arguments objectAtIndex:7];
+    NSString *backButtonText = [command.arguments objectAtIndex:8];
 
     NSString *directionsRequest = nil;
     NSString *protocol = nil;
