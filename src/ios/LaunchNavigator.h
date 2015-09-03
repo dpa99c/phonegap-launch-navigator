@@ -36,9 +36,11 @@
 
 
 @interface LaunchNavigator :CDVPlugin {
+    CDVInvokedUrlCommand* cordova_command;
     MKMapItem* start_mapItem;
     MKMapItem* dest_mapItem;
 }
+@property (nonatomic,retain) CDVInvokedUrlCommand* cordova_command;
 @property (nonatomic,retain) MKMapItem* start_mapItem;
 @property (nonatomic,retain) MKMapItem* dest_mapItem;
 

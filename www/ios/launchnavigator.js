@@ -99,7 +99,7 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         navigator.geolocation.getCurrentPosition(function(position){ // attempt to use current location as start position
             doNavigate([position.coords.latitude, position.coords.longitude]);
         },function(error){
-            doNavigate(defaultStartLocation); // Fallback to default current location on error
+            doNavigate(null); // Fallback to native current location on error
         },{
             maxAge: 60000,
             timeout: 500
@@ -116,7 +116,7 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
  */
 launchnavigator.isGoogleMapsAvailable = function(successCallback) {
     var exec = require('cordova/exec');
-    exec(successCallback, 'LaunchNavigator', 'googleMapsAvailable', []);
+    exec(successCallback, null, 'LaunchNavigator', 'googleMapsAvailable', []);
 };
 
 module.exports = launchnavigator;
