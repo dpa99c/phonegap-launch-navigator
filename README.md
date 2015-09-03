@@ -9,6 +9,8 @@ This Cordova/Phonegap plugin can be used to navigate to a destination using the 
 
 <sub><a id="fn1">[1]</a>: on iOS, you can choose to [prefer Google Maps](#ios) over Apple Maps if it's installed on the user's device; if not, Apple Maps will be used instead.</sub>
 
+The plugin is registered in the [the Cordova Registry](http://plugins.cordova.io/#/package/uk.co.workingedge.phonegap.plugin.launchnavigator)(Cordova CLI 3/4) and on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) (Cordova CLI 5+) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
+
 ## Contents
 
 * [Installing](#installing)
@@ -40,11 +42,11 @@ For example, to install for the Android platform
 
 ## PhoneGap Build
 
-Add the following xml to your config.xml to use the latest version of this plugin from [plugins.cordova.io](http://plugins.cordova.io):
+Add the following xml to your config.xml to use the latest version of this plugin from [the Cordova Registry](http://plugins.cordova.io/#/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
 
     <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="plugins.cordova.io" />
 
-or from [npmjs.com](https://npmjs.com/):
+or from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
 
     <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
 
