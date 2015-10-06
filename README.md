@@ -9,7 +9,7 @@ This Cordova/Phonegap plugin can be used to navigate to a destination using the 
 
 <sub><a id="fn1">[1]</a>: on iOS, you can choose to [prefer Google Maps](#ios) over Apple Maps if it's installed on the user's device; if not, Apple Maps will be used instead.</sub>
 
-The plugin is registered in the [the Cordova Registry](http://plugins.cordova.io/#/package/uk.co.workingedge.phonegap.plugin.launchnavigator)(Cordova CLI 3/4) and on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) (Cordova CLI 5+) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
+The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
 ## Contents
 
@@ -32,6 +32,8 @@ The plugin is registered in the [the Cordova Registry](http://plugins.cordova.io
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
+**NOTE**: Make sure your Cordova CLI version is 5.0.0+ (check with `cordova -v`). Cordova 4.x and below uses the now deprecated [Cordova Plugin Registry](http://plugins.cordova.io) as its plugin repository, so using a version of Cordova 4.x or below will result in installing an [old version](http://plugins.cordova.io/#/package/uk.co.workingedge.phonegap.plugin.launchnavigator) of this plugin.
+
 ## Using [Cordova Plugman](https://github.com/apache/cordova-plugman)
 
     $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=<platform> --project=<project_path> --plugins_dir=plugins
@@ -42,11 +44,7 @@ For example, to install for the Android platform
 
 ## PhoneGap Build
 
-Add the following xml to your config.xml to use the latest version of this plugin from [the Cordova Registry](http://plugins.cordova.io/#/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
-
-    <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="plugins.cordova.io" />
-
-or from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
+Add the following xml to your config.xml to use the latest version of this plugin from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
 
     <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
 
