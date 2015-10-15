@@ -51,6 +51,12 @@
 
     <framework src="MapKit.framework" />
     <framework src="CoreLocation.framework" />
+
+    <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+      <array>
+        <string>comgooglemaps</string>
+      </array>
+    </config-file>
   </platform>
 
   <!-- windows -->
