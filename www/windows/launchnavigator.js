@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015 Dave Alden  (http://github.com/dpa99c)
- * Copyright (c) 2015 Oscar A. Padr� (https://github.com/opadro)
+ * Copyright (c) 2015 Oscar A. Padró (https://github.com/opadro)
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -63,7 +63,10 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         }
 
         try{
-            window.location = url;
+            //window.location = url;
+            var uri = new Windows.Foundation.Uri(url);
+            Windows.System.Launcher.launchUriAsync(uri);
+
             if(successCallback) successCallback();
         }catch(e){
             if(errorCallback) errorCallback(e);
