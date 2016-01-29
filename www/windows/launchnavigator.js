@@ -63,11 +63,9 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         }
 
         try{
-            //window.location = url;
             var uri = new Windows.Foundation.Uri(url);
-            Windows.System.Launcher.launchUriAsync(uri);
-
-            if(successCallback) successCallback();
+            Windows.System.Launcher.launchUriAsync(uri)
+            .done(successCallback, errorCallback);
         }catch(e){
             if(errorCallback) errorCallback(e);
         }
