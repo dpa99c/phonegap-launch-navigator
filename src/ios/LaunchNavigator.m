@@ -31,16 +31,29 @@
 BOOL debugEnabled = FALSE;
 #define DLog(fmt, ...) { \
 if (debugEnabled) \
-NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
+NSLog((@"LaunchNavigator[objc]: " fmt), ##__VA_ARGS__); \
 }
 
-/**
- * Actual implementation of the interface
- */
+
 @implementation LaunchNavigator
 @synthesize cordova_command;
 @synthesize start_mapItem;
 @synthesize dest_mapItem;
+
+// Navigate JS args
+NSString* destination;
+NSString* destType;
+NSString* destName;
+NSString* start;
+NSString* startType;
+NSString* startName;
+NSString* appName;
+NSString* transportMode;
+BOOL enableDebug;
+
+/**************
+ * Plugin API
+ **************/
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 {
@@ -48,239 +61,303 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
     
     DLog(@"called navigate()");
     
-    NSString* destination = [command.arguments objectAtIndex:0];
-    BOOL enableDebug = [[command argumentAtIndex:2] boolValue];
-    BOOL preferGoogleMaps = [[command argumentAtIndex:3] boolValue];
-    
-    if(enableDebug == TRUE){
-        debugEnabled = enableDebug;
-        DLog(@"Debug mode enabled");
-    }
-    
-    if (![destination isKindOfClass:[NSString class]]) {
-        DLog(@"Error: missing destination argument");
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Invalid arguments"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
-    }
-    
-    BOOL googleMapsAvailable = [self isGoogleMapsAvailable];
-    if (preferGoogleMaps && googleMapsAvailable) {
-        [self openGoogleMaps];
-    } else {
-        if (preferGoogleMaps){
-            DLog(@"Google Maps not supported on this device.");
+    @try {
+        // Get JS arguments
+        destination = [command.arguments objectAtIndex:0];
+        destType = [self.cordova_command.arguments objectAtIndex:1];
+        destName = [self.cordova_command.arguments objectAtIndex:2];
+        start = [self.cordova_command.arguments objectAtIndex:3];
+        startType = [self.cordova_command.arguments objectAtIndex:4];
+        startName = [self.cordova_command.arguments objectAtIndex:5];
+        appName = [self.cordova_command.arguments objectAtIndex:6];
+        transportMode = [self.cordova_command.arguments objectAtIndex:7];
+        enableDebug = [[command argumentAtIndex:8] boolValue];
+
+
+        if(enableDebug == TRUE){
+            debugEnabled = enableDebug;
+            DLog(@"Debug mode enabled");
         }
-        [self openAppleMaps];
-    }
-}
-
-- (void) googleMapsAvailable:(CDVInvokedUrlCommand*)command;
-{
-    BOOL googleMapsAvailable = [self isGoogleMapsAvailable];
-    CDVPluginResult* pluginResult;
-    if(googleMapsAvailable) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:1];
-    }
-    else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:0];
-    }
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
-- (BOOL) isGoogleMapsAvailable
-{
-    // Acquire a reference to the local UIApplication singleton
-    UIApplication* app = [UIApplication sharedApplication];
-    
-    NSURL* testURL = [NSURL URLWithString:@"comgooglemaps://"];
-    BOOL googleMapsAvailable = [app canOpenURL:testURL];
-    return googleMapsAvailable;
-}
-
-- (void) openGoogleMaps
-{
-    CDVPluginResult* pluginResult = nil;
-    NSString* destination = [self.cordova_command.arguments objectAtIndex:0];
-    NSString* start = [self.cordova_command.arguments objectAtIndex:1];
-    NSString* transportMode = [self.cordova_command.arguments objectAtIndex:4];
-    NSString* urlScheme = [self.cordova_command.arguments objectAtIndex:7];
-    NSString* backButtonText = [self.cordova_command.arguments objectAtIndex:8];
-    
-    NSString* directionsRequest = nil;
-    NSString* protocol = nil;
-    NSString* callbackParams = @"";
-    
-    
-    if(![urlScheme isEqual:[NSNull null]]){
-        protocol = @"comgooglemaps-x-callback://?";
-        callbackParams = [NSString stringWithFormat:@"&x-success=%@://?resume=true&x-source=%@", urlScheme, backButtonText];
         
-    }else{
-        protocol = @"comgooglemaps://?";
-    }
-    
-    directionsRequest = [NSString stringWithFormat:@"%@daddr=%@%@", protocol, destination, callbackParams];
-    
-    if(![start isEqual:[NSNull null]]){
-        directionsRequest = [NSString stringWithFormat:@"%@&saddr=%@", directionsRequest, start];
-    }
-    
-    if(![transportMode isEqual:[NSNull null]]){
-        directionsRequest = [NSString stringWithFormat:@"%@&directionsmode=%@", directionsRequest, transportMode];
-    }
-    
-    DLog(@"Opening URL: %@", directionsRequest);
-    
-    NSString* safeString = [directionsRequest stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSURL* directionsURL = [NSURL URLWithString:safeString];
-    
-    // Acquire a reference to the local UIApplication singleton
-    UIApplication* app = [UIApplication sharedApplication];
-    [app openURL:directionsURL];
-    
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
-}
-
-- (void) openAppleMaps
-{
-    // Check for iOS 6
-    Class mapItemClass = [MKMapItem class];
-    if (mapItemClass && [mapItemClass respondsToSelector:@selector(openMapsWithItems:launchOptions:)])
-    {
-        [self setAppleDestination];
-    }else{
-        DLog(@"Error: iOS 5 and below not supported");
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"iOS 5 and below not supported"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
-    }
-}
-
-- (void) setAppleDestination
-{
-    DLog(@"Setting destination location");
-    NSString* destination = [self.cordova_command.arguments objectAtIndex:0];
-    NSString* destType = [self.cordova_command.arguments objectAtIndex:6];
-    CLGeocoder* geocoder = [[CLGeocoder alloc] init];
-    
-    // Create an MKMapItem for destination
-    if ([destType isEqualToString:@"coords"]){
-        DLog(@"Destination location is coordinates");
-        NSArray* coords = [destination componentsSeparatedByString:@","];
-        NSString* lat = [coords objectAtIndex:0];
-        NSString* lon = [coords objectAtIndex:1];
-        CLLocationCoordinate2D dest_coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
-        MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:dest_coordinate addressDictionary:nil];
-        self.dest_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
-        [self.dest_mapItem setName:@"Destination"];
+        if (![destination isKindOfClass:[NSString class]]) {
+            [self sendPluginError:@"Missing destination argument"];
+            return;
+        }
         
-        // Try to retrieve display address for start location via reverse geocoding
-        CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
-        [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
-            if (error == nil && [placemarks count] > 0) {
-                CLPlacemark* geocodedPlacemark = [placemarks lastObject];
-                NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-                DLog(@"Reverse geocoded destination: %@", address);
-                [self.dest_mapItem setName:address];
+        [self getDest:^{
+            if([startType  isEqual: @"none"]){
+                [self launchApp];
+            }else{
+                [self getStart:^{
+                    [self launchApp];
+                }];
             }
-            [self setAppleStart];
-        }];
-    }else{
-        DLog(@"Destination location is place name - geocoding it");
-        [geocoder geocodeAddressString:destination completionHandler:^(NSArray* placemarks, NSError* error) {
             
-            // Convert the CLPlacemark to an MKPlacemark
-            // Note: There's no error checking for a failed geocode
-            CLPlacemark* geocodedPlacemark = [placemarks objectAtIndex:0];
-            MKPlacemark* placemark = [[MKPlacemark alloc]
-                                      initWithCoordinate:geocodedPlacemark.location.coordinate
-                                      addressDictionary:geocodedPlacemark.addressDictionary];
-            
-            // Create a map item for the geocoded address to pass to Maps app
-            self.dest_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
-            DLog(@"Geocoded destination: %@", geocodedPlacemark.name);
-            [self.dest_mapItem setName:geocodedPlacemark.name];
-            [self setAppleStart];
         }];
+    }@catch (NSException *exception) {
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason] callbackId:self.cordova_command.callbackId];
+    }
+    
+
+}
+
+- (void) isAppAvailable:(CDVInvokedUrlCommand*)command;{
+    @try {
+        appName = [self.cordova_command.arguments objectAtIndex:0];
+        CMMapApp app = [self mapAppName_lnToCmm:appName];
+        BOOL result = [CMMapLauncher isMapAppInstalled:app];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:result];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }@catch (NSException *exception) {
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason] callbackId:command.callbackId];
     }
 }
 
-- (void) setAppleStart
-{
-    DLog(@"Setting start location");
-    NSString* start = [self.cordova_command.arguments objectAtIndex:1];
-    NSString* startType = [self.cordova_command.arguments objectAtIndex:5];
-    CLGeocoder* geocoder = [[CLGeocoder alloc] init];
-    
-    // Create an MKMapItem for start
-    if ([startType isEqualToString:@"coords"]){
-        DLog(@"Start location is coordinates");
-        NSArray* coords = [start componentsSeparatedByString:@","];
-        NSString* lat = [coords objectAtIndex:0];
-        NSString* lon = [coords objectAtIndex:1];
-        CLLocationCoordinate2D start_coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
-        MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:start_coordinate addressDictionary:nil];
-        self.start_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
-        [self.start_mapItem setName:@"Start"];
-        
-        // Try to retrieve display address for start location via reverse geocoding
-        CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
-        [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
-            if (error == nil && [placemarks count] > 0) {
-                CLPlacemark* geocodedPlacemark = [placemarks lastObject];
-                NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-                DLog(@"Reverse geocoded start: %@", address);
-                [self.start_mapItem setName:address];
-            }
-            [self invokeAppleMaps];
-        }];
-    }else if ([startType isEqualToString:@"name"]){
-        DLog(@"Start location is place name - geocoding it");
-        [geocoder geocodeAddressString:start completionHandler:^(NSArray* placemarks, NSError* error) {
-            
-            // Convert the CLPlacemark to an MKPlacemark
-            // Note: There's no error checking for a failed geocode
-            CLPlacemark* geocodedPlacemark = [placemarks objectAtIndex:0];
-            MKPlacemark* placemark = [[MKPlacemark alloc]
-                                      initWithCoordinate:geocodedPlacemark.location.coordinate
-                                      addressDictionary:geocodedPlacemark.addressDictionary];
-            
-            // Create a map item for the geocoded address to pass to Maps app
-            self.start_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
-            DLog(@"Geocoded start: %@", geocodedPlacemark.name);
-            [self.start_mapItem setName:geocodedPlacemark.name];
-            [self invokeAppleMaps];
-        }];
-    }else {
-        // Get the "Current User Location" MKMapItem
-        DLog(@"No start location specified so using current position");
-        self.start_mapItem = [MKMapItem mapItemForCurrentLocation];
-        [self invokeAppleMaps];
+- (void) availableApps:(CDVInvokedUrlCommand*)command;{
+    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex"];
+    NSMutableDictionary* results = [NSMutableDictionary new];
+    @try {
+        for(id object in supportedApps){
+            NSString* appName = object;
+            CMMapApp app = [self mapAppName_lnToCmm:appName];
+            BOOL result = [CMMapLauncher isMapAppInstalled:app];
+            [results setObject:[NSNumber numberWithBool:result] forKey:appName];
+        }
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }@catch (NSException *exception) {
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason] callbackId:command.callbackId];
     }
 }
 
-- (void) invokeAppleMaps
-{
-    NSString* transportMode = [self.cordova_command.arguments objectAtIndex:4];
+/**************
+ * Apps
+ **************/
+
+- (void) launchApp{
+    CMMapApp app = [self mapAppName_lnToCmm:appName];
     
-    // Set the directions mode
-    NSDictionary* launchOptions = nil;
-    if (transportMode != (id)[NSNull null] && [transportMode isEqualToString:@"walking"]){
-        DLog(@"Transport mode is 'walking'");
-        launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeWalking};
-    }else{
-        DLog(@"Transport mode is 'driving'");
-        launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeDriving};
+    NSString* directionsMode = MKLaunchOptionsDirectionsModeDriving;
+    if([transportMode isEqual: @"walking"]){
+        directionsMode = MKLaunchOptionsDirectionsModeWalking;
+    }else if([transportMode isEqual: @"transit"]){
+        directionsMode = MKLaunchOptionsDirectionsModeTransit;
     }
     
-    // Pass the start and destination map items and launchOptions to the Maps app
-    DLog(@"Invoking Apple Maps...");
-    [MKMapItem openMapsWithItems:@[self.start_mapItem, self.dest_mapItem] launchOptions:launchOptions];
+    CMMapPoint* start_cmm;
+    if([startType  isEqual: @"none"]){
+        start_cmm = [CMMapPoint currentLocation];
+    }else{
+        start_cmm = [CMMapPoint
+                     mapPointWithMapItem:start_mapItem
+                     name:start_mapItem.name
+                     address:[self getAddressFromPlacemark:start_mapItem.placemark]
+                     coordinate:start_mapItem.placemark.coordinate];
+    }
     
+    CMMapPoint* dest_cmm = [CMMapPoint
+                             mapPointWithMapItem:dest_mapItem
+                             name:dest_mapItem.name
+                             address:[self getAddressFromPlacemark:dest_mapItem.placemark]
+                             coordinate:dest_mapItem.placemark.coordinate];
+
+    
+    [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:directionsMode];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
 }
+
+/**************
+ * Utilities
+ **************/
+
+- (void) getDest:(void (^)(void))completeBlock{
+    if([destType isEqual: @"coords"]){
+        [self reverseGeocode:destination success:^(MKMapItem* destItem) {
+            if(destName != nil){
+                [destItem setName:destName];
+            }else{
+                [destItem setName:destItem.placemark.name];
+            }
+            dest_mapItem = destItem;
+            completeBlock();
+        } fail:^(NSString* failMsg) {
+            [self sendPluginError:failMsg];
+        }];
+    }else{
+        [self geocode:destination success:^(MKMapItem* destItem) {
+            if(destName != nil){
+                [destItem setName:destName];
+            }else{
+                [destItem setName:destItem.placemark.name];
+            }
+            dest_mapItem = destItem;
+            completeBlock();
+        }];
+    }
+    
+}
+
+- (void) getStart:(void (^)(void))completeBlock{
+    if([startType isEqual: @"none"]){
+        MKMapItem* startItem = [MKMapItem mapItemForCurrentLocation];
+        start_mapItem = startItem;
+        completeBlock();
+    }else if([startType isEqual: @"coords"]){
+        [self reverseGeocode:start success:^(MKMapItem* startItem) {
+            if(startName != nil){
+                [startItem setName:startName];
+            }else{
+                [startItem setName:startItem.placemark.name];
+            }
+            start_mapItem = startItem;
+            completeBlock();
+        } fail:^(NSString* failMsg) {
+            [self sendPluginError:failMsg];
+        }];
+    }else{
+        [self geocode:start success:^(MKMapItem* startItem) {
+            if(startName != nil){
+                [startItem setName:startName];
+            }else{
+                [startItem setName:startItem.placemark.name];
+            }
+            start_mapItem = startItem;
+            completeBlock();
+        }];
+    }
+}
+
+
+- (void) sendPluginError:(NSString*)errorMessage{
+    DLog("ERROR: %@",errorMessage);
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
+}
+
+- (NSString*) mapAppName_cmmToLn:(CMMapApp)cmmAppName{
+    NSString* lnName = nil;
+    
+    switch(cmmAppName){
+        case CMMapAppAppleMaps:
+            lnName = @"apple_maps";
+            break;
+        case CMMapAppCitymapper:
+            lnName = @"citymapper";
+            break;
+        case CMMapAppGoogleMaps:
+            lnName = @"google_maps";
+            break;
+        case CMMapAppNavigon:
+            lnName = @"navigon";
+            break;
+        case CMMapAppTheTransitApp:
+            lnName = @"transit_app";
+            break;
+        case CMMapAppTomTom:
+            lnName = @"tomtom";
+            break;
+        case CMMapAppUber:
+            lnName = @"uber";
+            break;
+        case CMMapAppWaze:
+            lnName = @"waze";
+            break;
+        case CMMapAppYandex:
+            lnName = @"yandex";
+            break;
+        default:
+            [NSException raise:NSGenericException format:@"Unexpected CMMapApp name"];
+        
+    }
+    return lnName;
+}
+
+- (CMMapApp) mapAppName_lnToCmm:(NSString*)lnName{
+    CMMapApp cmmName;
+    
+    if([lnName isEqual: @"apple_maps"]){
+        cmmName = CMMapAppAppleMaps;
+    }else if([lnName isEqual: @"citymapper"]){
+        cmmName = CMMapAppCitymapper;
+    }else if([lnName isEqual: @"google_maps"]){
+        cmmName = CMMapAppGoogleMaps;
+    }else if([lnName isEqual: @"navigon"]){
+        cmmName = CMMapAppNavigon;
+    }else if([lnName isEqual: @"transit_app"]){
+        cmmName = CMMapAppTheTransitApp;
+    }else if([lnName isEqual: @"tomtom"]){
+        cmmName = CMMapAppTomTom;
+    }else if([lnName isEqual: @"uber"]){
+        cmmName = CMMapAppUber;
+    }else if([lnName isEqual: @"waze"]){
+        cmmName = CMMapAppWaze;
+    }else if([lnName isEqual: @"yandex"]){
+        cmmName = CMMapAppYandex;
+    }else{
+        [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
+    }
+    return cmmName;
+}
+
+
+// Get coords given address
+- (void) geocode:(NSString*)address
+      success:(void (^)(MKMapItem* resultItem))successBlock
+{
+    CLGeocoder* geocoder = [[CLGeocoder alloc] init];
+
+    DLog(@"Geocoding address: %@",address);
+    [geocoder geocodeAddressString:address completionHandler:^(NSArray* placemarks, NSError* error) {
+        
+        // Convert the CLPlacemark to an MKPlacemark
+        // Note: There's no error checking for a failed geocode
+        CLPlacemark* geocodedPlacemark = [placemarks objectAtIndex:0];
+        DLog(@"Geocoded name: %@", geocodedPlacemark.name);
+        
+        MKPlacemark* placemark = [[MKPlacemark alloc]
+                                  initWithCoordinate:geocodedPlacemark.location.coordinate
+                                  addressDictionary:geocodedPlacemark.addressDictionary];
+        
+        MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
+        
+        successBlock(mapItem);
+    }];
+}
+
+// Get address given coords
+- (void) reverseGeocode:(NSString*)coords
+    success:(void (^)(MKMapItem* resultItem))successBlock
+    fail:(void (^)(NSString* failMsg))failBlock
+{
+    CLGeocoder* geocoder = [[CLGeocoder alloc] init];
+    
+    NSArray* latlon = [coords componentsSeparatedByString:@","];
+    NSString* lat = [latlon objectAtIndex:0];
+    NSString* lon = [latlon objectAtIndex:1];
+    CLLocationCoordinate2D start_coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
+    MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:start_coordinate addressDictionary:nil];
+    MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
+    
+    // Try to retrieve address via reverse geocoding
+    DLog(@"Reverse geocoding coords: %@", coords);
+    CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
+    [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
+        if (error == nil && [placemarks count] > 0) {
+            CLPlacemark* geocodedPlacemark = [placemarks lastObject];
+            NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
+            DLog(@"Reverse geocoded address: %@", address);
+            [mapItem setName:address];
+            
+            successBlock(mapItem);
+        }else if (error != nil){
+            failBlock([error localizedDescription]);
+        }else{
+            failBlock(@"No address found at given coordinates");
+        }
+    }];
+}
+
 
 - (NSString*) getAddressFromPlacemark:(CLPlacemark*)placemark;
 {
@@ -291,27 +368,27 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
     }
     
     if (placemark.thoroughfare){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.thoroughfare];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.thoroughfare];
     }
     
     if (placemark.locality){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.locality];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.locality];
     }
     
     if (placemark.subAdministrativeArea){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.subAdministrativeArea];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.subAdministrativeArea];
     }
     
     if (placemark.administrativeArea){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.administrativeArea];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.administrativeArea];
     }
     
     if (placemark.postalCode){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.postalCode];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.postalCode];
     }
     
     if (placemark.country){
-        address = [NSString stringWithFormat:@"%@%@, ", address, placemark.country];
+            address = [NSString stringWithFormat:@"%@%@, ", address, placemark.country];
     }
     
     return address;

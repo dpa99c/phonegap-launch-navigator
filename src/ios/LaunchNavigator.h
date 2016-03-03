@@ -33,6 +33,7 @@
 #endif
 
 #import <MapKit/MapKit.h>
+#import "CMMapLauncher.h"
 
 
 @interface LaunchNavigator :CDVPlugin {
@@ -45,7 +46,8 @@
 @property (nonatomic,retain) MKMapItem* dest_mapItem;
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
-- (void) googleMapsAvailable:(CDVInvokedUrlCommand*)command;
+- (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
+- (void) availableApps:(CDVInvokedUrlCommand*)command;
 
 
 @end
