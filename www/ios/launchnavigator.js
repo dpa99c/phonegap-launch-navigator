@@ -99,12 +99,14 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
         navigator.geolocation.getCurrentPosition(function(position){ // attempt to use current location as start position
             doNavigate([position.coords.latitude, position.coords.longitude]);
         },function(error){
+            options.startType = "none";
             doNavigate(null); // Fallback to native current location on error
         },{
             maxAge: 60000,
             timeout: 500
         });
     }else{
+        options.startType = "none";
         doNavigate(null); // Fallback to native current location if geolocation plugin not found/disabled
     }
 };
