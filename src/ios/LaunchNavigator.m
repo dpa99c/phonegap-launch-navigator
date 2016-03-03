@@ -235,7 +235,7 @@ NSLog((@"[objc]: " fmt), ##__VA_ARGS__); \
             }
             [self invokeAppleMaps];
         }];
-    }else if ([startType isEqualToString:@"address"]){
+    }else if ([startType isEqualToString:@"name"]){
         DLog(@"Start location is place name - geocoding it");
         [geocoder geocodeAddressString:start completionHandler:^(NSArray* placemarks, NSError* error) {
             
