@@ -19,10 +19,14 @@
   <license>MIT</license>
   <keywords>cordova,phonegap,ios,android,windows,navigation,navigator</keywords>
 
+  <js-module src="www/common.js" name="Common">
+    <clobbers target="launchnavigator" />
+  </js-module>
+
   <!-- android -->
   <platform name="android">
     <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
-      <clobbers target="launchnavigator" />
+      <merges target="launchnavigator" />
     </js-module>
 
     <config-file target="res/xml/config.xml" parent="/*">
@@ -37,7 +41,7 @@
   <!-- ios -->
   <platform name="ios">
     <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
-      <clobbers target="launchnavigator" />
+      <merges target="launchnavigator" />
     </js-module>
 
     <config-file target="config.xml" parent="/*">
@@ -45,7 +49,9 @@
         <param name="ios-package" value="LaunchNavigator"/>
       </feature>
     </config-file>
-    
+
+    <header-file src="src/ios/CMMapLauncher.h" />
+    <source-file src="src/ios/CMMapLauncher.m" />
     <header-file src="src/ios/LaunchNavigator.h" />
     <source-file src="src/ios/LaunchNavigator.m" />
 
@@ -54,7 +60,14 @@
 
     <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
       <array>
+        <string>citymapper</string>
         <string>comgooglemaps</string>
+        <string>navigon</string>
+        <string>transit</string>
+        <string>waze</string>
+        <string>yandexnavi</string>
+        <string>uber</string>
+        <string>tomtomhome</string>
       </array>
     </config-file>
   </platform>
@@ -62,14 +75,14 @@
   <!-- windows -->
   <platform name="windows">
     <js-module src="www/windows/launchnavigator.js" name="LaunchNavigator">
-      <clobbers target="launchnavigator" />
+      <merges target="launchnavigator" />
     </js-module>     
   </platform>
 
   <!-- wp8 -->
   <platform name="wp8">
     <js-module src="www/wp8/launchnavigator.js" name="LaunchNavigator">
-      <clobbers target="launchnavigator" />
+      <merges target="launchnavigator" />
     </js-module>     
   </platform>
 
