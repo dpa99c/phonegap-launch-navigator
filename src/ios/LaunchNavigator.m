@@ -77,6 +77,14 @@ BOOL enableDebug;
         if(enableDebug == TRUE){
             debugEnabled = enableDebug;
             DLog(@"Debug mode enabled");
+            DLog(@"destination: %@", destination);
+            DLog(@"destType: %@", destType);
+            DLog(@"destName: %@", destName);
+            DLog(@"start: %@", start);
+            DLog(@"startType: %@", startType);
+            DLog(@"startName: %@", startName);
+            DLog(@"appName: %@", appName);
+            DLog(@"transportMode: %@", transportMode);
         }
         
         if (![destination isKindOfClass:[NSString class]]) {

@@ -158,7 +158,7 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
 /**
  Gives an MKMapItem corresponding to this map point object.
  */
-@property (nonatomic, copy) MKMapItem *MKMapItem;
+@property (nonatomic, retain) MKMapItem *MKMapItem;
 
 /**
  Creates a new CMMapPoint that signifies the current location.
