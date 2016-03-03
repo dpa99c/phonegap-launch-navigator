@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2014 Dave Alden  (http://github.com/dpa99c)
  * Copyright (c) 2014 Working Edge Ltd. (http://www.workingedge.co.uk)
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -10,10 +10,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- *  
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,9 +22,9 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
- *  
+ *
  */
-    
+
 var launchnavigator = {};
 
 /**
@@ -88,13 +88,13 @@ launchnavigator.navigate = function(destination, start, successCallback, errorCa
             start = [position.coords.latitude, position.coords.longitude];
             doNavigate("pos");
         },function(error){
-            doNavigate(sType); // Fallback to default current location on error
+            doNavigate("none"); // Fallback to default current location on error
         },{
             maxAge: 60000,
             timeout: 500
         });
     }else{
-        doNavigate(sType);
+        doNavigate("none");
     }
 };
 module.exports = launchnavigator;
