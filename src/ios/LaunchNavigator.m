@@ -40,6 +40,9 @@ NSLog((@"LaunchNavigator[objc]: " fmt), ##__VA_ARGS__); \
 @synthesize start_mapItem;
 @synthesize dest_mapItem;
 
+MKPlacemark* start_placemark;
+MKPlacemark* dest_placemark;
+
 // Navigate JS args
 NSString* destination;
 NSString* destType;
@@ -159,15 +162,15 @@ BOOL enableDebug;
         start_cmm = [CMMapPoint
                      mapPointWithMapItem:start_mapItem
                      name:start_mapItem.name
-                     address:[self getAddressFromPlacemark:start_mapItem.placemark]
-                     coordinate:start_mapItem.placemark.coordinate];
+                     address:[self getAddressFromPlacemark:start_placemark]
+                     coordinate:start_placemark.coordinate];
     }
     
     CMMapPoint* dest_cmm = [CMMapPoint
                              mapPointWithMapItem:dest_mapItem
                              name:dest_mapItem.name
-                             address:[self getAddressFromPlacemark:dest_mapItem.placemark]
-                             coordinate:dest_mapItem.placemark.coordinate];
+                             address:[self getAddressFromPlacemark:dest_placemark]
+                             coordinate:dest_placemark.coordinate];
 
     
     [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:directionsMode];
@@ -181,25 +184,27 @@ BOOL enableDebug;
 
 - (void) getDest:(void (^)(void))completeBlock{
     if([destType isEqual: @"coords"]){
-        [self reverseGeocode:destination success:^(MKMapItem* destItem) {
+        [self reverseGeocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
+            dest_mapItem = destItem;
+            dest_placemark = destPlacemark;
             if(destName != nil){
                 [destItem setName:destName];
             }else{
-                [destItem setName:destItem.placemark.name];
+                [destItem setName:destPlacemark.name];
             }
-            dest_mapItem = destItem;
             completeBlock();
         } fail:^(NSString* failMsg) {
             [self sendPluginError:failMsg];
         }];
     }else{
-        [self geocode:destination success:^(MKMapItem* destItem) {
+        [self geocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
+            dest_mapItem = destItem;
+            dest_placemark = destPlacemark;
             if(destName != nil){
                 [destItem setName:destName];
             }else{
-                [destItem setName:destItem.placemark.name];
+                [destItem setName:destPlacemark.name];
             }
-            dest_mapItem = destItem;
             completeBlock();
         }];
     }
@@ -212,25 +217,27 @@ BOOL enableDebug;
         start_mapItem = startItem;
         completeBlock();
     }else if([startType isEqual: @"coords"]){
-        [self reverseGeocode:start success:^(MKMapItem* startItem) {
+        [self reverseGeocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+            start_placemark = startPlacemark;
+            start_mapItem = startItem;
             if(startName != nil){
                 [startItem setName:startName];
             }else{
-                [startItem setName:startItem.placemark.name];
+                [startItem setName:startPlacemark.name];
             }
-            start_mapItem = startItem;
             completeBlock();
         } fail:^(NSString* failMsg) {
             [self sendPluginError:failMsg];
         }];
     }else{
-        [self geocode:start success:^(MKMapItem* startItem) {
+        [self geocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+            start_placemark = startPlacemark;
+            start_mapItem = startItem;
             if(startName != nil){
                 [startItem setName:startName];
             }else{
-                [startItem setName:startItem.placemark.name];
+                [startItem setName:startPlacemark.name];
             }
-            start_mapItem = startItem;
             completeBlock();
         }];
     }
@@ -311,7 +318,7 @@ BOOL enableDebug;
 
 // Get coords given address
 - (void) geocode:(NSString*)address
-      success:(void (^)(MKMapItem* resultItem))successBlock
+      success:(void (^)(MKMapItem* resultItem, MKPlacemark* placemark))successBlock
 {
     CLGeocoder* geocoder = [[CLGeocoder alloc] init];
 
@@ -329,13 +336,13 @@ BOOL enableDebug;
         
         MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
         
-        successBlock(mapItem);
+        successBlock(mapItem, placemark);
     }];
 }
 
 // Get address given coords
 - (void) reverseGeocode:(NSString*)coords
-    success:(void (^)(MKMapItem* resultItem))successBlock
+    success:(void (^)(MKMapItem* resultItem, MKPlacemark* placemark))successBlock
     fail:(void (^)(NSString* failMsg))failBlock
 {
     CLGeocoder* geocoder = [[CLGeocoder alloc] init];
@@ -357,7 +364,11 @@ BOOL enableDebug;
             DLog(@"Reverse geocoded address: %@", address);
             [mapItem setName:address];
             
-            successBlock(mapItem);
+            MKPlacemark* placemark = [[MKPlacemark alloc]
+                                      initWithCoordinate:geocodedPlacemark.location.coordinate
+                                      addressDictionary:geocodedPlacemark.addressDictionary];
+            
+            successBlock(mapItem, placemark);
         }else if (error != nil){
             failBlock([error localizedDescription]);
         }else{
