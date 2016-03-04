@@ -72,8 +72,8 @@ ln.v3.navigate = function(destination, options) {
     if(!destination) throw new Error("destination must be given as an {array} of lat/lon coordinates or a placename {string}");
 
     // Set defaults
-    options.app = options.app ? options.app : ln.v3.APP.APPLE_MAPS;
-    options.transportMode = options.transportMode ? options.transportMode : ln.v3.TRANSPORT_MODE.DRIVING;
+    options.app = options.app ? options.app : launchnavigator.APP.APPLE_MAPS;
+    options.transportMode = options.transportMode ? options.transportMode : launchnavigator.TRANSPORT_MODE.DRIVING;
     options.enableDebug = options.enableDebug ? options.enableDebug : false;
 
     // Process options
@@ -86,7 +86,7 @@ ln.v3.navigate = function(destination, options) {
 
     if(!options.start){
         options.startType = "none";
-    }else if(typeof(start) == "object"){
+    }else if(typeof(options.start) == "object"){
         options.start = options.start[0]+","+options.start[1];
         options.startType = "coords";
     }else{
@@ -114,7 +114,7 @@ ln.v3.navigate = function(destination, options) {
  * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
  */
 ln.v3.isAppAvailable = function(appName, success, error){
-    if(!appName || !ln.v3.APP[appName]) throw new Error (appName + " is not a supported navigation app on iOS - please use a ln.APP constant");
+    if(!appName || !launchnavigator.APP[appName]) throw new Error (appName + " is not a supported navigation app on iOS - please use a ln.APP constant");
 
     cordova.exec(success, error, 'LaunchNavigator', 'isAppAvailable', [appName]);
 };
@@ -179,7 +179,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
 
     // Map to and call v3 API
     ln.v3.navigate(destination, {
-        app: options.preferGoogleMaps ? ln.v3.APP.GOOGLE_MAPS : ln.v3.APP.APPLE_MAPS,
+        app: options.preferGoogleMaps ? launchnavigator.APP.GOOGLE_MAPS : launchnavigator.APP.APPLE_MAPS,
         start: options.start,
         transportMode: options.transportMode,
         enableDebug: options.enableDebug
@@ -194,7 +194,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
  * @return {boolean} true if Google Maps is installed on the current device
  */
 ln.v2.isGoogleMapsAvailable = function(successCallback) {
-    ln.v3.isAppAvailable(ln.v3.APP.GOOGLE_MAPS, successCallback);
+    ln.v3.isAppAvailable(launchnavigator.APP.GOOGLE_MAPS, successCallback);
 };
 
 
