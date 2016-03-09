@@ -25,7 +25,8 @@
  *  
  */
 
-var ln = {};
+var ln = {},
+    common = launchnavigator;
 
 
 /*********
@@ -41,11 +42,12 @@ ln.v3 = {};
  * Either:
  * - a {string} containing the address. e.g. "Buckingham Palace, London"
  * - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
- * 
+ *
  * @param {object} options (optional) - optional parameters:
+ *
  * - {function} successCallback - A callback to invoke when the navigation app is successfully launched.
  *
- * - {function} errorCallback (optional) - A callback to invoke if an error is encountered while launching the app.
+ * - {function} errorCallback - A callback to invoke if an error is encountered while launching the app.
  * A single string argument containing the error message will be passed in.
  *
  * - {string} app - name of the navigation app to use for directions.
@@ -68,13 +70,15 @@ ln.v3 = {};
 ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
 
+    // Set defaults
+    options.app = options.app ? options.app : common.APP.APPLE_MAPS;
+    options.transportMode = options.transportMode ? options.transportMode : common.TRANSPORT_MODE.DRIVING;
+    options.enableDebug = options.enableDebug ? !!options.enableDebug : false;
+
     // Input validation
     if(!destination) throw new Error("destination must be given as an {array} of lat/lon coordinates or a placename {string}");
-
-    // Set defaults
-    options.app = options.app ? options.app : launchnavigator.APP.APPLE_MAPS;
-    options.transportMode = options.transportMode ? options.transportMode : launchnavigator.TRANSPORT_MODE.DRIVING;
-    options.enableDebug = options.enableDebug ? options.enableDebug : false;
+    common.util.validateApp(options.app);
+    common.util.validateTransportMode(options.transportMode);
 
     // Process options
     if(typeof(destination) == "object"){
@@ -114,8 +118,7 @@ ln.v3.navigate = function(destination, options) {
  * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
  */
 ln.v3.isAppAvailable = function(appName, success, error){
-    if(!appName || !launchnavigator.APP[appName]) throw new Error (appName + " is not a supported navigation app on iOS - please use a ln.APP constant");
-
+    common.util.validateApp(appName);
     cordova.exec(success, error, 'LaunchNavigator', 'isAppAvailable', [appName]);
 };
 
@@ -167,20 +170,12 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
     options.preferGoogleMaps = options.preferGoogleMaps ? options.preferGoogleMaps : false;
     options.enableDebug = options.enableDebug ? options.enableDebug : false;
 
-    cordova.exec(options.successCallback, options.errorCallback, 'LaunchNavigator', 'navigate', [
-        destination,
-        options.destType,
-        options.app,
-        options.start,
-        options.startType,
-        options.transportMode,
-        options.enableDebug
-    ]);
-
     // Map to and call v3 API
     ln.v3.navigate(destination, {
-        app: options.preferGoogleMaps ? launchnavigator.APP.GOOGLE_MAPS : launchnavigator.APP.APPLE_MAPS,
-        start: options.start,
+        successCallback: successCallback,
+        errorCallback: errorCallback,
+        app: options.preferGoogleMaps ? common.APP.GOOGLE_MAPS : common.APP.APPLE_MAPS,
+        start: start,
         transportMode: options.transportMode,
         enableDebug: options.enableDebug
     });
@@ -194,7 +189,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
  * @return {boolean} true if Google Maps is installed on the current device
  */
 ln.v2.isGoogleMapsAvailable = function(successCallback) {
-    ln.v3.isAppAvailable(launchnavigator.APP.GOOGLE_MAPS, successCallback);
+    ln.v3.isAppAvailable(ln.v3.APP.GOOGLE_MAPS, successCallback);
 };
 
 
@@ -207,7 +202,7 @@ ln.v2.isGoogleMapsAvailable = function(successCallback) {
  * Delegation shim to determine by arguments if API call is v2 or v3 and delegate accordingly.
  */
 ln.navigate = function(){
-    if(arguments.length >= 2 && (typeof(arguments[1] == "undefined" || typeof(arguments[1] == "object")))){
+    if(arguments.length <= 2 && (typeof(arguments[1] == "undefined" || typeof(arguments[1] == "object")))){
         ln.v3.navigate.apply(this, arguments);
     }else{
         ln.v2.navigate.apply(this, arguments);
