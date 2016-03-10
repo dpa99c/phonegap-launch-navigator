@@ -60,13 +60,15 @@ import java.util.Map;
 public class LaunchNavigator extends CordovaPlugin {
 
 	private static final String LOG_TAG = "LaunchNavigator";
-	private static final String NO_GOOGLE_MAPS = "No Activity found to handle Intent";
+	private static final String NO_APP_FOUND = "No Activity found to handle Intent";
 	private static final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
 	private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
 
+    private static final String UNSPECIFIED = "none"; // App is unspecified so use native chooser
     private static final String GOOGLE_MAPS = "google_maps";
     private static final String GOOGLE_MAPS_PACKAGE_ID = "com.google.android.apps.maps";
-    private static final String UNSPECIFIED = "none"; // App is unspecified so use native chooser
+    private static final String CITYMAPPER = "citymapper";
+
 
 	private static final String GEO_URI = "geo:";
 
@@ -84,12 +86,23 @@ public class LaunchNavigator extends CordovaPlugin {
 	}
 
 	@Override
+    /**
+     * args[0] - app
+     * args[1] - dType
+     * args[2] - dest
+     * args[3] - destNickname
+     * args[4] - sType
+     * args[5] - start
+     * args[6] - startNickname
+     * args[7] - transportMode
+     * args[8] - launchMode
+     * args[9] - enableDebug
+     */
 	public boolean execute(String action, JSONArray args,
 		CallbackContext callbackContext) throws JSONException {
-		boolean result = true;
     try {
         if ("navigate".equals(action)) {
-            result = this.navigate(args, callbackContext);
+            this.navigate(args, callbackContext);
         } else if ("discoverSupportedApps".equals(action)) {
             this.discoverSupportedApps(args, callbackContext);
         } else if ("availableApps".equals(action)) {
@@ -100,15 +113,14 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = "Invalid action";
             Log.e(LOG_TAG, msg);
             callbackContext.error(msg);
-
+            return false;
         }
     }catch(Exception e){
         String msg = "Exception occurred: "+e.getMessage();
         Log.e(LOG_TAG, msg);
         callbackContext.error(msg);
-        result = false;
     }
-		return result;
+		return true;
 	}
 
     /*
@@ -142,24 +154,24 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
-    private boolean navigate(JSONArray args, CallbackContext callbackContext) throws Exception{
-        boolean result;
+    private void navigate(JSONArray args, CallbackContext callbackContext) throws Exception{
         String appName = args.getString(0);
         String launchMode = args.getString(8);
 
         if(appName.equals(GOOGLE_MAPS) && !launchMode.equals("geo")){
-            result = launchGoogleMaps(args, callbackContext);
+            launchGoogleMaps(args, callbackContext);
+        }else if(appName.equals(CITYMAPPER)){
+            launchCitymapper(args, callbackContext);
         }else{
-            result = launchApp(args, callbackContext);
+            launchApp(args, callbackContext);
         }
-        return result;
     }
 
 
     /*
      * Internal functions
      */
-    private boolean launchApp(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private void launchApp(JSONArray args, CallbackContext callbackContext) throws Exception{
         String appName = args.getString(0);
         String dType = args.getString(1);
         String dNickName = args.getString(3);
@@ -185,11 +197,9 @@ public class LaunchNavigator extends CordovaPlugin {
         }
         this.cordova.getActivity().startActivity(intent);
         callbackContext.success();
-        return true;
     }
 
-    private boolean launchGoogleMaps(JSONArray args, CallbackContext callbackContext) throws Exception{
-        boolean result;
+    private void launchGoogleMaps(JSONArray args, CallbackContext callbackContext) throws Exception{
         try {
             String destination;
             String start = null;
@@ -210,7 +220,7 @@ public class LaunchNavigator extends CordovaPlugin {
             String transportMode = args.getString(7);
             String launchMode = args.getString(8);
 
-            String logMsg = "Navigating to "+destination;
+            String logMsg = "Using Google Maps to navigate to "+destination;
             String url;
 
             if(launchMode.equals("turn-by-turn")){
@@ -233,20 +243,106 @@ public class LaunchNavigator extends CordovaPlugin {
             Log.d(LOG_TAG, logMsg);
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+            intent.setClassName(GOOGLE_MAPS_PACKAGE_ID, "com.google.android.maps.MapsActivity");
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
-            result = true;
         }catch( JSONException e ) {
             String msg = e.getMessage();
-            if(msg.contains(NO_GOOGLE_MAPS)){
+            if(msg.contains(NO_APP_FOUND)){
                 msg = "Google Maps app is not installed on this device";
             }
             Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
             callbackContext.error(msg);
-            result = false;
         }
-        return result;
+    }
+
+    private void launchCitymapper(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress = null;
+            String destLatLon = null;
+            String startAddress = null;
+            String startLatLon = null;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    Log.e(LOG_TAG, "Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+                try {
+                    destAddress = reverseGeocodeLatLonToAddress(args.getString(2));
+                }catch(Exception e){
+                    Log.e(LOG_TAG, "Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
+                }
+            }
+
+            if(sType.equals("name")){
+                startAddress = getLocationFromName(args, 5);
+                try {
+                    startLatLon = geocodeAddressToLatLon(args.getString(5));
+                }catch(Exception e){
+                    Log.e(LOG_TAG, "Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                }
+            }else if(sType.equals("pos")){
+                startLatLon = getLocationFromPos(args, 5);
+                try {
+                    startAddress = reverseGeocodeLatLonToAddress(args.getString(5));
+                }catch(Exception e){
+                    Log.e(LOG_TAG, "Unable to obtains address for coords '"+startLatLon+"': "+e.getMessage());
+                }
+            }
+
+            String url = "citymapper://directions?";
+            String logMsg = "Using Citymapper to navigate to";
+            if(!isNull(destAddress)){
+                url += "&endaddress="+destAddress;
+                logMsg += " '"+destAddress+"'";
+            }
+            if(!isNull(destLatLon)){
+                url += "&endcoord="+destLatLon;
+                logMsg += " ["+destLatLon+"]";
+            }
+            if(!isNull(destNickname)){
+                url += "&endname="+destNickname;
+                logMsg += " ("+destNickname+")";
+            }
+
+            if(!sType.equals("none")){
+                logMsg += " from";
+                if(!isNull(startAddress)){
+                    url += "&startaddress="+startAddress;
+                    logMsg += " '"+startAddress+"'";
+                }
+                if(!isNull(startLatLon)){
+                    url += "&startcoord="+startLatLon;
+                    logMsg += " ["+startLatLon+"]";
+                }
+                if(!isNull(startNickname)){
+                    url += "&startname="+startNickname;
+                    logMsg += " ("+startNickname+")";
+                }
+            }
+
+            Log.d(LOG_TAG, logMsg);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Citymapper app is not installed on this device";
+            }
+            Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
     }
 
     private String getLocationFromPos(JSONArray args, int index) throws Exception{
@@ -296,33 +392,43 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
     private String geocodeAddressToLatLon(String address) throws Exception {
-        StringBuilder stringBuilder = new StringBuilder();
-
         address = address.replaceAll(" ","%20");
 
-        HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false");
+        JSONObject oResponse = doGeocode("address=" + address);
+
+        double longitude = oResponse
+                .getJSONObject("geometry").getJSONObject("location")
+                .getDouble("lng");
+
+        double latitude = oResponse
+                .getJSONObject("geometry").getJSONObject("location")
+                .getDouble("lat");
+
+        String result = latitude+","+longitude;
+        return result;
+    }
+
+    private String reverseGeocodeLatLonToAddress(String latLon) throws Exception {
+        JSONObject oResponse = doGeocode("latlng=" + latLon);
+        String result = oResponse.getString("formatted_address");
+        return result;
+    }
+
+    private JSONObject doGeocode(String query) throws Exception{
+        HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false");
         HttpClient client = new DefaultHttpClient();
         HttpResponse response;
 
         response = client.execute(httppost);
         HttpEntity entity = response.getEntity();
         InputStream stream = entity.getContent();
+        StringBuilder stringBuilder = new StringBuilder();
         int b;
         while ((b = stream.read()) != -1) {
             stringBuilder.append((char) b);
         }
-        JSONObject  oResponse = new JSONObject(stringBuilder.toString());
-
-        double longitude = ((JSONArray)oResponse.get("results")).getJSONObject(0)
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lng");
-
-        double latitude = ((JSONArray)oResponse.get("results")).getJSONObject(0)
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lat");
-
-        String result = latitude+","+longitude;
-        return result;
+        JSONObject oResponse = new JSONObject(stringBuilder.toString());
+        return ((JSONArray)oResponse.get("results")).getJSONObject(0);
     }
 
     private boolean isNull(String arg){

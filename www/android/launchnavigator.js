@@ -10,10 +10,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- *  
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -46,6 +46,7 @@ ln.LAUNCH_MODE = {
 ln.KNOWN_PACKAGE_NAMES = {};
 ln.KNOWN_PACKAGE_NAMES.GOOGLE_MAPS = "com.google.android.apps.maps";
 ln.KNOWN_PACKAGE_NAMES.WAZE = "com.waze";
+ln.KNOWN_PACKAGE_NAMES.CITYMAPPER = "com.citymapper.app.release";
 
 /**
  * List of package names of Android navigation apps that are explicitly supported (as opposed to implicitly via geo: protocol).
@@ -55,6 +56,7 @@ ln.KNOWN_PACKAGE_NAMES.WAZE = "com.waze";
  */
 ln.EXPLICITLY_SUPPORTED_APPS = [];
 ln.EXPLICITLY_SUPPORTED_APPS.push(ln.KNOWN_PACKAGE_NAMES.GOOGLE_MAPS);
+ln.EXPLICITLY_SUPPORTED_APPS.push(ln.KNOWN_PACKAGE_NAMES.CITYMAPPER);
 
 /**
  *  List of package names of (non-explicitly supported) Android navigation apps that DO NOT support specification of destination name via the geo: protocol.
