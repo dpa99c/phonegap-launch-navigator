@@ -480,14 +480,14 @@ public class LaunchNavigator extends CordovaPlugin {
     private void logDebug(String msg) {
         if(enableDebug){
             Log.d(LOG_TAG, msg);
-            executeGlobalJavascript("console.log(\""+msg+"\")");
+            executeGlobalJavascript("console.log(\""+LOG_TAG+"[native]: "+msg+"\")");
         }
     }
 
     private void logError(String msg){
         Log.e(LOG_TAG, msg);
         if(enableDebug){
-            executeGlobalJavascript("console.error(\""+msg+"\")");
+            executeGlobalJavascript("console.error(\""+LOG_TAG+"[native]: "+msg+"\")");
         }
     }
 
