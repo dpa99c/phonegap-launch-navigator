@@ -75,6 +75,8 @@ public class LaunchNavigator extends CordovaPlugin {
 	PackageManager packageManager;
 	Context context;
 
+    boolean enableDebug;
+
     // Map of app name to package name
 	Map<String, String> appPackages;
 
@@ -86,40 +88,56 @@ public class LaunchNavigator extends CordovaPlugin {
 	}
 
 	@Override
-    /**
-     * args[0] - app
-     * args[1] - dType
-     * args[2] - dest
-     * args[3] - destNickname
-     * args[4] - sType
-     * args[5] - start
-     * args[6] - startNickname
-     * args[7] - transportMode
-     * args[8] - launchMode
-     * args[9] - enableDebug
-     */
 	public boolean execute(String action, JSONArray args,
 		CallbackContext callbackContext) throws JSONException {
-    try {
-        if ("navigate".equals(action)) {
-            this.navigate(args, callbackContext);
-        } else if ("discoverSupportedApps".equals(action)) {
-            this.discoverSupportedApps(args, callbackContext);
-        } else if ("availableApps".equals(action)) {
-            this.availableApps(args, callbackContext);
-        } else if ("isAppAvailable".equals(action)) {
-            this.isAppAvailable(args, callbackContext);
-        }else {
-            String msg = "Invalid action";
-            Log.e(LOG_TAG, msg);
+        try {
+            logDebug("Plugin action="+action);
+            if ("navigate".equals(action)) {
+                /**
+                 * args[]
+                 * args[0] - app
+                 * args[1] - dType
+                 * args[2] - dest
+                 * args[3] - destNickname
+                 * args[4] - sType
+                 * args[5] - start
+                 * args[6] - startNickname
+                 * args[7] - transportMode
+                 * args[8] - launchMode
+                 * args[9] - enableDebug
+                 */
+                enableDebug = args.getBoolean(9);
+                if(enableDebug){
+                    String navigateArgs = "Called navigate() with args"
+                            + ": app="+ args.getString(0)
+                            + "; dType="+ args.getString(1)
+                            + "; dest="+ args.getString(2)
+                            + "; destNickname="+ args.getString(3)
+                            + "; sType="+ args.getString(4)
+                            + "; start="+ args.getString(5)
+                            + "; startNickname="+ args.getString(6)
+                            + "; transportMode="+ args.getString(7)
+                            + "; launchMode="+ args.getString(8);
+                    logDebug(navigateArgs);
+                }
+                this.navigate(args, callbackContext);
+            } else if ("discoverSupportedApps".equals(action)) {
+                this.discoverSupportedApps(args, callbackContext);
+            } else if ("availableApps".equals(action)) {
+                this.availableApps(args, callbackContext);
+            } else if ("isAppAvailable".equals(action)) {
+                this.isAppAvailable(args, callbackContext);
+            }else {
+                String msg = "Invalid action";
+                logError(msg);
+                callbackContext.error(msg);
+                return false;
+            }
+        }catch(Exception e){
+            String msg = "Exception occurred: "+e.getMessage();
+            logError(msg);
             callbackContext.error(msg);
-            return false;
         }
-    }catch(Exception e){
-        String msg = "Exception occurred: "+e.getMessage();
-        Log.e(LOG_TAG, msg);
-        callbackContext.error(msg);
-    }
 		return true;
 	}
 
@@ -176,17 +194,41 @@ public class LaunchNavigator extends CordovaPlugin {
         String dType = args.getString(1);
         String dNickName = args.getString(3);
 
-        String destLatLon;
+        String logMsg = "Using " + getAppDisplayName(appName)+" to navigate to ";
+        String destLatLon = null;
+        String destName = null;
+        String dest;
+
         if(dType.equals("name")){
+            destName = getLocationFromName(args, 2);
             destLatLon = geocodeAddressToLatLon(args.getString(2));
+            logMsg += destName;
+            if(!isNull(destLatLon)){
+                logMsg += "["+destLatLon+"]";
+            }
+
         }else{
             destLatLon = getLocationFromPos(args, 2);
+            destName = reverseGeocodeLatLonToAddress(destLatLon);
+            if(!isNull(destName)){
+                logMsg += destName;
+            }
+            logMsg += "["+destLatLon+"]";
         }
 
-        String uri = GEO_URI+destLatLon+"?q="+destLatLon;
+        if(!isNull(destLatLon)){
+            dest = destLatLon;
+        }else{
+            dest = destName;
+        }
+
+        String uri = GEO_URI+destLatLon+"?q="+dest;
         if(!isNull(dNickName)){
             uri += "("+dNickName+")";
+            logMsg += "("+dNickName+")";
         }
+
+        logDebug(logMsg);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         if(!appName.equals(UNSPECIFIED)){
@@ -240,7 +282,7 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
                 logMsg += " in maps mode";
             }
-            Log.d(LOG_TAG, logMsg);
+            logDebug(logMsg);
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setClassName(GOOGLE_MAPS_PACKAGE_ID, "com.google.android.maps.MapsActivity");
@@ -251,7 +293,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Google Maps app is not installed on this device";
             }
-            Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
+            logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);
         }
     }
@@ -273,14 +315,14 @@ public class LaunchNavigator extends CordovaPlugin {
                 try {
                     destLatLon = geocodeAddressToLatLon(args.getString(2));
                 }catch(Exception e){
-                    Log.e(LOG_TAG, "Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
                 try {
                     destAddress = reverseGeocodeLatLonToAddress(args.getString(2));
                 }catch(Exception e){
-                    Log.e(LOG_TAG, "Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
+                    logError("Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
                 }
             }
 
@@ -289,14 +331,14 @@ public class LaunchNavigator extends CordovaPlugin {
                 try {
                     startLatLon = geocodeAddressToLatLon(args.getString(5));
                 }catch(Exception e){
-                    Log.e(LOG_TAG, "Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
                 }
             }else if(sType.equals("pos")){
                 startLatLon = getLocationFromPos(args, 5);
                 try {
                     startAddress = reverseGeocodeLatLonToAddress(args.getString(5));
                 }catch(Exception e){
-                    Log.e(LOG_TAG, "Unable to obtains address for coords '"+startLatLon+"': "+e.getMessage());
+                    logError("Unable to obtains address for coords '"+startLatLon+"': "+e.getMessage());
                 }
             }
 
@@ -331,7 +373,7 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
             }
 
-            Log.d(LOG_TAG, logMsg);
+            logDebug(logMsg);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
@@ -340,7 +382,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Citymapper app is not installed on this device";
             }
-            Log.e(LOG_TAG, "Exception occurred: ".concat(msg));
+            logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);
         }
     }
@@ -386,13 +428,13 @@ public class LaunchNavigator extends CordovaPlugin {
         for (ResolveInfo resolveInfo : resolveInfoList) {
             String packageName = resolveInfo.activityInfo.packageName;
             String appName = getAppName(packageName);
-            Log.i(LOG_TAG, "Available app: name="+appName +"; package=" + packageName);
+            logDebug("Found available app: name="+appName +"; package=" + packageName);
             appPackages.put(appName, packageName);
         }
     }
 
     private String geocodeAddressToLatLon(String address) throws Exception {
-        address = address.replaceAll(" ","%20");
+        address = address.replaceAll(" ", "%20");
 
         JSONObject oResponse = doGeocode("address=" + address);
 
@@ -433,6 +475,42 @@ public class LaunchNavigator extends CordovaPlugin {
 
     private boolean isNull(String arg){
         return arg == null || arg.equals("null");
+    }
+
+    private void logDebug(String msg) {
+        if(enableDebug){
+            Log.d(LOG_TAG, msg);
+            executeGlobalJavascript("console.log(\""+msg+"\")");
+        }
+    }
+
+    private void logError(String msg){
+        Log.e(LOG_TAG, msg);
+        if(enableDebug){
+            executeGlobalJavascript("console.error(\""+msg+"\")");
+        }
+    }
+
+    private void executeGlobalJavascript(final String jsString){
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                webView.loadUrl("javascript:" + jsString);
+            }
+        });
+    }
+
+    private String getAppDisplayName(String packageName){
+        String name = "[Not found]";
+        for (Map.Entry<String, String> entry : appPackages.entrySet()) {
+            String _appName = entry.getKey();
+            String _packageName = entry.getValue();
+            if(packageName.equals(_packageName)){
+                name = _appName;
+                break;
+            }
+        }
+        return name;
     }
 
 }
