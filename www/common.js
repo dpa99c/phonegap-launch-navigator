@@ -66,9 +66,9 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.APPS_BY_PLATFORM = {};
     ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
-        ln.APP.GOOGLE_MAPS//,
+        ln.APP.GOOGLE_MAPS,
+        ln.APP.CITYMAPPER
         //ln.APP.WAZE,
-        //ln.APP.CITYMAPPER,
         //ln.APP.UBER
     ];
     ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
