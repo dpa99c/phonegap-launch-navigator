@@ -171,6 +171,8 @@ For example:
 
 ## iOS
 
+- To work with empty start location (null parameter), the cordova-geolocation-plugin has to be included in your project.
+
 - The iOS version of the plugin supports the following platform-specific options:
   - {Boolean} preferGoogleMaps - if true, plugin will attempt to launch Google Maps instead of Apple Maps. If Google Maps is not available, it will fall back to Apple Maps.
   - {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
