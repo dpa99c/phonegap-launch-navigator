@@ -29,6 +29,26 @@ var ln = {},
     common = launchnavigator;
 
 
+/**
+ * Determines if the given app is installed and available on the current device.
+ * @param {string} appName - name of the app to check availability for. Define as a constant using ln.APP
+ * @param {function} success - callback to invoke on successful determination of availability. Will be passed a single boolean argument indicating the availability of the app.
+ * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
+ */
+ln.isAppAvailable = function(appName, success, error){
+    common.util.validateApp(appName);
+    cordova.exec(success, error, 'LaunchNavigator', 'isAppAvailable', [appName]);
+};
+
+/**
+ * Returns a list indicating which apps are installed and available on the current device.
+ * @param {function} success - callback to invoke on successful determination of availability. Will be passed a key/value object where the key is the app name and the value is a boolean indicating whether the app is available.
+ * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
+ */
+ln.availableApps = function(success, error){
+    cordova.exec(success, error, 'LaunchNavigator', 'availableApps', []);
+};
+
 /*********
  * v3 API
  *********/
@@ -111,26 +131,6 @@ ln.v3.navigate = function(destination, options) {
 
 };
 
-/**
- * Determines if the given app is installed and available on the current device.
- * @param {string} appName - name of the app to check availability for. Define as a constant using ln.APP
- * @param {function} success - callback to invoke on successful determination of availability. Will be passed a single boolean argument indicating the availability of the app.
- * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
- */
-ln.v3.isAppAvailable = function(appName, success, error){
-    common.util.validateApp(appName);
-    cordova.exec(success, error, 'LaunchNavigator', 'isAppAvailable', [appName]);
-};
-
-/**
- * Returns a list indicating which apps are installed and available on the current device.
- * @param {function} success - callback to invoke on successful determination of availability. Will be passed a key/value object where the key is the app name and the value is a boolean indicating whether the app is available.
- * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
- */
-ln.v3.availableApps = function(success, error){
-    cordova.exec(success, error, 'LaunchNavigator', 'availableApps', []);
-};
-
 /*********************************
  * v2 legacy API to map to v3 API
  *********************************/
@@ -189,7 +189,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
  * @return {boolean} true if Google Maps is installed on the current device
  */
 ln.v2.isGoogleMapsAvailable = function(successCallback) {
-    ln.v3.isAppAvailable(ln.v3.APP.GOOGLE_MAPS, successCallback);
+    ln.isAppAvailable(common.APP.GOOGLE_MAPS, successCallback);
 };
 
 
@@ -213,12 +213,6 @@ ln.navigate = function(){
  * Map directly to v2 API
  */
 ln.isGoogleMapsAvailable = ln.v2.isGoogleMapsAvailable;
-
-/**
- * Map directly to v3 API
- */
-ln.isAppAvailable = ln.v3.isAppAvailable;
-ln.availableApps = ln.v3.availableApps;
 
 
 module.exports = ln;

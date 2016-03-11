@@ -28,12 +28,9 @@
  */
 #import "LaunchNavigator.h"
 
-BOOL debugEnabled = FALSE;
-#define DLog(fmt, ...) { \
-if (debugEnabled) \
-NSLog((@"LaunchNavigator[objc]: " fmt), ##__VA_ARGS__); \
-}
+NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
+BOOL debugEnabled = FALSE;
 
 @implementation LaunchNavigator
 @synthesize cordova_command;
@@ -62,7 +59,6 @@ BOOL enableDebug;
 {
     self.cordova_command = command;
     
-    DLog(@"called navigate()");
     
     @try {
         // Get JS arguments
@@ -79,16 +75,9 @@ BOOL enableDebug;
 
         if(enableDebug == TRUE){
             debugEnabled = enableDebug;
-            DLog(@"Debug mode enabled");
-            DLog(@"destination: %@", destination);
-            DLog(@"destType: %@", destType);
-            DLog(@"destName: %@", destName);
-            DLog(@"start: %@", start);
-            DLog(@"startType: %@", startType);
-            DLog(@"startName: %@", startName);
-            DLog(@"appName: %@", appName);
-            DLog(@"transportMode: %@", transportMode);
         }
+        
+        [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@", destination, destType, destName, start, startType, startName, appName, transportMode]];
         
         if (![destination isKindOfClass:[NSString class]]) {
             [self sendPluginError:@"Missing destination argument"];
@@ -155,10 +144,21 @@ BOOL enableDebug;
         directionsMode = MKLaunchOptionsDirectionsModeTransit;
     }
     
+    NSString* logMsg = [NSString stringWithFormat:@"Using %@ to navigate to %@ [%@]", appName, [self getAddressFromPlacemark:dest_placemark], [self coordsToString:dest_placemark.coordinate]];
+    if(destName != nil){
+        logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, destName];
+    }
+    
+    logMsg = [NSString stringWithFormat:@"%@ from ", logMsg];
     CMMapPoint* start_cmm;
     if([startType  isEqual: @"none"]){
+        logMsg = [NSString stringWithFormat:@"%@ current location", logMsg];
         start_cmm = [CMMapPoint currentLocation];
     }else{
+        logMsg = [NSString stringWithFormat:@"%@ %@ [%@]", logMsg, [self getAddressFromPlacemark:start_placemark], [self coordsToString:start_placemark.coordinate]];
+        if(startName != nil){
+            logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, startName];
+        }
         start_cmm = [CMMapPoint
                      mapPointWithMapItem:start_mapItem
                      name:start_mapItem.name
@@ -172,6 +172,7 @@ BOOL enableDebug;
                              address:[self getAddressFromPlacemark:dest_placemark]
                              coordinate:dest_placemark.coordinate];
 
+    [self logDebug:logMsg];
     
     [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:directionsMode];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -245,7 +246,7 @@ BOOL enableDebug;
 
 
 - (void) sendPluginError:(NSString*)errorMessage{
-    DLog("ERROR: %@",errorMessage);
+    [self logError:errorMessage];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
 }
@@ -321,14 +322,13 @@ BOOL enableDebug;
       success:(void (^)(MKMapItem* resultItem, MKPlacemark* placemark))successBlock
 {
     CLGeocoder* geocoder = [[CLGeocoder alloc] init];
-
-    DLog(@"Geocoding address: %@",address);
+    [self logDebug:[NSString stringWithFormat:@"Attempting to geocode address: %@", address]];
     [geocoder geocodeAddressString:address completionHandler:^(NSArray* placemarks, NSError* error) {
         
         // Convert the CLPlacemark to an MKPlacemark
         // Note: There's no error checking for a failed geocode
         CLPlacemark* geocodedPlacemark = [placemarks objectAtIndex:0];
-        DLog(@"Geocoded name: %@", geocodedPlacemark.name);
+        [self logDebug:[NSString stringWithFormat:@"Geocoded address '%@' to coord '%@'", address, [self coordsToString:geocodedPlacemark.location.coordinate]]];
         
         MKPlacemark* placemark = [[MKPlacemark alloc]
                                   initWithCoordinate:geocodedPlacemark.location.coordinate
@@ -355,13 +355,13 @@ BOOL enableDebug;
     MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
     
     // Try to retrieve address via reverse geocoding
-    DLog(@"Reverse geocoding coords: %@", coords);
+    [self logDebug:[NSString stringWithFormat:@"Attempting to reverse geocode coords: %@", coords]];
     CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
     [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
         if (error == nil && [placemarks count] > 0) {
             CLPlacemark* geocodedPlacemark = [placemarks lastObject];
             NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-            DLog(@"Reverse geocoded address: %@", address);
+            [self logDebug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:geocodedPlacemark.location.coordinate], address]];
             [mapItem setName:address];
             
             MKPlacemark* placemark = [[MKPlacemark alloc]
@@ -411,5 +411,37 @@ BOOL enableDebug;
     }
     
     return address;
+}
+
+- (NSString*)coordsToString: (CLLocationCoordinate2D) coords
+{
+    NSString* lat = [[NSString alloc] initWithFormat:@"%g", coords.latitude];
+    NSString* lon = [[NSString alloc] initWithFormat:@"%g", coords.longitude];
+    return [NSString stringWithFormat:@"%@, %@", lat, lon];
+}
+
+- (void)executeGlobalJavascript: (NSString*)jsString
+{
+    //TODO callback in block to ensure it's called on different thread
+    [self.commandDelegate evalJs:jsString];
+    
+}
+
+- (void)logDebug: (NSString*)msg
+{
+    if(debugEnabled){
+        NSLog(@"%@: %@", LOG_TAG, msg);
+        NSString* jsString = [NSString stringWithFormat:@"console.log(\"%@: %@\")", LOG_TAG, msg];
+        [self executeGlobalJavascript:jsString];
+    }
+}
+
+- (void)logError: (NSString*)msg
+{
+    NSLog(@"%@ ERROR: %@", LOG_TAG, msg);
+    if(debugEnabled){
+        NSString* jsString = [NSString stringWithFormat:@"console.error(\"%@: %@\")", LOG_TAG, msg];
+        [self executeGlobalJavascript:jsString];
+    }
 }
 @end

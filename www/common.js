@@ -342,25 +342,16 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
     };
 
     ln.util.isValidApp = function(app){
-        if(app == "none") return true; // Android native chooser
-        for(var APP in ln.APP){
-            if(app == ln.APP[APP]) return true;
-        }
-        return false;
+        if(app == "none") return true; // native chooser
+        return ln.util.objectContainsValue(ln.APP, app);
     };
 
     ln.util.isValidPlatform = function(platform){
-        for(var PLATFORM in ln.PLATFORM){
-            if(platform == ln.PLATFORM[PLATFORM]) return true;
-        }
-        return false;
+        return ln.util.objectContainsValue(ln.PLATFORM, platform);
     };
 
-    ln.util.isValidTransportMode = function(transportMode){
-        for(var TRANSPORT_MODE in ln.TRANSPORT_MODES){
-            if(transportMode == ln.TRANSPORT_MODES[TRANSPORT_MODE]) return true;
-        }
-        return false;
+    ln.util.isValidTransportMode = function(transportMode) {
+        return ln.util.objectContainsValue(ln.TRANSPORT_MODE, transportMode);
     };
 
     ln.util.validateApp = function(app){
