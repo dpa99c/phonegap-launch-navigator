@@ -422,7 +422,6 @@ BOOL enableDebug;
 
 - (void)executeGlobalJavascript: (NSString*)jsString
 {
-    //TODO callback in block to ensure it's called on different thread
     [self.commandDelegate evalJs:jsString];
     
 }
@@ -431,7 +430,7 @@ BOOL enableDebug;
 {
     if(debugEnabled){
         NSLog(@"%@: %@", LOG_TAG, msg);
-        NSString* jsString = [NSString stringWithFormat:@"console.log(\"%@: %@\")", LOG_TAG, msg];
+        NSString* jsString = [NSString stringWithFormat:@"console.log(\"%@: %@\")", LOG_TAG, [self escapeDoubleQuotes:msg]];
         [self executeGlobalJavascript:jsString];
     }
 }
@@ -440,8 +439,14 @@ BOOL enableDebug;
 {
     NSLog(@"%@ ERROR: %@", LOG_TAG, msg);
     if(debugEnabled){
-        NSString* jsString = [NSString stringWithFormat:@"console.error(\"%@: %@\")", LOG_TAG, msg];
+        NSString* jsString = [NSString stringWithFormat:@"console.error(\"%@: %@\")", LOG_TAG, [self escapeDoubleQuotes:msg]];
         [self executeGlobalJavascript:jsString];
     }
+}
+
+- (NSString*)escapeDoubleQuotes: (NSString*)str
+{
+    NSString *result =[str stringByReplacingOccurrencesOfString: @"\"" withString: @"\\\""];
+    return result;
 }
 @end
