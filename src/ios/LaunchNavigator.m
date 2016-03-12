@@ -79,13 +79,20 @@ BOOL enableDebug;
         
         [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@", destination, destType, destName, start, startType, startName, appName, transportMode]];
         
+        CMMapApp app = [self mapAppName_lnToCmm:appName];
+        BOOL isAvailable = [CMMapLauncher isMapAppInstalled:app];
+        if(!isAvailable){
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ is not installed on the device", appName]] callbackId:self.cordova_command.callbackId];
+            return;
+        }
+        
         if (![destination isKindOfClass:[NSString class]]) {
             [self sendPluginError:@"Missing destination argument"];
             return;
         }
         
         [self getDest:^{
-            if([startType  isEqual: @"none"]){
+            if([startType isEqual: @"none"]){
                 [self launchApp];
             }else{
                 [self getStart:^{
@@ -103,8 +110,7 @@ BOOL enableDebug;
 
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;{
     @try {
-        appName = [self.cordova_command.arguments objectAtIndex:0];
-        CMMapApp app = [self mapAppName_lnToCmm:appName];
+        CMMapApp app = [self mapAppName_lnToCmm:[command.arguments objectAtIndex:0]];
         BOOL result = [CMMapLauncher isMapAppInstalled:app];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:result];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -145,7 +151,7 @@ BOOL enableDebug;
     }
     
     NSString* logMsg = [NSString stringWithFormat:@"Using %@ to navigate to %@ [%@]", appName, [self getAddressFromPlacemark:dest_placemark], [self coordsToString:dest_placemark.coordinate]];
-    if(destName != nil){
+    if(![self isNull:destName]){
         logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, destName];
     }
     
@@ -156,7 +162,7 @@ BOOL enableDebug;
         start_cmm = [CMMapPoint currentLocation];
     }else{
         logMsg = [NSString stringWithFormat:@"%@ %@ [%@]", logMsg, [self getAddressFromPlacemark:start_placemark], [self coordsToString:start_placemark.coordinate]];
-        if(startName != nil){
+        if(![self isNull:startName]){
             logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, startName];
         }
         start_cmm = [CMMapPoint
@@ -188,7 +194,7 @@ BOOL enableDebug;
         [self reverseGeocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
             dest_mapItem = destItem;
             dest_placemark = destPlacemark;
-            if(destName != nil){
+            if(![self isNull:destName]){
                 [destItem setName:destName];
             }else{
                 [destItem setName:destPlacemark.name];
@@ -201,7 +207,7 @@ BOOL enableDebug;
         [self geocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
             dest_mapItem = destItem;
             dest_placemark = destPlacemark;
-            if(destName != nil){
+            if(![self isNull:destName]){
                 [destItem setName:destName];
             }else{
                 [destItem setName:destPlacemark.name];
@@ -221,7 +227,7 @@ BOOL enableDebug;
         [self reverseGeocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
             start_placemark = startPlacemark;
             start_mapItem = startItem;
-            if(startName != nil){
+            if(![self isNull:startName]){
                 [startItem setName:startName];
             }else{
                 [startItem setName:startPlacemark.name];
@@ -234,7 +240,7 @@ BOOL enableDebug;
         [self geocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
             start_placemark = startPlacemark;
             start_mapItem = startItem;
-            if(startName != nil){
+            if(![self isNull:startName]){
                 [startItem setName:startName];
             }else{
                 [startItem setName:startPlacemark.name];
@@ -448,5 +454,10 @@ BOOL enableDebug;
 {
     NSString *result =[str stringByReplacingOccurrencesOfString: @"\"" withString: @"\\\""];
     return result;
+}
+
+- (bool)isNull: (NSString*)str
+{
+    return str == nil || str == (id)[NSNull null] || str.length == 0 || [str isEqual: @"<null>"];
 }
 @end

@@ -115,10 +115,6 @@ ln.v3.navigate = function(destination, options) {
     }else if(typeof(options.start) == "object"){
         options.start = options.start.join(",");
         options.startType = "coords";
-    }else if(options.start.match(ln.COORDS_REGEX)){
-
-        options.start = options.start.join(",");
-        options.startType = "coords";
     }else{
         options.startType = "name";
     }

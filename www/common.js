@@ -374,7 +374,7 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
     };
 
     ln.util.extractCoordsFromLocationString = function(location){
-        if(location && location.match(ln.COORDS_REGEX)){
+        if(location && typeof(location) == "string" && location.match(ln.COORDS_REGEX)){
             location = location.replace(/\s*/g,'');
             var parts = location.split(",");
             location = [parts[0], parts[1]];
