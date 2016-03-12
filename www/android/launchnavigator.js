@@ -273,12 +273,15 @@ ln.v3 = {};
 ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
     var dType, sType = "none";
+
+    destination = common.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) == "object"){
         dType = "pos";
     }else{
         dType = "name";
     }
     if(options.start){
+        options.start = common.util.extractCoordsFromLocationString(options.start);
         if(typeof(options.start) == "object"){
             sType = "pos";
         }else{

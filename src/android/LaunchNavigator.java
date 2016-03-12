@@ -480,15 +480,24 @@ public class LaunchNavigator extends CordovaPlugin {
     private void logDebug(String msg) {
         if(enableDebug){
             Log.d(LOG_TAG, msg);
-            executeGlobalJavascript("console.log(\""+LOG_TAG+"[native]: "+msg+"\")");
+            executeGlobalJavascript("console.log(\""+LOG_TAG+"[native]: "+escapeDoubleQuotes(msg)+"\")");
         }
     }
 
     private void logError(String msg){
         Log.e(LOG_TAG, msg);
         if(enableDebug){
-            executeGlobalJavascript("console.error(\""+LOG_TAG+"[native]: "+msg+"\")");
+            executeGlobalJavascript("console.error(\""+LOG_TAG+"[native]: "+escapeDoubleQuotes(msg)+"\")");
         }
+    }
+
+    private String escapeDoubleQuotes(String string){
+        Log.d(LOG_TAG, "unescaped string: "+string);
+        final String escapedString = string.replace("\"","\\\"");
+        Log.d(LOG_TAG, "escaped string: "+escapedString);
+        return escapedString;
+
+        //return string.replaceAll("\"","\\\"");
     }
 
     private void executeGlobalJavascript(final String jsString){
@@ -502,6 +511,9 @@ public class LaunchNavigator extends CordovaPlugin {
 
     private String getAppDisplayName(String packageName){
         String name = "[Not found]";
+        if(packageName.equals(UNSPECIFIED)){
+            return "[Native chooser]";
+        }
         for (Map.Entry<String, String> entry : appPackages.entrySet()) {
             String _appName = entry.getKey();
             String _packageName = entry.getValue();
