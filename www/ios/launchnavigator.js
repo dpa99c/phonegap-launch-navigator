@@ -101,7 +101,7 @@ ln.v3.navigate = function(destination, options) {
     common.util.validateTransportMode(options.transportMode);
 
     // Process options
-    destination = ln.util.extractCoordsFromLocationString(destination);
+    destination = common.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) == "object"){
         destination = destination.join(",");
         options.destType = "coords";
@@ -109,7 +109,7 @@ ln.v3.navigate = function(destination, options) {
         options.destType = "name";
     }
 
-    options.start = ln.util.extractCoordsFromLocationString(options.start);
+    options.start = common.util.extractCoordsFromLocationString(options.start);
     if(!options.start){
         options.startType = "none";
     }else if(typeof(options.start) == "object"){
