@@ -204,6 +204,7 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
     ln.SUPPORTS_LAUNCH_MODE = {};
     ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [ln.APP.GOOGLE_MAPS];
 
+    ln.COORDS_REGEX = /^[-\d.]+,[\s]*[-\d.]+$/;
 
     /******************
      * Internal functions
@@ -370,6 +371,15 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
         if(!ln.util.isValidTransportMode(transportMode)){
             throw new Error("'"+transportMode+"' is not a recognised transport mode");
         }
+    };
+
+    ln.util.extractCoordsFromLocationString = function(location){
+        if(location && location.match(ln.COORDS_REGEX)){
+            location = location.replace(/\s*/g,'');
+            var parts = location.split(",");
+            location = [parts[0], parts[1]];
+        }
+        return location;
     };
 
     module.exports = ln;

@@ -101,17 +101,23 @@ ln.v3.navigate = function(destination, options) {
     common.util.validateTransportMode(options.transportMode);
 
     // Process options
+    destination = ln.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) == "object"){
-        destination = destination[0]+","+destination[1];
+        destination = destination.join(",");
         options.destType = "coords";
     }else{
         options.destType = "name";
     }
 
+    options.start = ln.util.extractCoordsFromLocationString(options.start);
     if(!options.start){
         options.startType = "none";
     }else if(typeof(options.start) == "object"){
-        options.start = options.start[0]+","+options.start[1];
+        options.start = options.start.join(",");
+        options.startType = "coords";
+    }else if(options.start.match(ln.COORDS_REGEX)){
+
+        options.start = options.start.join(",");
         options.startType = "coords";
     }else{
         options.startType = "name";
