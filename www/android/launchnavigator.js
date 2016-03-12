@@ -303,7 +303,7 @@ ln.v3.navigate = function(destination, options) {
         'LaunchNavigator',
         'navigate',
         [
-            options.app,
+            options.app || common.APP.GOOGLE_MAPS,
             dType,
             destination,
             options.destinationName,
@@ -311,8 +311,8 @@ ln.v3.navigate = function(destination, options) {
             options.start,
             options.startName,
             transportMode,
-            options.launchMode,
-            options.enableDebug
+            options.launchMode || ln.LAUNCH_MODE.MAPS,
+            options.enableDebug || false
         ]
     );
 
