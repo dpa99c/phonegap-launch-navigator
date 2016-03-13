@@ -67,9 +67,9 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
     ln.APPS_BY_PLATFORM = {};
     ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
         ln.APP.GOOGLE_MAPS,
-        ln.APP.CITYMAPPER
-        //ln.APP.WAZE,
-        //ln.APP.UBER
+        ln.APP.CITYMAPPER,
+        ln.APP.UBER,
+        ln.APP.WAZE
     ];
     ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
         ln.APP.APPLE_MAPS,
@@ -172,11 +172,13 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.SUPPORTS_START_NAME = {};
     ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
-        ln.APP.CITYMAPPER
+        ln.APP.CITYMAPPER,
+        ln.APP.UBER
     ];
     ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
         ln.APP.APPLE_MAPS,
-        ln.APP.CITYMAPPER
+        ln.APP.CITYMAPPER,
+        ln.APP.UBER
     ];
 
     /**

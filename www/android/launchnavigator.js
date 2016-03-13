@@ -38,35 +38,6 @@ ln.LAUNCH_MODE = {
     GEO: "geo"
 };
 
-/**
- * List of Android navigation apps for which are known by their package name.
- * Maps a constant to the package name
- * @type {object}
- */
-ln.KNOWN_PACKAGE_NAMES = {};
-ln.KNOWN_PACKAGE_NAMES.GOOGLE_MAPS = "com.google.android.apps.maps";
-ln.KNOWN_PACKAGE_NAMES.WAZE = "com.waze";
-ln.KNOWN_PACKAGE_NAMES.CITYMAPPER = "com.citymapper.app.release";
-
-/**
- * List of package names of Android navigation apps that are explicitly supported (as opposed to implicitly via geo: protocol).
- * This means they are launched by a specific protocol rather than the general geo: protocol.
- * E.g. Google Maps
- * @type {array}
- */
-ln.EXPLICITLY_SUPPORTED_APPS = [];
-ln.EXPLICITLY_SUPPORTED_APPS.push(ln.KNOWN_PACKAGE_NAMES.GOOGLE_MAPS);
-ln.EXPLICITLY_SUPPORTED_APPS.push(ln.KNOWN_PACKAGE_NAMES.CITYMAPPER);
-
-/**
- *  List of package names of (non-explicitly supported) Android navigation apps that DO NOT support specification of destination name via the geo: protocol.
- *  e.g. geo:50,1?50,1(Destination name)
- * @type {array}
- */
-ln.GEO_DEST_NAME_NOT_SUPPORTED = [];
-ln.GEO_DEST_NAME_NOT_SUPPORTED.push(ln.KNOWN_PACKAGE_NAMES.WAZE);
-
-
 // Add the Android-specific option to pass in "none" for specified app, letting the native app chooser decide.
 common.APP.NONE = "none";
 common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(common.APP.NONE);
@@ -75,15 +46,10 @@ common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(common.APP.NONE);
 function onDiscoverSupportedApps(supportedApps){
     for(var appName in supportedApps){
         var packageName = supportedApps[appName];
-        if(common.util.arrayContainsValue(ln.EXPLICITLY_SUPPORTED_APPS, packageName)){
-            continue; //ignore explicitly supported apps
-        }
         common.APP[appName.toUpperCase().replace(" ","_")] = packageName;
         common.APP_NAMES[packageName] = appName;
         common.APPS_BY_PLATFORM[common.PLATFORM.ANDROID].push(packageName);
-        if(ln.util.appSupportsGeoDestName(packageName)){
-            common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(packageName);
-        }
+        common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(packageName);
     }
 }
 
@@ -221,10 +187,6 @@ ln.util.validateLaunchMode = function(launchMode){
     if(!ln.util.isValidLaunchMode(launchMode)){
         throw new Error("'"+launchMode+"' is not a recognised launch mode");
     }
-};
-
-ln.util.appSupportsGeoDestName = function(app){
-    return !common.util.arrayContainsValue(ln.GEO_DEST_NAME_NOT_SUPPORTED, app);
 };
 
 /*********
