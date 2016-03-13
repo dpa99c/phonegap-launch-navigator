@@ -97,7 +97,7 @@ public class LaunchNavigator extends CordovaPlugin {
 	PackageManager packageManager;
 	Context context;
 
-    boolean enableDebug = true;
+    boolean enableDebug = false;
 
     // Map of app name to package name
     Map<String, String> availableApps;
