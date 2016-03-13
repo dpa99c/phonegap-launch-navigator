@@ -172,6 +172,8 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
     options.preferGoogleMaps = options.preferGoogleMaps ? options.preferGoogleMaps : false;
     options.enableDebug = options.enableDebug ? options.enableDebug : false;
 
+    console.warn("launchnavigator.navigate() called using deprecated v2 API signature. Please update to use v3 API signature as deprecated API support will be removed in a future version");
+
     // Map to and call v3 API
     ln.v3.navigate(destination, {
         successCallback: successCallback,
@@ -191,6 +193,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
  * @return {boolean} true if Google Maps is installed on the current device
  */
 ln.v2.isGoogleMapsAvailable = function(successCallback) {
+    console.warn("launchnavigator.isGoogleMapsAvailable() is a deprecated API method. Please update to use launchnavigator.isAppAvailable() as deprecated API support will be removed in a future version");
     ln.isAppAvailable(common.APP.GOOGLE_MAPS, successCallback);
 };
 
