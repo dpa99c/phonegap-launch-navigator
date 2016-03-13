@@ -253,11 +253,16 @@ ln.v3.navigate = function(destination, options) {
 
     var transportMode = null;
     if(options.transportMode){
+        common.util.validateTransportMode(transportMode);
         transportMode = options.transportMode.charAt(0);
     }
 
     // Default to Google Maps if not specified
     if(!options.app) options.app = common.APP.GOOGLE_MAPS;
+    common.util.validateApp(options.app);
+
+    if(!options.launchMode) options.launchMode = ln.LAUNCH_MODE.MAPS;
+    common.util.validateLaunchMode(options.launchMode);
 
     cordova.exec(
         options.successCallback,
@@ -273,7 +278,7 @@ ln.v3.navigate = function(destination, options) {
             options.start,
             options.startName,
             transportMode,
-            options.launchMode || ln.LAUNCH_MODE.MAPS,
+            options.launchMode,
             options.enableDebug || false
         ]
     );
@@ -309,6 +314,8 @@ ln.v2 = {};
  */
 ln.v2.navigate = function(destination, start, successCallback, errorCallback, options) {
     options = options ? options : {};
+
+    console.warn("launchnavigator.navigate() called using deprecated v2 API signature. Please update to use v3 API signature as deprecated API support will be removed in a future version");
 
     // Map to and call v3 API
     ln.v3.navigate(destination, {
