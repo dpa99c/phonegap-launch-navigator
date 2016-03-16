@@ -38,9 +38,11 @@ ln.LAUNCH_MODE = {
     GEO: "geo"
 };
 
-// Add the Android-specific option to pass in "none" for specified app, letting the native app chooser decide.
-common.APP.NONE = "none";
-common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(common.APP.NONE);
+// Add the Android-specific option to pass in for geo: protocol, letting the native app chooser decide.
+common.APP.GEO = "geo";
+common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(common.APP.GEO);
+common.APPS_BY_PLATFORM[common.PLATFORM.ANDROID].splice(1, 0, common.APP.GEO); //insert at [1] below [User select]
+common.APP_NAMES[common.APP.GEO] = "[Geo intent chooser]";
 
 // Add apps that support the geo: protocol
 function onDiscoverSupportedApps(supportedApps){
@@ -63,7 +65,6 @@ function onDiscoverSupportedAppsError(error){
  * @param {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
  */
 ln.availableApps = function(success, error){
-    console.log("common.availableApps");
     cordova.exec(
         success,
         error,
@@ -212,7 +213,7 @@ ln.v3 = {};
  * A single string argument containing the error message will be passed in.
  *
  * - {string} app - name of the navigation app to use for directions.
- * If not specified, defaults to Google Maps.
+ * If not specified, defaults to User Selection.
  *
  * - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
  *
@@ -236,6 +237,14 @@ ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
     var dType, sType = "none";
 
+    options.app = options.app || common.APP.USER_SELECT;
+
+    // If app is user-selection
+    if(options.app == common.APP.USER_SELECT){
+        // Invoke user-selection UI and return (as it will re-invoke this method)
+        return common.userSelect(destination, options);
+    }
+
     destination = common.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) == "object"){
         dType = "pos";
@@ -253,7 +262,7 @@ ln.v3.navigate = function(destination, options) {
 
     var transportMode = null;
     if(options.transportMode){
-        common.util.validateTransportMode(transportMode);
+        common.util.validateTransportMode(options.transportMode);
         transportMode = options.transportMode.charAt(0);
     }
 
@@ -270,7 +279,7 @@ ln.v3.navigate = function(destination, options) {
         'LaunchNavigator',
         'navigate',
         [
-            options.app || common.APP.GOOGLE_MAPS,
+            options.app,
             dType,
             destination,
             options.destinationName,

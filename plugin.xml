@@ -25,6 +25,8 @@
 
   <!-- android -->
   <platform name="android">
+    <dependency id="cordova-plugin-actionsheet" version="^2.2.2" />
+
     <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />
     </js-module>
@@ -42,6 +44,8 @@
 
   <!-- ios -->
   <platform name="ios">
+    <dependency id="cordova-plugin-actionsheet" version="^2.2.2" />
+
     <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />
     </js-module>

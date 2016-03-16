@@ -66,7 +66,7 @@ public class LaunchNavigator extends CordovaPlugin {
 	private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
 
     // Explicitly supported apps
-    private static final String UNSPECIFIED = "none"; // App is unspecified so use native chooser
+    private static final String GEO = "geo"; // Use native app choose for geo: intent
     private static final String GOOGLE_MAPS = "google_maps";
     private static final String CITYMAPPER = "citymapper";
     private static final String UBER = "uber";
@@ -185,10 +185,21 @@ public class LaunchNavigator extends CordovaPlugin {
 
 	private void availableApps(JSONArray args, CallbackContext callbackContext) throws Exception{
         JSONObject apps = new JSONObject();
+
+        // Add explicitly supported apps first
         for (Map.Entry<String, String> entry : supportedAppPackages.entrySet()) {
             String _appName = entry.getKey();
             String _packageName = entry.getValue();
             apps.put(_appName, availableApps.containsValue(_packageName));
+        }
+
+        // Iterate over available apps and add any dynamically discovered ones
+        for (Map.Entry<String, String> entry : availableApps.entrySet()) {
+            String _packageName = entry.getValue();
+            // If it's not already present
+            if(!apps.has(_packageName) && !supportedAppPackages.containsValue(_packageName)){
+                apps.put(_packageName, true);
+            }
         }
 		callbackContext.success(apps);
 	}
@@ -265,7 +276,7 @@ public class LaunchNavigator extends CordovaPlugin {
         logDebug(logMsg);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        if(!appName.equals(UNSPECIFIED)){
+        if(!appName.equals(GEO)){
             if(appName.equals(GOOGLE_MAPS)) {
                 appName = supportedAppPackages.get(GOOGLE_MAPS);
             }
@@ -711,7 +722,7 @@ public class LaunchNavigator extends CordovaPlugin {
 
     private String getAppDisplayName(String packageName){
         String name = "[Not found]";
-        if(packageName.equals(UNSPECIFIED)){
+        if(packageName.equals(GEO)){
             return "[Native chooser]";
         }
         for (Map.Entry<String, String> entry : availableApps.entrySet()) {
