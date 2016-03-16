@@ -71,7 +71,7 @@ ln.v3 = {};
  * A single string argument containing the error message will be passed in.
  *
  * - {string} app - name of the navigation app to use for directions.
- * If not specified or the specified app is not installed, defaults to Apple Maps.
+ * If not specified, defaults to User Selection.
  *
  * - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
  *
@@ -90,8 +90,15 @@ ln.v3 = {};
 ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
 
+    options.app = options.app || common.APP.USER_SELECT;
+
+    // If app is user-selection
+    if(options.app == common.APP.USER_SELECT){
+        // Invoke user-selection UI and return (as it will re-invoke this method)
+        return common.userSelect(destination, options);
+    }
+
     // Set defaults
-    options.app = options.app ? options.app : common.APP.APPLE_MAPS;
     options.transportMode = options.transportMode ? options.transportMode : common.TRANSPORT_MODE.DRIVING;
     options.enableDebug = options.enableDebug ? !!options.enableDebug : false;
 

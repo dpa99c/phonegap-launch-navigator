@@ -48,6 +48,7 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      * @type {object}
      */
     ln.APP = {
+        USER_SELECT: "user_select",
         APPLE_MAPS: "apple_maps",
         GOOGLE_MAPS: "google_maps",
         WAZE: "waze",
@@ -66,12 +67,14 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.APPS_BY_PLATFORM = {};
     ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
+        ln.APP.USER_SELECT,
         ln.APP.GOOGLE_MAPS,
         ln.APP.CITYMAPPER,
         ln.APP.UBER,
         ln.APP.WAZE
     ];
     ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
+        ln.APP.USER_SELECT,
         ln.APP.APPLE_MAPS,
         ln.APP.GOOGLE_MAPS,
         ln.APP.WAZE,
@@ -92,6 +95,7 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      * @type {object}
      */
     ln.APP_NAMES = {};
+    ln.APP_NAMES[ln.APP.USER_SELECT] = "[User select]";
     ln.APP_NAMES[ln.APP.APPLE_MAPS] = "Apple Maps";
     ln.APP_NAMES[ln.APP.GOOGLE_MAPS] = "Google Maps";
     ln.APP_NAMES[ln.APP.WAZE] = "Waze";
@@ -120,6 +124,12 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.TRANSPORT_MODES = {};
     ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID] = {};
+    ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.USER_SELECT] = [ // Allow all
+        ln.TRANSPORT_MODE.DRIVING,
+        ln.TRANSPORT_MODE.WALKING,
+        ln.TRANSPORT_MODE.BICYCLING,
+        ln.TRANSPORT_MODE.TRANSIT
+    ];
     ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.GOOGLE_MAPS] = [ // Only launchMode=turn-by-turn
         ln.TRANSPORT_MODE.DRIVING,
         ln.TRANSPORT_MODE.WALKING,
@@ -150,11 +160,13 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.SUPPORTS_START = {};
     ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
+        ln.APP.USER_SELECT,
         ln.APP.GOOGLE_MAPS, // Only launchMode=maps
         ln.APP.CITYMAPPER,
         ln.APP.UBER
     ];
     ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
+        ln.APP.USER_SELECT,
         ln.APP.APPLE_MAPS,
         ln.APP.GOOGLE_MAPS,
         ln.APP.CITYMAPPER,
@@ -172,10 +184,12 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.SUPPORTS_START_NAME = {};
     ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
+        ln.APP.USER_SELECT,
         ln.APP.CITYMAPPER,
         ln.APP.UBER
     ];
     ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
+        ln.APP.USER_SELECT,
         ln.APP.APPLE_MAPS,
         ln.APP.CITYMAPPER,
         ln.APP.UBER
@@ -187,11 +201,13 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      */
     ln.SUPPORTS_DEST_NAME = {};
     ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
+        ln.APP.USER_SELECT,
         ln.APP.GOOGLE_MAPS, // only launchMode=geo
         ln.APP.CITYMAPPER,
         ln.APP.UBER
     ];
     ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
+        ln.APP.USER_SELECT,
         ln.APP.APPLE_MAPS,
         ln.APP.CITYMAPPER,
         ln.APP.NAVIGON,
@@ -204,7 +220,10 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      * @type {obect}
      */
     ln.SUPPORTS_LAUNCH_MODE = {};
-    ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [ln.APP.GOOGLE_MAPS];
+    ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [
+        ln.APP.USER_SELECT,
+        ln.APP.GOOGLE_MAPS
+    ];
 
     ln.COORDS_REGEX = /^[-\d.]+,[\s]*[-\d.]+$/;
 
@@ -312,6 +331,67 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
         return !!ln.SUPPORTS_DEST_NAME[platform] && ln.util.arrayContainsValue(ln.SUPPORTS_DEST_NAME[platform], app);
     };
 
+
+    /**
+     *
+     * @param {mixed} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
+     * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
+     */
+    ln.userSelect = function(destination, options){
+        options = options ? options : {};
+        options.errorCallback = options.errorCallback ? options.errorCallback : function(){};
+        var buttonList = [], buttonMap = {};
+
+        if(launchnavigator.userSelectDisplayed) return;
+
+        function launchApp(app){
+            options.app = app;
+            launchnavigator.navigate(destination, options);
+        }
+
+        function onChooseApp(btnNumber){
+            delete launchnavigator.userSelectDisplayed;
+            var idx = btnNumber - 1,
+                app = buttonMap[idx];
+            if(app != "cancel"){
+                launchApp(app);
+            }
+        }
+
+        function displayChooser(){
+            var options = {
+                'androidTheme': window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
+                'title': 'Select app for navigation',
+                'buttonLabels': buttonList,
+                'androidEnableCancelButton' : true, // default false
+                //'winphoneEnableCancelButton' : true, // default false
+                'addCancelButtonWithLabel': 'Cancel',
+                'position': [550, 500] // for iPad pass in the [x, y] position of the popover
+            };
+            launchnavigator.userSelectDisplayed = true;
+            window.plugins.actionsheet.show(options, onChooseApp);
+        }
+
+        // Get list of available apps
+        launchnavigator.availableApps(function(apps){
+            for(var app in apps){
+                var isAvailable = apps[app];
+                if(!isAvailable) continue;
+                buttonList.push(ln.getAppDisplayName(app));
+                buttonMap[buttonList.length-1] = app;
+            }
+
+            if(buttonList.length == 1){
+                return launchApp(buttonMap[0]);
+            }
+
+            buttonMap[buttonList.length] = "cancel"; // Add an entry for cancel button
+
+            displayChooser();
+
+        }, options.errorCallback);
+    };
+
     /*******************
      * Utility functions
      *******************/
@@ -342,6 +422,14 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
             }
         }
         return false;
+    };
+
+    ln.util.countKeysInObject = function (o){
+        var count = 0;
+        for(var k in o){
+            count++;
+        }
+        return count;
     };
 
     ln.util.isValidApp = function(app){
