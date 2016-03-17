@@ -467,7 +467,7 @@ Calls to the plugin which use the v2 API syntax will display a deprecation warni
 
 ## Android
 
-- Running on Android, in addition to discovering which explicitly supported apps are installed, the plugin will also detect which installed apps support using the geo: protocol for use in navigation. These are returned in the list of available apps.
+- Running on Android, in addition to discovering which explicitly supported apps are installed, the plugin will also detect which installed apps support using the `geo:` URI scheme for use in navigation. These are returned in the list of available apps.
 
 - By specifying the `app` option as `launchnavigator.APP.GEO`, the plugin will invoke a native Android chooser, to allow the user to select an app which supports the `geo:` URI scheme for navigation.
 
@@ -490,7 +490,7 @@ This can be disabled via the `disableAutoGeolocation` option.
 
 ## iOS
 
-- The iOS implementation uses a forked version of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
+- The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 
 
 # Reporting issues
