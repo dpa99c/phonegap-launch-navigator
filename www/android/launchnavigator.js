@@ -220,6 +220,7 @@ ln.v3 = {};
  * - {mixed} start - start location to use for navigation. If not specified, the current location of the device will be used.
  * Either:
  *      - a {string} containing the address. e.g. "Buckingham Palace, London"
+ *      - a {string} containing a latitude/longitude coordinate. e.g. "50.1. -4.0"
  *      - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
  *
  * - {string} startName - nickname to display in app for start. e.g. "My Place".

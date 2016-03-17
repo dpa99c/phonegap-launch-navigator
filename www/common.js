@@ -286,7 +286,7 @@ cordova.define("uk.co.workingedge.phonegap.plugin.launchnavigator.Common", funct
      * Indicates if an app on a given platform supports specification of launch mode.
      * Note that currently only Google Maps on Android does.
      * @param {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
-     * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+     * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.ANDROID`.
      * @return {boolean} - true if app/platform combination supports specification of transport mode.
      */
     ln.supportsLaunchMode = function(app, platform) {

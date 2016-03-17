@@ -1,41 +1,104 @@
 Launch Navigator Cordova/Phonegap Plugin
 =================================
 
-This Cordova/Phonegap plugin can be used to navigate to a destination using the native navigation app on:
-
-- Android: Google Navigator
-- iOS: Apple Maps/Google Maps<sup>[[1]](#fn1)</sup>
-- Windows Phone: Bing Maps
-
-<sub><a id="fn1">[1]</a>: on iOS, you can choose to [prefer Google Maps](#ios) over Apple Maps if it's installed on the user's device; if not, Apple Maps will be used instead.</sub>
+This Cordova/Phonegap plugin can be used to navigate to a destination by launching native navigation apps on Android, iOS and Windows Phone.
 
 The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
-**IMPORTANT:** Note that the plugin will **NOT** work in a browser-emulated Cordova environment, for example by running `ionic serve` or using the [Ripple emulator](https://github.com/ripple-emulator/ripple).
-This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
+<!-- START table-of-contents -->
+**Table of Contents**
 
-## Contents
+- [General concepts](#general-concepts)
+  - [App detection, selection and launching](#app-detection-selection-and-launching)
+  - [Format of start/destination locations](#format-of-startdestination-locations)
+- [Supported navigation apps](#supported-navigation-apps)
+  - [Adding support for more apps](#adding-support-for-more-apps)
+- [Installing](#installing)
+  - [Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)](#using-the-cordovaphonegap-clihttpdocsphonegapcomenedgeguide_cli_indexmdhtml)
+  - [Using [Cordova Plugman](https://github.com/apache/cordova-plugman)](#using-cordova-plugmanhttpsgithubcomapachecordova-plugman)
+  - [PhoneGap Build](#phonegap-build)
+- [Usage examples](#usage-examples)
+  - [Simple usage](#simple-usage)
+  - [Advanced usage](#advanced-usage)
+- [Supported parameters](#supported-parameters)
+  - [Transport modes](#transport-modes)
+- [Plugin API](#plugin-api)
+  - [Constants](#constants)
+  - [API methods](#api-methods)
+- [Example project](#example-project)
+- [Legacy v2 API](#legacy-v2-api)
+- [Platform-specifics](#platform-specifics)
+  - [Android](#android)
+  - [Windows](#windows)
+  - [iOS](#ios)
+- [Reporting issues](#reporting-issues)
+- [Credits](#credits)
+- [License
+](#license)
 
-* [Installing](#installing)
-* [Using the plugin](#using-the-plugin)
-    * [Example usage](#example-usage)
-    * [Example project](#example-project)
-* [Legacy API](#legacy-api)
-* [Caveats](#caveats)
-    * [Android](#android)
-    * [Windows](#windows)
-    * [iOS](#ios)
-* [Reporting issues](#reporting-issues)
-* [Credits](#credits)
-* [License](#license)
- 
+<!-- END table-of-contents -->
+
+# General concepts
+
+## App detection, selection and launching
+- The plugin will detect which supported navigation apps are available on the device.
+- By default, where this is more than one choice, it will display a list of these to the user to select for navigation.
+- However, the plugin API allows you to programmatically:
+    - check which apps are available on the current device
+    - check which apps support which navigation options
+    - launch a specific app for navigation
+
+## Format of start/destination locations
+- Some navigation apps require that destination/start locations be specified as coordinates, and others require an address.
+- This plugin will appropriately geocode or reverse-geocode the locations you provide to ensure the app receives the location in the required format.
+- So you can supply location as an address or as coordinates and the plugin will take care of getting it into the correct format for a particular app.
+- However, geocoding requires use of a remote service, so an internet connection is required. Hence if `navigate()` is called and no internet connection is detected, an error will be returned.
+
+
+# Supported navigation apps
+
+The plugin currently supports launching the following navigation apps:
+
+Android
+
+* [Google Maps](https://play.google.com/store/apps/details?id=com.google.android.apps.maps)
+* [Waze](https://play.google.com/store/apps/details?id=com.waze)
+* [Citymapper](https://play.google.com/store/apps/details?id=com.citymapper.app.release)
+* [Uber](https://play.google.com/store/apps/details?id=com.ubercab)
+* _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
+
+iOS
+
+* [Apple Maps](http://www.apple.com/uk/ios/maps/)
+* [Google Maps](https://itunes.apple.com/gb/app/google-maps/id585027354?mt=8)
+* [Waze](https://itunes.apple.com/gb/app/waze-gps-maps-social-traffic/id323229106?mt=8)
+* [Citymapper](https://itunes.apple.com/gb/app/citymapper-london-hong-kong/id469463298?mt=8)
+* [Garmin Navigon](https://itunes.apple.com/us/developer/garmin-wuerzburg-gmbh/id320198400)
+* [Transit App](https://itunes.apple.com/us/app/transit-app-real-time-tracker/id498151501?mt=8)
+* [Yandex Navigator](https://itunes.apple.com/gb/app/yandex.navigator/id474500851?mt=8)
+* [Uber](https://itunes.apple.com/gb/app/uber/id368677368?mt=8)
+* [Tomtom](https://itunes.apple.com/gb/developer/tomtom/id326055452)
+
+Windows
+
+* [Bing Maps](https://www.microsoft.com/en-us/store/apps/maps/9wzdncrfj224)
+
+## Adding support for more apps
+
+This plugin is a work in progress. I'd like it to support launching of as many popular navigation apps as possible.
+
+If there's another navigation app which you think should be explicitly supported and **it provides a mechanism to externally launch it**,
+open an issue adding a link or details of how the app should be invoked.
+
+**Don't** just open an issue saying "Add support for Blah" without first find out if/how it can be externally launched.
+I don't have time to research launch mechanisms for every suggested app, so I will close such issues immediately.
+
 # Installing
 
 ## Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-
 
 ## Using [Cordova Plugman](https://github.com/apache/cordova-plugman)
 
@@ -49,183 +112,370 @@ For example, to install for the Android platform
 
 Add the following xml to your config.xml to use the latest version of this plugin from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
 
-    <gap:plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
+    <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
+
+# Usage examples
+
+## Simple usage
+
+### Navigate to a destination address from current location.
+
+User is prompted to choose from available installed navigation apps.
+
+    launchnavigator.navigate("London, UK");
+
+### Navigate to a destination with specified start location
+
+    launchnavigator.navigate("London, UK", {
+        start: "Manchester, UK"
+    });
+
+### Navigate using latitude/longitude coordinates
+
+Coordinates can be specified as a string or array
+
+    launchnavigator.navigate([50.279306, -5.163158], {
+        start: "50.342847, -4.749904"
+    };
+
+## Advanced usage
+
+### Navigate using a specific app
+
+    launchnavigator.isAppAvailable(launchnavigator.APP.GOOGLE_MAPS, function(isAvailable){
+        var app;
+        if(isAvailable){
+            app = launchnavigator.APP.GOOGLE_MAPS;
+        }else{
+            console.warn("Google Maps not available - falling back to user selection");
+            app = launchnavigator.APP.USER_SELECT;
+        }
+        launchnavigator.navigate("London, UK", {
+            app: app
+        });
+    });
+
+### List all of the apps supported by the current platform
+
+    var platform = device.platform.toLowerCase();
+    if(platform == "android"){
+        platform = launchnavigator.PLATFORM.ANDROID;
+    }else if(platform == "ios"){
+        platform = launchnavigator.PLATFORM.IOS;
+    }else if(platform.match(/win/)){
+        platform = launchnavigator.PLATFORM.WINDOWS;
+    }
+
+    launchnavigator.getAppsForPlatform(platform).forEach(function(app){
+        console.log(launchnavigator.getAppDisplayName(app) + " is supported");
+    });
+
+### List apps available on the current device
+
+    launchnavigator.availableApps(function(results){
+        for(var app in results){
+            console.log(launchnavigator.getAppDisplayName(app) + (results[app] ? " is" : " isn't") +" available");
+        }
+    });
+
+# Supported parameters
+
+Different apps support different input parameters on different platforms.
+Any input parameters not supported by a specified app will be ignored.
 
 
-# Using the plugin
+The following table enumerates which apps support which parameters.
 
-## navigate()
+| Platform | App                            | Dest | Dest name | Start | Start name | Transport mode | Free |
+|----------|--------------------------------|:----:|:---------:|:-----:|:----------:|:--------------:|:----:|
+| Android  | Google Maps (Map mode)         |   X  |           |   X   |            |                |   X  |
+| Android  | Google Maps (Turn-by-turn mode)|   X  |           |       |            |        X       |   X  |
+| Android  | Waze                           |   X  |           |       |            |                |   X  |
+| Android  | CityMapper                     |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | Uber                           |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
+| iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
+| iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
+| iOS      | Waze                           |   X  |           |       |            |                |   X  |
+| iOS      | Citymapper                     |   X  |     X     |   X   |      X     |                |   X  |
+| iOS      | Navigon                        |   X  |     X     |       |            |                |      |
+| iOS      | Transit App                    |   X  |           |   X   |            |                |   X  |
+| iOS      | Yandex                         |   X  |           |   X   |            |                |   X  |
+| iOS      | Uber                           |   X  |     X     |   X   |            |                |   X  |
+| iOS      | Tomtom                         |   X  |     X     |       |            |                |      |
+| Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
-The plugin's primary API method launches a navigation app with a specified destination. The function also takes a options parameter which is used to specify various .
+Table columns:
+
+* Dest - destination location specified as lat/lon (e.g. "50,-4") or address (e.g. "London")
+* Dest name - nickname for destination location (e.g. "Bob's house")
+* Start - start location specified as lat/lon (e.g. "50,-4") or address (e.g. "London")
+* Start name - nickname for start location (e.g. "Bob's house")
+* Transport mode - mode of transport to use for route planning (e.g. "walking")
+* Free - is the app free or does it cost money?
+
+
+## Transport modes
+
+Apps that support specifying transport mode.
+
+| Platform | App                            | Driving | Walking | Bicycling | Transit |
+|----------|--------------------------------|:-------:|:-------:|:---------:|:-------:|
+| Android  | Google Maps (Turn-by-turn mode)|    X    |    X    |     X     |    X    |
+| iOS      | Apple Maps                     |    X    |    X    |           |         |
+| iOS      | Google Maps                    |    X    |    X    |     X     |    X    |
+| Windows  | Bing Maps                      |    X    |    X    |           |    X    |
+
+
+# Plugin API
+
+All of the following constants and functions should be referenced from the global `launchnavigator` namespace. For example:
+
+    launchnavigator.PLATFORM.ANDROID
+
+## Constants
+
+### PLATFORM
+
+Supported platforms:
+
+- `launchnavigator.PLATFORM.ANDROID`
+- `launchnavigator.PLATFORM.IOS`
+- `launchnavigator.PLATFORM.WINDOWS`
+
+### APP
+
+Supported apps:
+
+- `launchnavigator.APP.USER_SELECT` (Android & iOS) - invokes native UI for user to select available navigation app
+- `launchnavigator.APP.GEO` (Android) - invokes a native chooser, allowing users to select an app which supports the `geo:` URI scheme for navigation
+- `launchnavigator.APP.GOOGLE_MAPS` (Android & iOS)
+- `launchnavigator.APP.WAZE` (Android & iOS)
+- `launchnavigator.APP.CITYMAPPER` (Android & iOS)
+- `launchnavigator.APP.UBER` (Android & iOS)
+- `launchnavigator.APP.APPLE_MAPS` (iOS)
+- `launchnavigator.APP.NAVIGON` (iOS)
+- `launchnavigator.APP.TRANSIT_APP` (iOS)
+- `launchnavigator.APP.YANDEX` (iOS)
+- `launchnavigator.APP.TOMTOM` (iOS)
+- `launchnavigator.APP.BING_MAPS` (Windows)
+
+### APP_NAMES
+
+Display names for supported apps, referenced by `launchnavigator.APP`.
+
+e.g. `launchnavigator.APP_NAMES[launchnavigator.APP.GOOGLE_MAPS] == "Google Maps"`
+
+### `launchnavigator.TRANSPORT_MODE`
+
+Transport modes for navigation:
+
+- `launchnavigator.TRANSPORT_MODE.DRIVING`
+- `launchnavigator.TRANSPORT_MODE.WALKING`
+- `launchnavigator.TRANSPORT_MODE.BICYCLING`
+- `launchnavigator.TRANSPORT_MODE.TRANSIT`
+
+### LAUNCH_MODE
+
+Android only: launch modes supported by Google Maps on Android
+
+- `launchnavigator.LAUNCH_MODE.MAPS` - Maps view
+- `launchnavigator.LAUNCH_MODE.TURN_BY_TURN` - Navigation view
+- `launchnavigator.LAUNCH_MODE.GEO` - Navigation view via `geo:` URI scheme
+
+## API methods
+
+### navigate()
+
+The plugin's primary API method.
+Launches a navigation app with a specified destination.
+Also takes optional parameters.
 
     launchnavigator.navigate(destination, options);
 
-## Parameters
+#### Parameters
 
-- destination (required): destination location to use for navigation, either as a String specifying the place name, or as an Array specifying latitude/longitude.
-- start (optional): start location to use for navigation, either as a String specifying the place name, or as an Array specifying latitude/longitude. If not specified, the current device location will be used.
-- successFn (optional): Called when plugin the call is successful.
-- errorFn (optional): Called when plugin encounters an error. This callback function will be passed an error message string as the first parameter.
-- options (optional): Platform- and app-specific options.
+- destination (required): destination location to use for navigation.
+Either:
+    - a {string} containing the address. e.g. "Buckingham Palace, London"
+    - a {string} containing a latitude/longitude coordinate. e.g. "50.1. -4.0"
+    - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
+- options - optional parameters:
+    - successFn (optional): A callback to invoke when the navigation app is successfully launched.
+    - errorFn (optional): A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
+    - {string} app - name of the navigation app to use for directions.
+    Specify using `launchnavigator.APP` constants.
+        If not specified, defaults to User Selection.
+    - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
+    - start (optional): start location to use for navigation.
+    If not specified, the current device location will be used.
+    Either:
+        - a {string} containing the address. e.g. "Buckingham Palace, London"
+        - a {string} containing a latitude/longitude coordinate. e.g. "50.1. -4.0"
+        - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
+    - {string} startName - nickname to display in app for start. e.g. "My Place".
+    - {string} transportMode - transportation mode for navigation.
+    Defaults to "driving" if not specified.
+    Specify using `launchnavigator.TRANSPORT_MODE` constants.
+    - {boolean} enableDebug - if true, debug log output will be generated by the plugin. Defaults to false.
+    - {string} launchMode - (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn".
+    Defaults to "maps" if not specified.
+    Specify using `launchnavigator.LAUNCH_MODE` constants.
 
-## Example usage
 
-Navigate by place name:
+### isAppAvailable()
 
-    launchnavigator.navigate(
-      "London, UK",
-      "Manchester, UK",
-      function(){
-          alert("Plugin success");
-      },
-      function(error){
-          alert("Plugin error: "+ error);
-      });
+Determines if the given app is installed and available on the current device.
 
-Navigate by latitude/longitude:
+    launchnavigator.isAppAvailable(appName, success, error);
 
-    launchnavigator.navigate(
-      [50.279306, -5.163158],
-      [50.342847, -4.749904],
-      function(){
-          alert("Plugin success");
-      },
-      function(error){
-          alert("Plugin error: "+ error);
-      });
+#### Parameters
+- {string} appName - name of the app to check availability for. Define as a constant using `ln.APP`.
+- {function} success - callback to invoke on successful determination of availability. Will be passed a single boolean argument indicating the availability of the app.
+- {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
 
-Navigate from current location:
 
-    launchnavigator.navigate(
-      "London, UK",
-      null,
-      function(){
-          alert("Plugin success");
-      },
-      function(error){
-          alert("Plugin error: "+ error);
-      });
+### availableApps()
 
-## Example project
+Returns a list indicating which apps are installed and available on the current device.
 
-https://github.com/dpa99c/phonegap-launch-navigator-example
+    launchnavigator.availableApps(success, error);
 
-The above link is to an example Cordova 3 project which demonstrates usage of this plugin.
-The examples currently run on Android, iOS, Windows Phone 8.1, Windows 8.1 (PC), and Windows 10 (PC) platforms.
+#### Parameters
+- {function} success - callback to invoke on successful determination of availability. Will be passed a key/value object where the key is the app name and the value is a boolean indicating whether the app is available.
+- {function} error - callback to invoke on error while determining availability. Will be passed a single string argument containing the error message.
+
+
+
+### getAppDisplayName()
+
+Returns the display name of the specified app.
+
+    launchnavigator.getAppDisplayName(app);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`. whether the app is available.
+- returns {string} - app display name. e.g. "Google Maps".
+
+
+
+### getAppsForPlatform()
+
+Returns list of supported apps on a given platform.
+
+    launchnavigator.getAppsForPlatform(platform);
+
+#### Parameters
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- returns {string} -  {array} - apps supported on specified platform as a list of `launchnavigator.APP` constants.
+
+
+### supportsTransportMode()
+
+Indicates if an app on a given platform supports specification of transport mode.
+
+    launchnavigator.supportsTransportMode(app, platform, launchMode);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- returns {boolean} - true if app/platform combination supports specification of transport mode.
+
+
+
+### getTransportModes()
+
+Returns the list of transport modes supported by an app on a given platform.
+
+    launchnavigator.getTransportModes(app, platform, launchMode);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- returns {boolean} - {array} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
+If app/platform combination doesn't support specification of transport mode, the list will be empty;
+
+
+
+### supportsDestName()
+
+Indicates if an app on a given platform supports specification of a custom nickname for destination location.
+
+    launchnavigator.supportsDestName(app, platform, launchMode);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- returns {boolean} - true if app/platform combination supports specification of destination location.
+
+
+### supportsStart()
+
+Indicates if an app on a given platform supports specification of start location.
+
+    launchnavigator.supportsStart(app, platform, launchMode);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- returns {boolean} - true if app/platform combination supports specification of start location.
+
+
+
+### supportsStartName()
+
+Indicates if an app on a given platform supports specification of a custom nickname for start location.
+
+    launchnavigator.supportsStart(app, platform);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- returns {boolean} - {boolean} - true if app/platform combination supports specification of start location.
+
+
+
+### supportsLaunchMode()
+
+Indicates if an app on a given platform supports specification of launch mode.
+Note that currently only Google Maps on Android does.
+
+    launchnavigator.supportsStart(app, platform);
+
+#### Parameters
+- {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+- {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.ANDROID`.
+- returns {boolean} - true if app/platform combination supports specification of transport mode.
+
+
+# Example project
+
+There is an [example Cordova project](https://github.com/dpa99c/phonegap-launch-navigator-example) which demonstrates usage of this plugin.
+The example currently runs on Android, iOS, Windows Phone 8.1, Windows 8.1 (PC), and Windows 10 (PC) platforms.
 
 # Legacy v2 API
 
-The plugin API has changed in v3, but the v2 API is still supported although deprecated and will be removed in a future version, so plugin users are urged to migrate to the new API.
+The plugin API has changed in v3, but the v2 API is still supported, although deprecated and will be removed in a future version, so plugin users are urged to migrate to the new API.
+Calls to the plugin which use the v2 API syntax will display a deprecation warning message in the JS console.
 
-The v2 API for the `navigate` function is as follows:
 
-    launchnavigator.navigate(destination, start, successCallback, errorCallback, options);
-
-- destination (required): destination location to use for navigation, either as a String specifying the place name, or as an Array specifying latitude/longitude.
-- start (optional): start location to use for navigation, either as a String specifying the place name, or as an Array specifying latitude/longitude. If not specified, the current device location will be used.
-- successFn (optional): Called when plugin the call is successful.
-- errorFn (optional): Called when plugin encounters an error. This callback function will be passed an error message string as the first parameter.
-- options (optional): Platform-specific options (see below)
+# Platform-specifics
 
 ## Android
 
-Options specific to Android platform:
+- Running on Android, in addition to discovering which explicitly supported apps are installed, the plugin will also detect which installed apps support using the geo: protocol for use in navigation. These are returned in the list of available apps.
 
-- {String} navigationMode - navigation mode in which to open Google Maps app: "maps" or "turn-by-turn". Defaults to "maps" if not specified.
-- {String} transportMode - transportation mode for navigation: "driving", "walking", "bicycling" or "transit". Defaults to "driving" if not specified. Only works when `transportMode` is "turn-by-turn".
-- {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
+- By specifying the `app` option as `launchnavigator.APP.GEO`, the plugin will invoke a native Android chooser, to allow the user to select an app which supports the `geo:` URI scheme for navigation.
 
-For example:
-
-    launchnavigator.navigate(
-      "London, UK",
-      null,
-      function(){
-        alert("Plugin success");
-      },
-      function(error){
-        alert("Plugin error: "+ error);
-      },
-      {
-        navigationMode: "turn-by-turn",
-        transportMode: "bicycling",
-        disableAutoGeolocation: true
-      }
-    );
-
-## Windows
-
-Options specific to Windows platforms:
-
-- {String} transportMode - transportation mode for navigation: "driving", "walking" or "transit". Defaults to "driving" if not specified.
-- {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
-
-For example:
-
-    launchnavigator.navigate(
-      "London, UK",
-      "Manchester, UK",
-      function(){
-        alert("Plugin success");
-      },
-      function(error){
-        alert("Plugin error: "+ error);
-      },
-      {
-        disableAutoGeolocation: true,
-        transportMode: "walking"
-      }
-    );
-
-## iOS
-
-Options specific to iOS platform:
-
-- {Boolean} preferGoogleMaps - if true, plugin will attempt to launch Google Maps instead of Apple Maps. If Google Maps is not available, it will fall back to Apple Maps.
-  - {Boolean} disableAutoGeolocation - if true, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to false.
-  - {String} transportMode - transportation mode for navigation. For Apple Maps, valid options are "driving" or "walking". For Google Maps, valid options are "driving", "walking", "bicycling" or "transit". Defaults to "driving" if not specified.
-  - {String} urlScheme - if using Google Maps and the app has a URL scheme, passing this to Google Maps will display a button which returns to the app
-  - {String} backButtonText - if using Google Maps with a URL scheme, this specifies the text of the button in Google Maps which returns to the app. Defaults to "Back" if not specified.
-  - {Boolean} enableDebug - if true, debug log output will be generated by the plugin. Defaults to false.
-
-For example:
-
-    launchnavigator.navigate(
-      "London, UK",
-      "Manchester, UK",
-      function(){
-        alert("Plugin success");
-      },
-      function(error){
-        alert("Plugin error: "+ error);
-      },
-      {
-        preferGoogleMaps: true,
-        transportMode: "transit",
-        enableDebug: true,
-        disableAutoGeolocation: true
-    });
-
-The v2 iOS plugin interface also provides an additional function to check if Google Maps is installed and available on the iOS device:
-
-    launchnavigator.isGoogleMapsAvailable(successFn);
-
-Where `successFn` is a callback function which is passed a single parameter which is a boolean indicating if Google Maps is available. For example:
-
-    launchnavigator.isGoogleMapsAvailable(
-      function(available){
-        if(available){
-          alert("Google Maps is available");
-        }else{
-          alert("Google Maps is NOT available");
-        }
-      });
-
-# Caveats
-
-## Android
-
-- Start location will be ignored if `transportMode` is "turn-by-turn" (defaults to current location even if defined).
+- Google Maps on Android can be launched in 3 launch modes:
+    - Maps mode (`launchnavigator.LAUNCH_MODE.MAPS`) - launches in Map view. Enables start location to be specified, but not transport mode or destination name.
+    - Turn-by-turn mode (`launchnavigator.LAUNCH_MODE.TURN_BY_TURN`) - launches in Navigation view. Enables transport mode to be specified, but not start location or destination name.
+    - Geo mode (`launchnavigator.LAUNCH_MODE.GEO`) - invokes Navigation view via `geo`: URI scheme. Enables destination name to be specified, but not start location or transport mode.
+    - Launch mode can be specified via the `launchMode` option, but defaults to Maps mode if not specified.
 
 
 ## Windows
@@ -240,7 +490,7 @@ This can be disabled via the `disableAutoGeolocation` option.
 
 ## iOS
 
-
+- The iOS implementation uses a forked version of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 
 
 # Reporting issues
@@ -265,17 +515,22 @@ When reporting issues, please give the following information:
 
 - Example parameters (locations or place names) which results in the observed issue
 
+**Issues which fail to give a clear description of the problem as described above will be closed immediately**
 
 # Credits
 
-Thanks to [opadro](https://github.com/opadro) for Windows implementation
+Thanks to:
+
+- [opadro](https://github.com/opadro) for Windows implementation
+- [Eddy Verbruggen](https://github.com/EddyVerbruggen) for [cordova-plugin-actionsheet](https://github.com/EddyVerbruggen/cordova-plugin-actionsheet)
+- [Citymapper](http://citymapper.com/) for [CMMapLauncher iOS library](https://github.com/citymapper/CMMapLauncher)
 
 License
 ================
 
 The MIT License
 
-Copyright (c) 2016 Working Edge Ltd.
+Copyright (c) 2016 Dave Alden (Working Edge Ltd.)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
