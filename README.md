@@ -95,6 +95,10 @@ I don't have time to research launch mechanisms for every suggested app, so I wi
 
 # Installing
 
+**IMPORTANT:** Note that the plugin will **NOT** work in a browser-emulated Cordova environment, for example by running `cordova serve` or using the [Ripple emulator](https://github.com/ripple-emulator/ripple).
+This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
+
+
 ## Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
