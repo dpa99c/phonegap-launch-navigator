@@ -103,7 +103,13 @@ ln.v3.navigate = function(destination, options) {
     options.enableDebug = options.enableDebug ? !!options.enableDebug : false;
 
     // Input validation
-    if(!destination) throw new Error("destination must be given as an {array} of lat/lon coordinates or a placename {string}");
+    if(!destination){
+        var errMsg = "No destination was specified";
+        if(options.errorCallback){
+            options.errorCallback(errMsg);
+        }
+        throw new Error(errMsg);
+    }
     common.util.validateApp(options.app);
     common.util.validateTransportMode(options.transportMode);
 

@@ -238,6 +238,15 @@ ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
     var dType, sType = "none";
 
+    // Input validation
+    if(!destination){
+        var errMsg = "No destination was specified";
+        if(options.errorCallback){
+            options.errorCallback(errMsg);
+        }
+        throw new Error(errMsg);
+    }
+
     options.app = options.app || common.APP.USER_SELECT;
 
     // If app is user-selection
