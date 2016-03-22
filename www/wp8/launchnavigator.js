@@ -94,6 +94,14 @@ ln.v3 = {};
 ln.v3.navigate = function(destination, options) {
     var url ="bingmaps:?rtp=";
 
+    if(!destination){
+        var errMsg = "No destination was specified";
+        if(options.errorCallback){
+            options.errorCallback(errMsg);
+        }
+        throw new Error(errMsg);
+    }
+
     if(!options.app) options.app = common.APP.BING_MAPS;
     common.util.validateApp(options.app);
 
