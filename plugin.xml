@@ -3,7 +3,7 @@
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="uk.co.workingedge.phonegap.plugin.launchnavigator"
-    version="3.0.0-dev">
+    version="3.0.0">
 
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows Phone</description>
