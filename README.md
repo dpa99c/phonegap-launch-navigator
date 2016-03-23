@@ -14,8 +14,8 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
 - [Supported navigation apps](#supported-navigation-apps)
   - [Adding support for more apps](#adding-support-for-more-apps)
 - [Installing](#installing)
-  - [Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)](#using-the-cordovaphonegap-clihttpdocsphonegapcomenedgeguide_cli_indexmdhtml)
-  - [Using [Cordova Plugman](https://github.com/apache/cordova-plugman)](#using-cordova-plugmanhttpsgithubcomapachecordova-plugman)
+  - [Using the Cordova/Phonegap CLI](#using-the-cordovaphonegap-cli)
+  - [Using Cordova Plugman](#using-cordova-plugman)
   - [PhoneGap Build](#phonegap-build)
 - [Usage examples](#usage-examples)
   - [Simple usage](#simple-usage)
@@ -102,12 +102,12 @@ I don't have time to research launch mechanisms for every suggested app, so I wi
 This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
 
 
-## Using the Cordova/Phonegap [CLI](http://docs.phonegap.com/en/edge/guide_cli_index.md.html)
+## Using the Cordova/Phonegap CLI
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
-## Using [Cordova Plugman](https://github.com/apache/cordova-plugman)
+## Using Cordova Plugman
 
     $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=<platform> --project=<project_path> --plugins_dir=plugins
 
