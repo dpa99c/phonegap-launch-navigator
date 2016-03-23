@@ -126,11 +126,11 @@ ln.v3.navigate = function(destination, options) {
         if(options.transportMode){
             common.util.validateTransportMode(options.transportMode);
             url += "&mode=" + options.transportMode.charAt(0);
-            msg += " by" + options.transportMode;
+            msg += " by " + options.transportMode;
         }
 
         if(options.enableDebug){
-            console.log("LaunchNavigator: "+msg);
+            ln.console.log("LaunchNavigator: "+msg);
         }
 
         try{
@@ -203,7 +203,7 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
     // Set defaults
     options = options ? options : {};
 
-    console.warn("launchnavigator.navigate() called using deprecated v2 API signature. Please update to use v3 API signature as deprecated API support will be removed in a future version");
+    ln.console.warn("launchnavigator.navigate() called using deprecated v2 API signature. Please update to use v3 API signature as deprecated API support will be removed in a future version");
 
     // Map to and call v3 API
     ln.v3.navigate(destination, {
@@ -217,4 +217,36 @@ ln.v2.navigate = function(destination, start, successCallback, errorCallback, op
     });
 };
 
-module.exports = launchnavigator;
+/******************
+ * Plugin interface
+ ******************/
+
+/**
+ * Delegation shim to determine by arguments if API call is v2 or v3 and delegate accordingly.
+ */
+ln.navigate = function(){
+    if(arguments.length <= 2 && (typeof(arguments[1] == "undefined" || typeof(arguments[1] == "object")))){
+        ln.v3.navigate.apply(this, arguments);
+    }else{
+        ln.v2.navigate.apply(this, arguments);
+    }
+};
+
+/******************
+ * Console wrapper
+ ******************/
+ln.console = {};
+
+ln.console.log = function(msg){
+    if(window.console && window.console.log){
+        console.log(msg);
+    }
+};
+
+ln.console.warn = function(msg){
+    if(window.console && window.console.warn){
+        console.warn(msg);
+    }
+};
+
+module.exports = ln;
