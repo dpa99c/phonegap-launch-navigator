@@ -450,7 +450,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 Indicates if an app on a given platform supports specification of launch mode.
 Note that currently only Google Maps on Android does.
 
-    launchnavigator.supportsStart(app, platform);
+    launchnavigator.supportsLaunchMode(app, platform);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
