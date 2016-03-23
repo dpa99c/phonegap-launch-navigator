@@ -31,10 +31,10 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
   - [Android](#android)
   - [Windows](#windows)
   - [iOS](#ios)
+- [Version notes](#version-notes)
 - [Reporting issues](#reporting-issues)
 - [Credits](#credits)
-- [License
-](#license)
+- [License](#license)
 
 <!-- END table-of-contents -->
 
@@ -43,6 +43,7 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
 ## App detection, selection and launching
 - The plugin will detect which supported navigation apps are available on the device.
 - By default, where this is more than one choice, it will display a list of these to the user to select for navigation.
+    - This is done using native UI elements
 - However, the plugin API allows you to programmatically:
     - check which apps are available on the current device
     - check which apps support which navigation options
@@ -52,7 +53,8 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
 - Some navigation apps require that destination/start locations be specified as coordinates, and others require an address.
 - This plugin will appropriately geocode or reverse-geocode the locations you provide to ensure the app receives the location in the required format.
 - So you can supply location as an address or as coordinates and the plugin will take care of getting it into the correct format for a particular app.
-- However, geocoding requires use of a remote service, so an internet connection is required. Hence if `navigate()` is called and no internet connection is detected, an error will be returned.
+- However, geocoding requires use of a remote service, so an internet connection is required.
+<!-- - Hence if `navigate()` is called and no internet connection is detected, an error will be returned. -->
 
 
 # Supported navigation apps
@@ -88,7 +90,7 @@ Windows
 This plugin is a work in progress. I'd like it to support launching of as many popular navigation apps as possible.
 
 If there's another navigation app which you think should be explicitly supported and **it provides a mechanism to externally launch it**,
-open an issue adding a link or details of how the app should be invoked.
+open an issue containing a link or details of how the app should be invoked.
 
 **Don't** just open an issue saying "Add support for Blah" without first find out if/how it can be externally launched.
 I don't have time to research launch mechanisms for every suggested app, so I will close such issues immediately.
@@ -496,6 +498,13 @@ This can be disabled via the `disableAutoGeolocation` option.
 
 - The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 
+# Version notes
+**v3.0.0**
+
+Version 3 is a complete rewrite of the plugin in order to support launching of 3rd party navigation apps on Android and iOS.
+The plugin API has changed significantly, but is backwardly-compatible to support the version 2 API syntax.
+
+If for any reason you have issues with v3, the final release of v2 is on this branch: [https://github.com/dpa99c/phonegap-launch-navigator/tree/v2](https://github.com/dpa99c/phonegap-launch-navigator/tree/v2). It can be specified in a Cordova project as `uk.co.workingedge.phonegap.plugin.launchnavigator@2`.
 
 # Reporting issues
 
