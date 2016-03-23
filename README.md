@@ -54,6 +54,7 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
 - This plugin will appropriately geocode or reverse-geocode the locations you provide to ensure the app receives the location in the required format.
 - So you can supply location as an address or as coordinates and the plugin will take care of getting it into the correct format for a particular app.
 - However, geocoding requires use of a remote service, so an internet connection is required.
+
 <!-- - Hence if `navigate()` is called and no internet connection is detected, an error will be returned. -->
 
 
