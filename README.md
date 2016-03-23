@@ -415,7 +415,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
 - {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
-- returns {boolean} - true if app/platform combination supports specification of destination location.
+- returns {boolean} - true if app/platform combination supports specification of a custom nickname for destination location.
 
 
 ### supportsStart()
@@ -441,7 +441,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
-- returns {boolean} - {boolean} - true if app/platform combination supports specification of start location.
+- returns {boolean} - {boolean} - true if app/platform combination supports specification of a custom nickname for start location.
 
 
 
