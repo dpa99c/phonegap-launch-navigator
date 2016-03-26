@@ -33,11 +33,6 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 
 import org.apache.cordova.CordovaWebView;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +51,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class LaunchNavigator extends CordovaPlugin {
@@ -96,6 +95,8 @@ public class LaunchNavigator extends CordovaPlugin {
 
 	PackageManager packageManager;
 	Context context;
+
+    OkHttpClient httpClient = new OkHttpClient();
 
     boolean enableDebug = false;
 
@@ -672,19 +673,14 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
     private JSONObject doGeocode(String query) throws Exception{
-        HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false");
-        HttpClient client = new DefaultHttpClient();
-        HttpResponse response;
+        String url = "http://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
 
-        response = client.execute(httppost);
-        HttpEntity entity = response.getEntity();
-        InputStream stream = entity.getContent();
-        StringBuilder stringBuilder = new StringBuilder();
-        int b;
-        while ((b = stream.read()) != -1) {
-            stringBuilder.append((char) b);
-        }
-        JSONObject oResponse = new JSONObject(stringBuilder.toString());
+        Response response = httpClient.newCall(request).execute();
+        String responseBody = response.body().string();
+        JSONObject oResponse = new JSONObject(responseBody);
         return ((JSONArray)oResponse.get("results")).getJSONObject(0);
     }
 
