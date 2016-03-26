@@ -663,12 +663,14 @@ public class LaunchNavigator extends CordovaPlugin {
                 .getDouble("lat");
 
         String result = latitude+","+longitude;
+        logDebug("Geocoded '"+address+"' to '"+result+"'");
         return result;
     }
 
     private String reverseGeocodeLatLonToAddress(String latLon) throws Exception {
         JSONObject oResponse = doGeocode("latlng=" + latLon);
         String result = oResponse.getString("formatted_address");
+        logDebug("Reverse geocoded '"+latLon+"' to '"+result+"'");
         return result;
     }
 
