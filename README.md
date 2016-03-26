@@ -5,6 +5,12 @@ This Cordova/Phonegap plugin can be used to navigate to a destination by launchi
 
 The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
+<p align="center">
+  <img src="http://i.imgur.com/v96FhpZ.gif" />
+  <span>&nbsp;</span>
+  <img src="http://i.imgur.com/mUg9WqO.gif" />
+</p>
+
 <!-- START table-of-contents -->
 **Table of Contents**
 
