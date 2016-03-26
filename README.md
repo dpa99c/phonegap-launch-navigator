@@ -500,6 +500,9 @@ This can be disabled via the `disableAutoGeolocation` option.
 - The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 
 # Version notes
+**v3.0.1**
+Replaced legacy Apache HTTP client with OkHttp client on Android to prevent Gradle build issues
+
 **v3.0.0**
 
 Version 3 is a complete rewrite of the plugin in order to support launching of 3rd party navigation apps on Android and iOS.
