@@ -314,8 +314,8 @@ Either:
     - a {string} containing a latitude/longitude coordinate. e.g. "50.1. -4.0"
     - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
 - options - optional parameters:
-    - successFn (optional): A callback to invoke when the navigation app is successfully launched.
-    - errorFn (optional): A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
+    - successCallback (optional): A callback to invoke when the navigation app is successfully launched.
+    - errorCallback (optional): A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
     - {string} app - name of the navigation app to use for directions.
     Specify using `launchnavigator.APP` constants.
         If not specified, defaults to User Selection.
