@@ -86,7 +86,7 @@
 
   <!-- wp8 -->
   <platform name="wp8">
-    <js-module src="www/windows/launchnavigator.js" name="LaunchNavigator">
+    <js-module src="www/wp8/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />
     </js-module>     
   </platform>
