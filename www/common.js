@@ -246,6 +246,23 @@ ln.COORDS_REGEX = /^[-\d.]+,[\s]*[-\d.]+$/;
  ******************/
 
 /**
+ * Delegation shim to determine by arguments if API call is v2 or v3 and delegate accordingly.
+ */
+ln.navigate = function(){
+    if(arguments.length <= 2 && (typeof(arguments[1]) == "undefined" || typeof(arguments[1]) == "object")){
+        ln.v3.navigate.apply(this, arguments);
+    }else if(typeof(arguments[1]) == "function" && (typeof(arguments[2]) == "undefined" || typeof(arguments[2]) == "function")){
+        // called with v3 signature: navigate(start, successCallback, errorCallback, options)
+        var options = typeof(arguments[3] == "object") ? arguments[3] : {};
+        options.successCallback = arguments[1];
+        options.errorCallback = arguments[2];
+        ln.v3.navigate.call(this, arguments[0], options);
+    }else{
+        ln.v2.navigate.apply(this, arguments);
+    }
+};
+
+/**
  * Returns the display name of the specified app.
  * @param {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
  * @return {string} - app display name. e.g. "Google Maps".

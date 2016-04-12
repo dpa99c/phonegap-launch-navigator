@@ -215,18 +215,6 @@ ln.v2.isGoogleMapsAvailable = function(successCallback) {
  * Plugin interface
  ******************/
 
-
-/**
- * Delegation shim to determine by arguments if API call is v2 or v3 and delegate accordingly.
- */
-ln.navigate = function(){
-    if(arguments.length <= 2 && (typeof(arguments[1] == "undefined" || typeof(arguments[1] == "object")))){
-        ln.v3.navigate.apply(this, arguments);
-    }else{
-        ln.v2.navigate.apply(this, arguments);
-    }
-};
-
 /**
  * Map directly to v2 API
  */
