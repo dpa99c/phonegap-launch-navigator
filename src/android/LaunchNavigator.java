@@ -206,8 +206,12 @@ public class LaunchNavigator extends CordovaPlugin {
 	}
 
     private void isAppAvailable(JSONArray args, CallbackContext callbackContext) throws Exception{
-        boolean isAvailable = availableApps.containsValue(args.getString(0));
-        if(isAvailable){
+        String appName = args.getString(0);
+        if(supportedAppPackages.containsKey(appName)){
+            appName = supportedAppPackages.get(appName);
+        }
+        
+        if(availableApps.containsValue(appName)){
             callbackContext.success(1);
         }else{
             callbackContext.success(0);
