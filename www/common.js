@@ -253,7 +253,7 @@ ln.navigate = function(){
         ln.v3.navigate.apply(this, arguments);
     }else if(typeof(arguments[1]) == "function" && (typeof(arguments[2]) == "undefined" || typeof(arguments[2]) == "function")){
         // called with v3 signature: navigate(start, successCallback, errorCallback, options)
-        var options = typeof(arguments[3] == "object") ? arguments[3] : {};
+        var options = typeof(arguments[3]) == "object" ? arguments[3] : {};
         options.successCallback = arguments[1];
         options.errorCallback = arguments[2];
         ln.v3.navigate.call(this, arguments[0], options);
