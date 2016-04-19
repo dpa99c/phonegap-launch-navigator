@@ -367,11 +367,11 @@ BOOL enableDebug;
         if (error == nil && [placemarks count] > 0) {
             CLPlacemark* geocodedPlacemark = [placemarks lastObject];
             NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-            [self logDebug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:geocodedPlacemark.location.coordinate], address]];
+            [self logDebug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:start_coordinate], address]];
             [mapItem setName:address];
             
             MKPlacemark* placemark = [[MKPlacemark alloc]
-                                      initWithCoordinate:geocodedPlacemark.location.coordinate
+                                      initWithCoordinate:start_coordinate
                                       addressDictionary:geocodedPlacemark.addressDictionary];
             
             successBlock(mapItem, placemark);
