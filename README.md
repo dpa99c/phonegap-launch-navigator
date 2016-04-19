@@ -74,6 +74,7 @@ Android
 * [Waze](https://play.google.com/store/apps/details?id=com.waze)
 * [Citymapper](https://play.google.com/store/apps/details?id=com.citymapper.app.release)
 * [Uber](https://play.google.com/store/apps/details?id=com.ubercab)
+* [Yandex Navigator](https://play.google.com/store/apps/details?id=ru.yandex.yandexnavi)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -206,6 +207,7 @@ The following table enumerates which apps support which parameters.
 | Android  | Waze                           |   X  |           |       |            |                |   X  |
 | Android  | CityMapper                     |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Uber                           |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | Yandex                         |   X  |           |   X   |            |                |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -269,7 +271,7 @@ Supported apps:
 - `launchnavigator.APP.APPLE_MAPS` (iOS)
 - `launchnavigator.APP.NAVIGON` (iOS)
 - `launchnavigator.APP.TRANSIT_APP` (iOS)
-- `launchnavigator.APP.YANDEX` (iOS)
+- `launchnavigator.APP.YANDEX` (Android & iOS)
 - `launchnavigator.APP.TOMTOM` (iOS)
 - `launchnavigator.APP.BING_MAPS` (Windows)
 

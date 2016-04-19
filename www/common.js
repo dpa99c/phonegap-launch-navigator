@@ -70,7 +70,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.GOOGLE_MAPS,
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
-    ln.APP.WAZE
+    ln.APP.WAZE,
+    ln.APP.YANDEX
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -101,7 +102,7 @@ ln.APP_NAMES[ln.APP.WAZE] = "Waze";
 ln.APP_NAMES[ln.APP.CITYMAPPER] = "Citymapper";
 ln.APP_NAMES[ln.APP.NAVIGON] = "Navigon";
 ln.APP_NAMES[ln.APP.TRANSIT_APP] = "Transit App";
-ln.APP_NAMES[ln.APP.YANDEX] = "Yandex";
+ln.APP_NAMES[ln.APP.YANDEX] = "Yandex Navigator";
 ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
 ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
@@ -172,7 +173,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.USER_SELECT,
     ln.APP.GOOGLE_MAPS, // Only launchMode=maps
     ln.APP.CITYMAPPER,
-    ln.APP.UBER
+    ln.APP.UBER,
+    ln.APP.YANDEX
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,

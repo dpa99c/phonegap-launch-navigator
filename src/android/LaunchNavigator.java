@@ -59,10 +59,10 @@ import okhttp3.Response;
 
 public class LaunchNavigator extends CordovaPlugin {
 
-	private static final String LOG_TAG = "LaunchNavigator";
-	private static final String NO_APP_FOUND = "No Activity found to handle Intent";
-	private static final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
-	private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
+    private static final String LOG_TAG = "LaunchNavigator";
+    private static final String NO_APP_FOUND = "No Activity found to handle Intent";
+    private static final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
+    private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
 
     // Explicitly supported apps
     private static final String GEO = "geo"; // Use native app choose for geo: intent
@@ -70,6 +70,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String CITYMAPPER = "citymapper";
     private static final String UBER = "uber";
     private static final String WAZE = "waze";
+    private static final String YANDEX = "yandex";
 
     private static final Map<String, String> supportedAppPackages;
     static {
@@ -78,6 +79,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(CITYMAPPER, "com.citymapper.app.release");
         _supportedAppPackages.put(UBER, "com.ubercab");
         _supportedAppPackages.put(WAZE, "com.waze");
+        _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -88,13 +90,14 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(CITYMAPPER, "Citymapper");
         _supportedAppNames.put(UBER, "Uber");
         _supportedAppNames.put(WAZE, "Waze");
+        _supportedAppNames.put(YANDEX, "Yandex Navigator");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
-	private static final String GEO_URI = "geo:";
+    private static final String GEO_URI = "geo:";
 
-	PackageManager packageManager;
-	Context context;
+    PackageManager packageManager;
+    Context context;
 
     OkHttpClient httpClient = new OkHttpClient();
 
@@ -104,15 +107,15 @@ public class LaunchNavigator extends CordovaPlugin {
     Map<String, String> availableApps;
 
 
-	@Override
-	protected void pluginInitialize() {
-		Log.i(LOG_TAG, "pluginInitialize()");
+    @Override
+    protected void pluginInitialize() {
+        Log.i(LOG_TAG, "pluginInitialize()");
         discoverAvailableApps();
-	}
+    }
 
-	@Override
-	public boolean execute(String action, JSONArray args,
-		CallbackContext callbackContext) throws JSONException {
+    @Override
+    public boolean execute(String action, JSONArray args,
+                           CallbackContext callbackContext) throws JSONException {
         try {
             logDebug("Plugin action="+action);
             if ("navigate".equals(action)) {
@@ -162,8 +165,8 @@ public class LaunchNavigator extends CordovaPlugin {
             logError(msg);
             callbackContext.error(msg);
         }
-		return true;
-	}
+        return true;
+    }
 
     /*
      * Plugin API
@@ -184,7 +187,7 @@ public class LaunchNavigator extends CordovaPlugin {
         callbackContext.success(apps);
     }
 
-	private void availableApps(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private void availableApps(JSONArray args, CallbackContext callbackContext) throws Exception{
         JSONObject apps = new JSONObject();
 
         // Add explicitly supported apps first
@@ -202,15 +205,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 apps.put(_packageName, true);
             }
         }
-		callbackContext.success(apps);
-	}
+        callbackContext.success(apps);
+    }
 
     private void isAppAvailable(JSONArray args, CallbackContext callbackContext) throws Exception{
         String appName = args.getString(0);
         if(supportedAppPackages.containsKey(appName)){
             appName = supportedAppPackages.get(appName);
         }
-        
+
         if(availableApps.containsValue(appName)){
             callbackContext.success(1);
         }else{
@@ -230,6 +233,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchUber(args, callbackContext);
         }else if(appName.equals(WAZE)){
             launchWaze(args, callbackContext);
+        }else if(appName.equals(YANDEX)){
+            launchYandex(args, callbackContext);
         }else{
             launchApp(args, callbackContext);
         }
@@ -574,6 +579,79 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Waze app is not installed on this device";
+            }
+            logError("Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
+    }
+
+    private void launchYandex(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress = null;
+            String destLatLon = null;
+            String startAddress = null;
+            String startLatLon = null;
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+
+            if(sType.equals("name")){
+                startAddress = getLocationFromName(args, 5);
+                try {
+                    startLatLon = geocodeAddressToLatLon(args.getString(5));
+                }catch(Exception e){
+                    logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                }
+            }else if(sType.equals("pos")){
+                startLatLon = getLocationFromPos(args, 5);
+            }
+
+            Intent intent = new Intent(supportedAppPackages.get(YANDEX)+".action.BUILD_ROUTE_ON_MAP");
+            intent.setPackage(supportedAppPackages.get(YANDEX));
+            String logMsg = "Using Yandex to navigate to";
+
+            String[] parts = splitLatLon(destLatLon);
+            intent.putExtra("lat_to", parts[0]);
+            intent.putExtra("lon_to", parts[1]);
+            logMsg += " ["+destLatLon+"]";
+
+            if(!isNull(destAddress)){
+                logMsg += " ('"+destAddress+"')";
+            }
+
+
+            logMsg += " from";
+            if(!sType.equals("none")){
+                parts = splitLatLon(startLatLon);
+                intent.putExtra("lat_from", parts[0]);
+                intent.putExtra("lon_from", parts[1]);
+                logMsg += " ["+startLatLon+"]";
+                if(!isNull(startAddress)){
+                    logMsg += " ('"+startAddress+"')";
+                }
+            }else{
+                logMsg += " current location";
+            }
+
+            logDebug(logMsg);
+
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Yandex app is not installed on this device";
             }
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);
