@@ -37,7 +37,7 @@ The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedg
   - [Android](#android)
   - [Windows](#windows)
   - [iOS](#ios)
-- [Version notes](#version-notes)
+- [Release notes](#release-notes)
 - [Reporting issues](#reporting-issues)
 - [Credits](#credits)
 - [License](#license)
@@ -510,7 +510,7 @@ This can be disabled via the `disableAutoGeolocation` option.
 
 - The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 
-# Version notes
+# Release notes
 **v3.0.1**
 Replaced legacy Apache HTTP client with OkHttp client on Android to prevent Gradle build issues
 
