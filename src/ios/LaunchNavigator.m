@@ -49,6 +49,7 @@ NSString* startType;
 NSString* startName;
 NSString* appName;
 NSString* transportMode;
+NSString* sExtras;
 BOOL enableDebug;
 
 /**************
@@ -63,21 +64,22 @@ BOOL enableDebug;
     @try {
         // Get JS arguments
         destination = [command.arguments objectAtIndex:0];
-        destType = [self.cordova_command.arguments objectAtIndex:1];
-        destName = [self.cordova_command.arguments objectAtIndex:2];
-        start = [self.cordova_command.arguments objectAtIndex:3];
-        startType = [self.cordova_command.arguments objectAtIndex:4];
-        startName = [self.cordova_command.arguments objectAtIndex:5];
-        appName = [self.cordova_command.arguments objectAtIndex:6];
-        transportMode = [self.cordova_command.arguments objectAtIndex:7];
+        destType = [command.arguments objectAtIndex:1];
+        destName = [command.arguments objectAtIndex:2];
+        start = [command.arguments objectAtIndex:3];
+        startType = [command.arguments objectAtIndex:4];
+        startName = [command.arguments objectAtIndex:5];
+        appName = [command.arguments objectAtIndex:6];
+        transportMode = [command.arguments objectAtIndex:7];
         enableDebug = [[command argumentAtIndex:8] boolValue];
+        sExtras = [command.arguments objectAtIndex:9];
 
 
         if(enableDebug == TRUE){
             debugEnabled = enableDebug;
         }
         
-        [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@", destination, destType, destName, start, startType, startName, appName, transportMode]];
+        [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; extras=%@", destination, destType, destName, start, startType, startName, appName, transportMode, sExtras]];
         
         CMMapApp app = [self mapAppName_lnToCmm:appName];
         BOOL isAvailable = [CMMapLauncher isMapAppInstalled:app];
@@ -143,12 +145,6 @@ BOOL enableDebug;
 - (void) launchApp{
     CMMapApp app = [self mapAppName_lnToCmm:appName];
     
-    NSString* directionsMode = MKLaunchOptionsDirectionsModeDriving;
-    if([transportMode isEqual: @"walking"]){
-        directionsMode = MKLaunchOptionsDirectionsModeWalking;
-    }else if([transportMode isEqual: @"transit"]){
-        directionsMode = MKLaunchOptionsDirectionsModeTransit;
-    }
     
     NSString* logMsg = [NSString stringWithFormat:@"Using %@ to navigate to %@ [%@]", appName, [self getAddressFromPlacemark:dest_placemark], [self coordsToString:dest_placemark.coordinate]];
     if(![self isNull:destName]){
@@ -178,9 +174,21 @@ BOOL enableDebug;
                              address:[self getAddressFromPlacemark:dest_placemark]
                              coordinate:dest_placemark.coordinate];
 
+    NSDictionary* dExtras = nil;
+    if(![self isNull:sExtras]){
+        NSError* error;
+        dExtras = [NSJSONSerialization JSONObjectWithData:[sExtras dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+        if (error != nil){
+            [self logError:@"Failed to parse extras parameter as valid JSON"];
+            dExtras = nil;
+        }else{
+            logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, sExtras];
+        }
+    }
+
     [self logDebug:logMsg];
     
-    [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:directionsMode];
+    [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:transportMode extras:dExtras];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
 }

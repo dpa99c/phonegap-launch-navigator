@@ -118,13 +118,33 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
  @param start The starting point of the desired directions.
  @param end The destination of the desired directions.
  @param directionsMode transport mode to use when getting directions.
- 
+
  @return YES if the mapping app could be launched, NO otherwise.
  */
 + (BOOL)launchMapApp:(CMMapApp)mapApp
    forDirectionsFrom:(CMMapPoint *)start
                   to:(CMMapPoint *)end
       directionsMode:(NSString *)directionsMode;
+
+/**
+ Launches the specified mapping application with directions
+ between the two specified endpoints
+ and using the specified transport mode
+ and including app-specific extra parameters
+
+ @param mapApp An enumeration value identifying a mapping application.
+ @param start The starting point of the desired directions.
+ @param end The destination of the desired directions.
+ @param directionsMode transport mode to use when getting directions.
+ @param extras key/value map of app-specific extra parameters to pass to launched app
+
+ @return YES if the mapping app could be launched, NO otherwise.
+ */
++ (BOOL)launchMapApp:(CMMapApp)mapApp
+   forDirectionsFrom:(CMMapPoint *)start
+                  to:(CMMapPoint *)end
+      directionsMode:(NSString *)directionsMode
+      extras:(NSDictionary *)extras;
 
 @end
 

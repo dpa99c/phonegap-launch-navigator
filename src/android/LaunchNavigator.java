@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -131,6 +132,7 @@ public class LaunchNavigator extends CordovaPlugin {
                  * args[7] - transportMode
                  * args[8] - launchMode
                  * args[9] - enableDebug
+                 * args[10] - extras
                  */
                 enableDebug = args.getBoolean(9);
                 if(enableDebug){
@@ -143,7 +145,8 @@ public class LaunchNavigator extends CordovaPlugin {
                             + "; start="+ args.getString(5)
                             + "; startNickname="+ args.getString(6)
                             + "; transportMode="+ args.getString(7)
-                            + "; launchMode="+ args.getString(8);
+                            + "; launchMode="+ args.getString(8)
+                            + "; extras="+ args.getString(10);
                     logDebug(navigateArgs);
                 }
                 this.navigate(args, callbackContext);
@@ -242,7 +245,7 @@ public class LaunchNavigator extends CordovaPlugin {
 
 
     /*
-     * Internal functions
+     * Launch apps
      */
     private void launchApp(JSONArray args, CallbackContext callbackContext) throws Exception{
         String appName = args.getString(0);
@@ -281,6 +284,12 @@ public class LaunchNavigator extends CordovaPlugin {
         if(!isNull(dNickName)){
             uri += "("+dNickName+")";
             logMsg += "("+dNickName+")";
+        }
+
+        String extras = parseExtrasToUrl(args);
+        if(!isNull(extras)){
+            uri += extras;
+            logMsg += " - extras="+extras;
         }
 
         logDebug(logMsg);
@@ -337,6 +346,13 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
                 logMsg += " in maps mode";
             }
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
             logDebug(logMsg);
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -426,6 +442,12 @@ public class LaunchNavigator extends CordovaPlugin {
                     url += "&startname="+startNickname;
                     logMsg += " ("+startNickname+")";
                 }
+            }
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
             }
 
             logDebug(logMsg);
@@ -522,6 +544,12 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " current location";
             }
 
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
             logDebug(logMsg);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
@@ -570,6 +598,12 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logMsg += " from current location";
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
 
             logDebug(logMsg);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -644,6 +678,20 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " current location";
             }
 
+            String jsonStringExtras = args.getString(10);
+            JSONObject oExtras = null;
+            if(!isNull(jsonStringExtras)){
+                oExtras =  new JSONObject(jsonStringExtras);
+            }
+
+            if(oExtras != null){
+                Iterator<?> keys = oExtras.keys();
+                while( keys.hasNext() ) {
+                    String key = (String)keys.next();
+                    String value = oExtras.getString(key);
+                    intent.putExtra(key, value);
+                }
+            }
             logDebug(logMsg);
 
             this.cordova.getActivity().startActivity(intent);
@@ -656,6 +704,30 @@ public class LaunchNavigator extends CordovaPlugin {
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);
         }
+    }
+
+    /*
+     * Utilities
+     */
+
+    private String parseExtrasToUrl(JSONArray args) throws JSONException{
+        String extras = null;
+        String jsonStringExtras = args.getString(10);
+        JSONObject oExtras = null;
+        if(!isNull(jsonStringExtras)){
+            oExtras =  new JSONObject(jsonStringExtras);
+        }
+
+        if(oExtras != null){
+            Iterator<?> keys = oExtras.keys();
+            extras = "";
+            while( keys.hasNext() ) {
+                String key = (String)keys.next();
+                String value = oExtras.getString(key);
+                extras += "&"+key+"="+value;
+            }
+        }
+        return extras;
     }
 
     private String getLocationFromPos(JSONArray args, int index) throws Exception{
