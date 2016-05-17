@@ -383,6 +383,8 @@ ln.userSelect = function(destination, options){
             app = buttonMap[idx];
         if(app != "cancel"){
             launchApp(app);
+        } else {
+            options.errorCallback('cancelled');
         }
     }
 
