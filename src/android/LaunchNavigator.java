@@ -72,6 +72,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String UBER = "uber";
     private static final String WAZE = "waze";
     private static final String YANDEX = "yandex";
+    private static final String SYGIC = "sygic";
 
     private static final Map<String, String> supportedAppPackages;
     static {
@@ -81,6 +82,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(UBER, "com.ubercab");
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
+        _supportedAppPackages.put(SYGIC, "com.sygic.aura");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -92,6 +94,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(UBER, "Uber");
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
+        _supportedAppNames.put(SYGIC, "Sygic");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -238,7 +241,9 @@ public class LaunchNavigator extends CordovaPlugin {
             launchWaze(args, callbackContext);
         }else if(appName.equals(YANDEX)){
             launchYandex(args, callbackContext);
-        }else{
+        }else if(appName.equals(SYGIC)){
+            launchSygic(args, callbackContext);
+         }else{
             launchApp(args, callbackContext);
         }
     }
@@ -267,10 +272,6 @@ public class LaunchNavigator extends CordovaPlugin {
 
         }else{
             destLatLon = getLocationFromPos(args, 2);
-            destName = reverseGeocodeLatLonToAddress(destLatLon);
-            if(!isNull(destName)){
-                logMsg += destName;
-            }
             logMsg += "["+destLatLon+"]";
         }
 
@@ -700,6 +701,60 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Yandex app is not installed on this device";
+            }
+            logError("Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
+    }
+
+    private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress = null;
+            String destLatLon = null;
+
+            String dType = args.getString(1);
+            String transportMode = args.getString(7);
+            String url = supportedAppPackages.get(SYGIC)+"://coordinate|";
+            String logMsg = "Using Sygic to navigate to";
+
+            if(transportMode.equals("w")){
+                transportMode = "walk";
+            }else{
+                transportMode = "drive";
+            }
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtain coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+                logMsg += " ["+destLatLon+"]";
+            }
+
+            String[] pos = splitLatLon(destLatLon);
+            url += pos[1]+"|"+pos[0]+"|"+transportMode;
+
+            logMsg += " by " + transportMode;
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
+            logDebug(logMsg);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Sygic app is not installed on this device";
             }
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);

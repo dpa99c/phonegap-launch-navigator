@@ -75,6 +75,7 @@ Android
 * [Citymapper](https://play.google.com/store/apps/details?id=com.citymapper.app.release)
 * [Uber](https://play.google.com/store/apps/details?id=com.ubercab)
 * [Yandex Navigator](https://play.google.com/store/apps/details?id=ru.yandex.yandexnavi)
+* [Sygic](https://play.google.com/store/apps/details?id=com.sygic.aura)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -88,6 +89,7 @@ iOS
 * [Yandex Navigator](https://itunes.apple.com/gb/app/yandex.navigator/id474500851?mt=8)
 * [Uber](https://itunes.apple.com/gb/app/uber/id368677368?mt=8)
 * [Tomtom](https://itunes.apple.com/gb/developer/tomtom/id326055452)
+* [Sygic](https://itunes.apple.com/gb/app/sygic-gps-navigation-offline/id585193266?mt=8)
 
 Windows
 
@@ -208,6 +210,7 @@ The following table enumerates which apps support which parameters.
 | Android  | CityMapper                     |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Uber                           |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Yandex                         |   X  |           |   X   |            |                |   X  |
+| Android  | Sygic                          |   X  |           |       |            |        X       |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -218,6 +221,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | Yandex                         |   X  |           |   X   |            |                |   X  |
 | iOS      | Uber                           |   X  |     X     |   X   |            |                |   X  |
 | iOS      | Tomtom                         |   X  |     X     |       |            |                |      |
+| iOS      | Sygic                          |   X  |           |       |            |        X       |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 Table columns:
@@ -237,8 +241,10 @@ Apps that support specifying transport mode.
 | Platform | App                            | Driving | Walking | Bicycling | Transit |
 |----------|--------------------------------|:-------:|:-------:|:---------:|:-------:|
 | Android  | Google Maps (Turn-by-turn mode)|    X    |    X    |     X     |    X    |
+| Android  | Sygic                          |    X    |    X    |           |         |
 | iOS      | Apple Maps                     |    X    |    X    |           |         |
 | iOS      | Google Maps                    |    X    |    X    |     X     |    X    |
+| iOS      | Sygic                          |    X    |    X    |           |         |
 | Windows  | Bing Maps                      |    X    |    X    |           |    X    |
 
 
@@ -274,6 +280,7 @@ Supported apps:
 - `launchnavigator.APP.YANDEX` (Android & iOS)
 - `launchnavigator.APP.TOMTOM` (iOS)
 - `launchnavigator.APP.BING_MAPS` (Windows)
+- `launchnavigator.APP.SYGIC` (Android & iOS)
 
 ### APP_NAMES
 

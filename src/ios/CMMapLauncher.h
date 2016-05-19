@@ -53,6 +53,7 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
     CMMapAppYandex,         // Yandex Navigator
     CMMapAppUber,           // Uber
     CMMapAppTomTom,         // TomTom
+    CMMapAppSygic           // Sygic
     
 };
 
@@ -228,4 +229,3 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
                          coordinate:(CLLocationCoordinate2D)coordinate;
 
 @end
-
