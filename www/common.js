@@ -270,9 +270,6 @@ ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [
 
 ln.COORDS_REGEX = /^[-\d.]+,[\s]*[-\d.]+$/;
 
-/******************
- * Internal functions
- ******************/
 
 
 /******************
@@ -421,17 +418,16 @@ ln.userSelect = function(destination, options){
     }
 
     function displayChooser(){
-        var options = {
+        launchnavigator.userSelectDisplayed = true;
+        window.plugins.actionsheet.show({
             'androidTheme': window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
-            'title': 'Select app for navigation',
+            'title': options.appSelectionDialogHeader || DEFAULT_appSelectionDialogHeader,
             'buttonLabels': buttonList,
             'androidEnableCancelButton' : true, // default false
             //'winphoneEnableCancelButton' : true, // default false
-            'addCancelButtonWithLabel': 'Cancel',
+            'addCancelButtonWithLabel': options.appSelectionCancelButton || DEFAULT_appSelectionCancelButton,
             'position': [550, 500] // for iPad pass in the [x, y] position of the popover
-        };
-        launchnavigator.userSelectDisplayed = true;
-        window.plugins.actionsheet.show(options, onChooseApp);
+        }, onChooseApp);
     }
 
     // Get list of available apps
@@ -533,5 +529,16 @@ ln.util.extractCoordsFromLocationString = function(location){
     }
     return location;
 };
+
+/*********************
+ * Internal properties
+ *********************/
+
+var DEFAULT_appSelectionDialogHeader = "Select app for navigation",
+    DEFAULT_appSelectionCancelButton = "Cancel";
+
+/********************
+ * Internal functions
+ ********************/
 
 module.exports = ln;

@@ -358,6 +358,10 @@ Either:
     - {string} launchMode - (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn".
     Defaults to "maps" if not specified.
     Specify using `launchnavigator.LAUNCH_MODE` constants.
+    - {string} appSelectionDialogHeader - text to display in the native picker which enables user to select which navigation app to launch.
+    Defaults to "Select app for navigation" if not specified.
+    - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
+    Defaults to "Cancel" if not specified.
 
 ### isAppAvailable()
 
