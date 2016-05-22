@@ -54,7 +54,8 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
     CMMapAppUber,           // Uber
     CMMapAppTomTom,         // TomTom
     CMMapAppSygic,          // Sygic
-    CMMapAppHereMaps        // HERE Maps
+    CMMapAppHereMaps,       // HERE Maps
+    CMMapAppMoovit          // Moovit
     
 };
 

@@ -77,6 +77,7 @@ Android
 * [Yandex Navigator](https://play.google.com/store/apps/details?id=ru.yandex.yandexnavi)
 * [Sygic](https://play.google.com/store/apps/details?id=com.sygic.aura)
 * [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps&hl=en_GB)
+* [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -92,6 +93,7 @@ iOS
 * [Tomtom](https://itunes.apple.com/gb/developer/tomtom/id326055452)
 * [Sygic](https://itunes.apple.com/gb/app/sygic-gps-navigation-offline/id585193266?mt=8)
 * [HERE Maps](https://itunes.apple.com/gb/app/here-maps-offline-navigation/id955837609?mt=8)
+* [Moovit](https://itunes.apple.com/us/app/moovit-your-local-transit/id498477945?mt=8)
 
 Windows
 
@@ -214,6 +216,7 @@ The following table enumerates which apps support which parameters.
 | Android  | Yandex                         |   X  |           |   X   |            |                |   X  |
 | Android  | Sygic                          |   X  |           |       |            |        X       |   X  |
 | Android  | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -226,6 +229,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | Tomtom                         |   X  |     X     |       |            |                |      |
 | iOS      | Sygic                          |   X  |           |       |            |        X       |   X  |
 | iOS      | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
+| iOS      | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 Table columns:
@@ -286,6 +290,7 @@ Supported apps:
 - `launchnavigator.APP.BING_MAPS` (Windows)
 - `launchnavigator.APP.SYGIC` (Android & iOS)
 - `launchnavigator.APP.HERE_MAPS` (Android & iOS)
+- `launchnavigator.APP.MOOVIT` (Android & iOS)
 
 ### APP_NAMES
 

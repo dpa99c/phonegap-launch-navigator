@@ -89,6 +89,9 @@ static BOOL debugEnabled;
         case CMMapAppHereMaps:
             return @"here-route://";
 
+        case CMMapAppMoovit:
+            return @"moovit://";
+
         default:
             return nil;
     }
@@ -407,7 +410,33 @@ static BOOL debugEnabled;
         }
         [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
-     }
+     } else if (mapApp == CMMapAppMoovit) {
+
+             NSMutableString* url = [NSMutableString stringWithFormat:@"%@directions", [self urlPrefixForMapApp:CMMapAppMoovit]];
+
+             [url appendFormat:@"?dest_lat=%f&dest_lon=%f",
+                  end.coordinate.latitude, end.coordinate.longitude];
+
+              if (end.name) {
+                  [url appendFormat:@"&dest_name=%@", [end.name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+              }
+
+              NSMutableString* startParam;
+              if (!start.isCurrentLocation) {
+                  [url appendFormat:@"&orig_lat=%f&orig_lon=%f",
+                      start.coordinate.latitude, start.coordinate.longitude];
+
+                  if (start.name) {
+                      [url appendFormat:@"&orig_name=%@", [start.name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                  }
+              }
+
+              if(extras){
+                  [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
+              }
+              [self logDebugURI:url];
+              return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+           }
     return NO;
 }
 

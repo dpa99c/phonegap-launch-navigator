@@ -74,6 +74,8 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String YANDEX = "yandex";
     private static final String SYGIC = "sygic";
     private static final String HERE_MAPS = "here_maps";
+    private static final String MOOVIT = "moovit";
+
 
     private static final Map<String, String> supportedAppPackages;
     static {
@@ -85,6 +87,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
+        _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -98,6 +101,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
+        _supportedAppNames.put(MOOVIT, "Moovit");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -248,7 +252,9 @@ public class LaunchNavigator extends CordovaPlugin {
             launchSygic(args, callbackContext);
         }else if(appName.equals(HERE_MAPS)){
             launchHereMaps(args, callbackContext);
-        }else{
+        }else if(appName.equals(MOOVIT)){
+             launchMoovit(args, callbackContext);
+         }else{
             launchApp(args, callbackContext);
         }
     }
@@ -849,6 +855,91 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "HERE Maps app is not installed on this device";
+            }
+            logError("Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
+    }
+
+    private void launchMoovit(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress;
+            String destLatLon = null;
+            String startAddress;
+            String startLatLon = null;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            String url = "moovit://directions";
+            String logMsg = "Using Moovit to navigate";
+
+
+            logMsg += " to";
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+
+            String[] destPos = splitLatLon(destLatLon);
+            url += "?dest_lat=" + destPos[0] + "&dest_lon=" + destPos[1];
+
+            if(!isNull(destNickname)){
+                url += "&dest_name="+destNickname;
+                logMsg += " ("+destNickname+")";
+            }
+
+            logMsg += " from";
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+            }else{
+                if(sType.equals("name")){
+                    startAddress = getLocationFromName(args, 5);
+                    logMsg += " '"+startAddress+"'";
+                    try {
+                        startLatLon = geocodeAddressToLatLon(args.getString(5));
+                    }catch(Exception e){
+                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    }
+                }else if(sType.equals("pos")){
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+
+                String[] startPos = splitLatLon(startLatLon);
+                url += "&orig_lat=" + startPos[0] + "&orig_lon=" + startPos[1];
+                logMsg += " ["+startLatLon+"]";
+
+                if(!isNull(startNickname)){
+                    url += "&orig_name="+startNickname;
+                    logMsg += " ("+startNickname+")";
+                }
+            }
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Moovit app is not installed on this device";
             }
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);

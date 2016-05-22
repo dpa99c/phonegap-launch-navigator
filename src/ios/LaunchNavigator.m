@@ -124,7 +124,7 @@ BOOL enableDebug;
 }
 
 - (void) availableApps:(CDVInvokedUrlCommand*)command;{
-    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps"];
+    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit"];
     NSMutableDictionary* results = [NSMutableDictionary new];
     @try {
         for(id object in supportedApps){
@@ -304,6 +304,9 @@ BOOL enableDebug;
         case CMMapAppHereMaps:
             lnName = @"here_maps";
             break;
+        case CMMapAppMoovit:
+            lnName = @"moovit";
+            break;
         default:
             [NSException raise:NSGenericException format:@"Unexpected CMMapApp name"];
         
@@ -336,6 +339,8 @@ BOOL enableDebug;
         cmmName = CMMapAppSygic;
     }else if([lnName isEqual: @"here_maps"]){
         cmmName = CMMapAppHereMaps;
+    }else if([lnName isEqual: @"moovit"]){
+        cmmName = CMMapAppMoovit;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
