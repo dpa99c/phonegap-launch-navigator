@@ -66,14 +66,15 @@
     <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
       <array>
         <string>citymapper</string>
-      <string>comgooglemaps</string>
-      <string>navigon</string>
-      <string>transit</string>
-      <string>waze</string>
-      <string>yandexnavi</string>
-      <string>uber</string>
-      <string>tomtomhome</string>
-      <string>com.sygic.aura</string>
+        <string>comgooglemaps</string>
+        <string>navigon</string>
+        <string>transit</string>
+        <string>waze</string>
+        <string>yandexnavi</string>
+        <string>uber</string>
+        <string>tomtomhome</string>
+        <string>com.sygic.aura</string>
+        <string>here-route</string>
       </array>
     </config-file>
   </platform>

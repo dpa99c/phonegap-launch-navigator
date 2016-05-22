@@ -30,9 +30,8 @@
 
 NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
-BOOL debugEnabled = FALSE;
-
 @implementation LaunchNavigator
+@synthesize debugEnabled;
 @synthesize cordova_command;
 @synthesize start_mapItem;
 @synthesize dest_mapItem;
@@ -74,9 +73,12 @@ BOOL enableDebug;
         enableDebug = [[command argumentAtIndex:8] boolValue];
         sExtras = [command.arguments objectAtIndex:9];
 
-
+        
         if(enableDebug == TRUE){
-            debugEnabled = enableDebug;
+            self.debugEnabled = enableDebug;
+            [CMMapLauncher enableDebugLogging];
+        }else{
+            self.debugEnabled = FALSE;
         }
         
         [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; extras=%@", destination, destType, destName, start, startType, startName, appName, transportMode, sExtras]];
@@ -122,7 +124,7 @@ BOOL enableDebug;
 }
 
 - (void) availableApps:(CDVInvokedUrlCommand*)command;{
-    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic"];
+    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps"];
     NSMutableDictionary* results = [NSMutableDictionary new];
     @try {
         for(id object in supportedApps){
@@ -299,6 +301,9 @@ BOOL enableDebug;
         case CMMapAppSygic:
             lnName = @"sygic";
             break;
+        case CMMapAppHereMaps:
+            lnName = @"here_maps";
+            break;
         default:
             [NSException raise:NSGenericException format:@"Unexpected CMMapApp name"];
         
@@ -329,6 +334,8 @@ BOOL enableDebug;
         cmmName = CMMapAppYandex;
     }else if([lnName isEqual: @"sygic"]){
         cmmName = CMMapAppSygic;
+    }else if([lnName isEqual: @"here_maps"]){
+        cmmName = CMMapAppHereMaps;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
@@ -447,7 +454,7 @@ BOOL enableDebug;
 
 - (void)logDebug: (NSString*)msg
 {
-    if(debugEnabled){
+    if(self.debugEnabled){
         NSLog(@"%@: %@", LOG_TAG, msg);
         NSString* jsString = [NSString stringWithFormat:@"console.log(\"%@: %@\")", LOG_TAG, [self escapeDoubleQuotes:msg]];
         [self executeGlobalJavascript:jsString];
@@ -457,7 +464,7 @@ BOOL enableDebug;
 - (void)logError: (NSString*)msg
 {
     NSLog(@"%@ ERROR: %@", LOG_TAG, msg);
-    if(debugEnabled){
+    if(self.debugEnabled){
         NSString* jsString = [NSString stringWithFormat:@"console.error(\"%@: %@\")", LOG_TAG, [self escapeDoubleQuotes:msg]];
         [self executeGlobalJavascript:jsString];
     }

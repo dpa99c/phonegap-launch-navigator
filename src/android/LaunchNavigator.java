@@ -73,6 +73,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String WAZE = "waze";
     private static final String YANDEX = "yandex";
     private static final String SYGIC = "sygic";
+    private static final String HERE_MAPS = "here_maps";
 
     private static final Map<String, String> supportedAppPackages;
     static {
@@ -83,6 +84,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
+        _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -95,6 +97,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
+        _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -243,7 +246,9 @@ public class LaunchNavigator extends CordovaPlugin {
             launchYandex(args, callbackContext);
         }else if(appName.equals(SYGIC)){
             launchSygic(args, callbackContext);
-         }else{
+        }else if(appName.equals(HERE_MAPS)){
+            launchHereMaps(args, callbackContext);
+        }else{
             launchApp(args, callbackContext);
         }
     }
@@ -294,6 +299,7 @@ public class LaunchNavigator extends CordovaPlugin {
         }
 
         logDebug(logMsg);
+        logDebug("URI: " + uri);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         if(!appName.equals(GEO)){
@@ -355,6 +361,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logDebug(logMsg);
+            logDebug("URI: " + url);
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setClassName(supportedAppPackages.get(GOOGLE_MAPS), "com.google.android.maps.MapsActivity");
@@ -452,6 +459,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logDebug(logMsg);
+            logDebug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
@@ -552,6 +560,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logDebug(logMsg);
+            logDebug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
@@ -607,6 +616,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logDebug(logMsg);
+            logDebug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
@@ -694,7 +704,6 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
             }
             logDebug(logMsg);
-
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
         }catch( JSONException e ) {
@@ -748,6 +757,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             logDebug(logMsg);
+            logDebug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             this.cordova.getActivity().startActivity(intent);
             callbackContext.success();
@@ -755,6 +765,90 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Sygic app is not installed on this device";
+            }
+            logError("Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
+    }
+
+    private void launchHereMaps(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress;
+            String destLatLon = null;
+            String startAddress;
+            String startLatLon = null;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            String url = "https://share.here.com/r/";
+            String logMsg = "Using HERE Maps to navigate";
+
+            logMsg += " from";
+            if(sType.equals("none")){
+                url += "mylocation";
+                logMsg += " Current Location";
+
+            }else{
+                if(sType.equals("name")){
+                    startAddress = getLocationFromName(args, 5);
+                    logMsg += " '"+startAddress+"'";
+                    try {
+                        startLatLon = geocodeAddressToLatLon(args.getString(5));
+                    }catch(Exception e){
+                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    }
+                }else if(sType.equals("pos")){
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+
+                url += startLatLon;
+                logMsg += " ["+startLatLon+"]";
+
+                if(!isNull(startNickname)){
+                    url += ","+startNickname;
+                    logMsg += " ("+startNickname+")";
+                }
+            }
+
+            url += "/";
+            logMsg += " to";
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+            url += destLatLon;
+
+            if(!isNull(destNickname)){
+                url += ","+destNickname;
+                logMsg += " ("+destNickname+")";
+            }
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += "?" + extras;
+                logMsg += " - extras="+extras;
+            }
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "HERE Maps app is not installed on this device";
             }
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);

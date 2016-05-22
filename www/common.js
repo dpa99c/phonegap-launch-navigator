@@ -58,7 +58,8 @@ ln.APP = {
     UBER: "uber",
     TOMTOM: "tomtom",
     BING_MAPS: "bing_maps",
-    SYGIC: "sygic"
+    SYGIC: "sygic",
+    HERE_MAPS: "here_maps"
 };
 
 /**
@@ -73,7 +74,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.UBER,
     ln.APP.WAZE,
     ln.APP.YANDEX,
-    ln.APP.SYGIC
+    ln.APP.SYGIC,
+    ln.APP.HERE_MAPS
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -86,7 +88,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.YANDEX,
     ln.APP.UBER,
     ln.APP.TOMTOM,
-    ln.APP.SYGIC
+    ln.APP.SYGIC,
+    ln.APP.HERE_MAPS
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -110,6 +113,7 @@ ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
 ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
+ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 
 /**
  * All possible transport modes
@@ -186,7 +190,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.GOOGLE_MAPS, // Only launchMode=maps
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
-    ln.APP.YANDEX
+    ln.APP.YANDEX,
+    ln.APP.HERE_MAPS
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -195,7 +200,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.CITYMAPPER,
     ln.APP.TRANSIT_APP,
     ln.APP.YANDEX,
-    ln.APP.UBER
+    ln.APP.UBER,
+    ln.APP.HERE_MAPS
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -209,13 +215,15 @@ ln.SUPPORTS_START_NAME = {};
 ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.USER_SELECT,
     ln.APP.CITYMAPPER,
-    ln.APP.UBER
+    ln.APP.UBER,
+    ln.APP.HERE_MAPS
 ];
 ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
     ln.APP.APPLE_MAPS,
     ln.APP.CITYMAPPER,
-    ln.APP.UBER
+    ln.APP.UBER,
+    ln.APP.HERE_MAPS
 ];
 
 /**
@@ -227,7 +235,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.USER_SELECT,
     ln.APP.GOOGLE_MAPS, // only launchMode=geo
     ln.APP.CITYMAPPER,
-    ln.APP.UBER
+    ln.APP.UBER,
+    ln.APP.HERE_MAPS
 ];
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -235,7 +244,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.CITYMAPPER,
     ln.APP.NAVIGON,
     ln.APP.UBER,
-    ln.APP.TOMTOM
+    ln.APP.TOMTOM,
+    ln.APP.HERE_MAPS
 ];
 
 /**

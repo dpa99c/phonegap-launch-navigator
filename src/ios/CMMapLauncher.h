@@ -53,11 +53,17 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
     CMMapAppYandex,         // Yandex Navigator
     CMMapAppUber,           // Uber
     CMMapAppTomTom,         // TomTom
-    CMMapAppSygic           // Sygic
+    CMMapAppSygic,          // Sygic
+    CMMapAppHereMaps        // HERE Maps
     
 };
 
 @interface CMMapLauncher : NSObject
+
+/**
+ Enables debug logging which logs resulting URL scheme to console
+ */
++ (void)enableDebugLogging;
 
 /**
  Determines whether the given mapping app is installed.

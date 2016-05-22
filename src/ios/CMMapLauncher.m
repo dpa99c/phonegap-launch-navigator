@@ -30,7 +30,32 @@
 
 @end
 
+static NSString*const LOG_TAG = @"CMMapLauncher";
+static BOOL debugEnabled;
+
+
 @implementation CMMapLauncher
+
++ (void)initialize {
+    debugEnabled = FALSE;
+}
+
++ (void)enableDebugLogging{
+    debugEnabled = TRUE;
+    [self logDebug:@"Debug logging enabled"];
+}
+
++ (void)logDebug: (NSString*)msg
+{
+    if(debugEnabled){
+        NSLog(@"%@: %@", LOG_TAG, msg);
+    }
+}
+
++ (void)logDebugURI: (NSString*)msg
+{
+    [self logDebug:[NSString stringWithFormat:@"Launching URI: %@", msg]];
+}
 
 + (NSString*)urlPrefixForMapApp:(CMMapApp)mapApp {
     switch (mapApp) {
@@ -60,6 +85,9 @@
         
         case CMMapAppSygic:
             return @"com.sygic.aura://";
+
+        case CMMapAppHereMaps:
+            return @"here-route://";
 
         default:
             return nil;
@@ -177,6 +205,17 @@
                     launchOptions = @{key: [extras objectForKey:key]};
                 }
             }
+
+            [self logDebug:[NSString stringWithFormat:@"Launching Apple Maps: destAddress=%@; destLatLon=%f,%f; destName=%@; startAddress=%@; startLatLon=%f,%f; startName=%@; directionsMode=%@; extras=%@",
+                end.address,
+                end.coordinate.latitude, end.coordinate.longitude,
+                end.name,
+                start.address,
+                start.coordinate.latitude, start.coordinate.longitude,
+                start.name,
+                directionsMode,
+                extras]];
+
             return [MKMapItem openMapsWithItems:@[start.MKMapItem, end.MKMapItem] launchOptions:launchOptions];
         } else {  // iOS 5
             NSMutableString* url = [NSMutableString stringWithFormat:@"http://maps.google.com/maps?saddr=%@&daddr=%@",
@@ -186,6 +225,7 @@
             if(extras){
                 [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
             }
+            [self logDebugURI:url];
             return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
         }
     } else if (mapApp == CMMapAppGoogleMaps) {
@@ -201,6 +241,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppCitymapper) {
         NSMutableArray* params = [NSMutableArray arrayWithCapacity:10];
@@ -228,6 +269,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppTheTransitApp) {
         // http://thetransitapp.com/developers
@@ -245,6 +287,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppNavigon) {
         // http://www.navigon.com/portal/common/faq/files/NAVIGON_AppInteract.pdf
@@ -259,6 +302,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppWaze) {
         NSMutableString* url = [NSMutableString stringWithFormat:@"%@?ll=%f,%f&navigate=yes",
@@ -267,6 +311,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppYandex) {
         NSMutableString* url = nil;
@@ -282,6 +327,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppUber) {
         NSMutableString* url = nil;
@@ -304,6 +350,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppTomTom) {
         NSMutableString* url = [NSMutableString stringWithFormat:@"tomtomhome:geo:action=navigateto&lat=%f&long=%f&name=%@",
@@ -313,6 +360,7 @@
         if(extras){
             [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
         }
+        [self logDebugURI:url];
         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
     } else if (mapApp == CMMapAppSygic) {
 
@@ -326,8 +374,39 @@
              end.coordinate.longitude,
              end.coordinate.latitude,
              directionsMode];
+         [self logDebugURI:url];
+         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    } else if (mapApp == CMMapAppHereMaps) {
 
-         return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ]];
+        NSMutableString* startParam;
+        if (start.isCurrentLocation) {
+            startParam = (NSMutableString*) @"mylocation";
+        } else {
+            startParam = [NSMutableString stringWithFormat:@"%f,%f",
+                start.coordinate.latitude, start.coordinate.longitude];
+
+            if (start.name) {
+                [startParam appendFormat:@",%@", [start.name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            }
+        }
+
+        NSMutableString* destParam = [NSMutableString stringWithFormat:@"%f,%f",
+            end.coordinate.latitude, end.coordinate.longitude];
+
+        if (end.name) {
+            [destParam appendFormat:@",%@", [end.name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }
+
+        NSMutableString* url = [NSMutableString stringWithFormat:@"%@%@/%@",
+            [self urlPrefixForMapApp:CMMapAppHereMaps],
+             startParam,
+             destParam];
+
+        if(extras){
+            [url appendFormat:@"?%@", [self extrasToQueryParams:extras]];
+        }
+        [self logDebugURI:url];
+        return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
      }
     return NO;
 }
