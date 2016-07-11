@@ -108,6 +108,7 @@ ln.v3.navigate = function(destination, options) {
         throw new Error(errMsg);
     }
 
+    options = options || {};
     if(!options.app) options.app = common.APP.BING_MAPS;
     common.util.validateApp(options.app);
 
