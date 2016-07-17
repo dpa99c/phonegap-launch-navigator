@@ -393,10 +393,13 @@ ln.supportsDestName = function(app, platform){
  *
  * @param {mixed} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
  * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
+ * @param {Function} successCallback (optional) - optional callback to be invoked on success
+ * @param {Function} errorCallback (optional) - optional callback to be invoked on error
  */
-ln.userSelect = function(destination, options){
+ln.userSelect = function(destination, options, successCallback, errorCallback){
     options = options ? options : {};
-    options.errorCallback = options.errorCallback ? options.errorCallback : function(){};
+    options.errorCallback = options.errorCallback ? options.errorCallback : errorCallback || function(){};
+    options.successCallback = options.successCallback ? options.successCallback : successCallback || function(){};
     var buttonList = [], buttonMap = {};
 
     if(launchnavigator.userSelectDisplayed) return;
