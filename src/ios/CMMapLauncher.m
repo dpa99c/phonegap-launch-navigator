@@ -372,10 +372,14 @@ static BOOL debugEnabled;
          }else{
              directionsMode = @"drive";
          }
-         NSMutableString* url = [NSMutableString stringWithFormat:@"%@coordinate|%f|%f|%@",
+         NSString* separator = @"%7C";
+         NSMutableString* url = [NSMutableString stringWithFormat:@"%@coordinate%@%f%@%f%@%@",
              [self urlPrefixForMapApp:CMMapAppSygic],
+             separator,
              end.coordinate.longitude,
+             separator,
              end.coordinate.latitude,
+             separator,
              directionsMode];
          [self logDebugURI:url];
          return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
