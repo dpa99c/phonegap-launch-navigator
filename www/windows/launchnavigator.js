@@ -36,7 +36,7 @@ var ln = {},
  */
 ln.isAppAvailable = function(appName, success, error){
     common.util.validateApp(appName);
-    success(true); // Bing Maps is always available on Windows
+    success(appName === common.APP.BING_MAPS); // Bing Maps is always available on Windows
 };
 
 /**
