@@ -59,6 +59,21 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
     
 };
 
+/**
+ Indicates an empty address
+ */
+NSString* CMEmptyAddress;
+
+/**
+ Indicates an empty coordinate
+ */
+CLLocationCoordinate2D CMEmptyCoord;
+
+/**
+ Indicates an empty latitude or longitude component
+ */
+static const CLLocationDegrees CMEmptyLocation = -1000.0;
+
 @interface CMMapLauncher : NSObject
 
 /**
@@ -186,7 +201,7 @@ typedef NS_ENUM(NSUInteger, CMMapApp) {
 /**
  Gives an MKMapItem corresponding to this map point object.
  */
-@property (nonatomic, retain) MKMapItem *MKMapItem;
+@property (nonatomic, retain) MKMapItem *mapItem;
 
 /**
  Creates a new CMMapPoint that signifies the current location.
