@@ -340,8 +340,8 @@ Either:
     - successCallback (optional): A callback to invoke when the navigation app is successfully launched.
     - errorCallback (optional): A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
     - {string} app - name of the navigation app to use for directions.
-    Specify using `launchnavigator.APP` constants.
-        If not specified, defaults to User Selection.
+    Specify using `launchnavigator.APP` constants.  e.g. `launchnavigator.APP.GOOGLE_MAPS`.
+    If not specified, defaults to user selection via native picker UI.
     - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
     - start (optional): start location to use for navigation.
     If not specified, the current device location will be used.
@@ -362,6 +362,8 @@ Either:
     Defaults to "Select app for navigation" if not specified.
     - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
     Defaults to "Cancel" if not specified.
+    - {array} appSelectionList - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
+    This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
 
 ### isAppAvailable()
 

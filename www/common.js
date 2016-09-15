@@ -98,6 +98,14 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
 ];
 
+/**
+ * Stock maps app that is always present on each platform
+ * @type {object}
+ */
+ln.STOCK_APP = {};
+ln.STOCK_APP[ln.PLATFORM.ANDROID] = ln.APP.GOOGLE_MAPS;
+ln.STOCK_APP[ln.PLATFORM.IOS] = ln.APP.APPLE_MAPS;
+ln.STOCK_APP[ln.PLATFORM.WINDOWS] = ln.APP.BING_MAPS;
 
 /**
  * Display names for supported apps
@@ -438,8 +446,13 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         for(var app in apps){
             var isAvailable = apps[app];
             if(!isAvailable) continue;
+            if(options.appSelectionList && options.appSelectionList.length > 0 && !ln.util.arrayContainsValue(options.appSelectionList, app)) continue;
             buttonList.push(ln.getAppDisplayName(app));
             buttonMap[buttonList.length-1] = app;
+        }
+
+        if(buttonList.length == 0){
+            return options.errorCallback('No apps in selection list are available');
         }
 
         if(buttonList.length == 1){
