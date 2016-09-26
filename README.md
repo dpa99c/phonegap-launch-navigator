@@ -337,13 +337,13 @@ Either:
     - a {string} containing a latitude/longitude coordinate. e.g. "50.1. -4.0"
     - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
 - options - optional parameters:
-    - successCallback (optional): A callback to invoke when the navigation app is successfully launched.
-    - errorCallback (optional): A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
+    - successCallback: A callback to invoke when the navigation app is successfully launched.
+    - errorCallback: A callback to invoke if an error is encountered while launching the app. A single string argument containing the error message will be passed in.
     - {string} app - name of the navigation app to use for directions.
     Specify using `launchnavigator.APP` constants.
         If not specified, defaults to User Selection.
     - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
-    - start (optional): start location to use for navigation.
+    - start: start location to use for navigation.
     If not specified, the current device location will be used.
     Either:
         - a {string} containing the address. e.g. "Buckingham Palace, London"
@@ -362,6 +362,8 @@ Either:
     Defaults to "Select app for navigation" if not specified.
     - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
     Defaults to "Cancel" if not specified.
+    - {function} appSelectionCallback - a callback to invoke when the user selects an app in the native picker.
+    A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
 
 ### isAppAvailable()
 

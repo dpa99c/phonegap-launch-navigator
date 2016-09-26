@@ -397,6 +397,8 @@ ln.supportsDestName = function(app, platform){
 ln.userSelect = function(destination, options){
     options = options ? options : {};
     options.errorCallback = options.errorCallback ? options.errorCallback : function(){};
+    options.appSelectionCallback = options.appSelectionCallback ? options.appSelectionCallback : function(){};
+
     var buttonList = [], buttonMap = {};
 
     if(launchnavigator.userSelectDisplayed) return;
@@ -412,6 +414,7 @@ ln.userSelect = function(destination, options){
             app = buttonMap[idx];
         if(app != "cancel"){
             launchApp(app);
+            options.appSelectionCallback(app);
         } else {
             options.errorCallback('cancelled');
         }
