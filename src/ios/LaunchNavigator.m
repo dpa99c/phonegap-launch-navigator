@@ -30,6 +30,17 @@
 
 NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
+NSArray* supportedApps;
+
+NSString*const LNLocTypeNone = @"none";
+NSString*const LNLocTypeBoth = @"both";
+NSString*const LNLocTypeAddress = @"name";
+NSString*const LNLocTypeCoords = @"coords";
+
+
+// Valid input location types for apps
+static NSDictionary* AppLocationTypes;
+
 @implementation LaunchNavigator
 @synthesize debugEnabled;
 @synthesize cordova_command;
@@ -38,6 +49,10 @@ NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
 MKPlacemark* start_placemark;
 MKPlacemark* dest_placemark;
+
+CMMapApp cmmApp;
+CMMapPoint* start_cmm;
+CMMapPoint* dest_cmm;
 
 // Navigate JS args
 NSString* destination;
@@ -54,6 +69,24 @@ BOOL enableDebug;
 /**************
  * Plugin API
  **************/
+
++ (void)initialize{
+    supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit"];
+    AppLocationTypes = @{
+                         @(CMMapAppAppleMaps): LNLocTypeBoth,
+                        @(CMMapAppCitymapper): LNLocTypeBoth,
+                         @(CMMapAppGoogleMaps): LNLocTypeBoth,
+                         @(CMMapAppNavigon): LNLocTypeCoords,
+                         @(CMMapAppTheTransitApp): LNLocTypeCoords,
+                         @(CMMapAppWaze): LNLocTypeCoords,
+                         @(CMMapAppYandex): LNLocTypeCoords,
+                         @(CMMapAppUber): LNLocTypeCoords,
+                         @(CMMapAppTomTom): LNLocTypeCoords,
+                         @(CMMapAppSygic): LNLocTypeCoords,
+                         @(CMMapAppHereMaps): LNLocTypeCoords,
+                         @(CMMapAppMoovit): LNLocTypeCoords
+    };
+}
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 {
@@ -96,7 +129,7 @@ BOOL enableDebug;
         }
         
         [self getDest:^{
-            if([startType isEqual: @"none"]){
+            if([startType isEqual: LNLocTypeNone]){
                 [self launchApp];
             }else{
                 [self getStart:^{
@@ -124,7 +157,6 @@ BOOL enableDebug;
 }
 
 - (void) availableApps:(CDVInvokedUrlCommand*)command;{
-    NSArray* supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit"];
     NSMutableDictionary* results = [NSMutableDictionary new];
     @try {
         for(id object in supportedApps){
@@ -145,17 +177,39 @@ BOOL enableDebug;
  **************/
 
 - (void) launchApp{
-    CMMapApp app = [self mapAppName_lnToCmm:appName];
+    cmmApp = [self mapAppName_lnToCmm:appName];
     
-    
+    // Destination
     NSString* logMsg = [NSString stringWithFormat:@"Using %@ to navigate to %@ [%@]", appName, [self getAddressFromPlacemark:dest_placemark], [self coordsToString:dest_placemark.coordinate]];
     if(![self isNull:destName]){
         logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, destName];
     }
     
+    NSString* destAddress = CMEmptyAddress;
+    CLLocationCoordinate2D destCoord = CMEmptyCoord;
+    
+    if([destType isEqual: LNLocTypeCoords]){
+        destCoord = [self stringToCoords:destination];
+        if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
+            destAddress = [self getAddressFromPlacemark:dest_placemark];
+        }
+    }
+    if([destType isEqual: LNLocTypeAddress]){
+        destAddress = destination;
+        if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
+            destCoord = dest_placemark.coordinate;
+        }
+    }
+    
+    dest_cmm = [CMMapPoint
+                            mapPointWithMapItem:dest_mapItem
+                            name:dest_mapItem.name
+                            address:destAddress
+                            coordinate:destCoord];
+    
+    // Start
     logMsg = [NSString stringWithFormat:@"%@ from ", logMsg];
-    CMMapPoint* start_cmm;
-    if([startType  isEqual: @"none"]){
+    if([startType  isEqual: LNLocTypeNone]){
         logMsg = [NSString stringWithFormat:@"%@ current location", logMsg];
         start_cmm = [CMMapPoint currentLocation];
     }else{
@@ -163,19 +217,34 @@ BOOL enableDebug;
         if(![self isNull:startName]){
             logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, startName];
         }
+        
+        NSString* startAddress = CMEmptyAddress;
+        CLLocationCoordinate2D startCoord = CMEmptyCoord;
+        
+        if([startType isEqual: LNLocTypeCoords]){
+            startCoord = [self stringToCoords:start];
+            if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
+                startAddress = [self getAddressFromPlacemark:start_placemark];
+            }
+        }
+        if([startType isEqual: LNLocTypeAddress]){
+            startAddress = start;
+            if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
+                startCoord = start_placemark.coordinate;
+            }
+        }
+        
+        
         start_cmm = [CMMapPoint
                      mapPointWithMapItem:start_mapItem
                      name:start_mapItem.name
-                     address:[self getAddressFromPlacemark:start_placemark]
-                     coordinate:start_placemark.coordinate];
+                     address:startAddress
+                     coordinate:startCoord];
     }
     
-    CMMapPoint* dest_cmm = [CMMapPoint
-                             mapPointWithMapItem:dest_mapItem
-                             name:dest_mapItem.name
-                             address:[self getAddressFromPlacemark:dest_placemark]
-                             coordinate:dest_placemark.coordinate];
-
+    
+    
+    // Extras
     NSDictionary* dExtras = nil;
     if(![self isNull:sExtras]){
         NSError* error;
@@ -190,7 +259,8 @@ BOOL enableDebug;
 
     [self logDebug:logMsg];
     
-    [CMMapLauncher launchMapApp:app forDirectionsFrom:start_cmm to:dest_cmm directionsMode:transportMode extras:dExtras];
+    // Launch
+    [CMMapLauncher launchMapApp:cmmApp forDirectionsFrom:start_cmm to:dest_cmm directionsMode:transportMode extras:dExtras];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
 }
@@ -200,7 +270,7 @@ BOOL enableDebug;
  **************/
 
 - (void) getDest:(void (^)(void))completeBlock{
-    if([destType isEqual: @"coords"]){
+    if([destType isEqual: LNLocTypeCoords]){
         [self reverseGeocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
             dest_mapItem = destItem;
             dest_placemark = destPlacemark;
@@ -229,11 +299,11 @@ BOOL enableDebug;
 }
 
 - (void) getStart:(void (^)(void))completeBlock{
-    if([startType isEqual: @"none"]){
+    if([startType isEqual: LNLocTypeNone]){
         MKMapItem* startItem = [MKMapItem mapItemForCurrentLocation];
         start_mapItem = startItem;
         completeBlock();
-    }else if([startType isEqual: @"coords"]){
+    }else if([startType isEqual: LNLocTypeCoords]){
         [self reverseGeocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
             start_placemark = startPlacemark;
             start_mapItem = startItem;
@@ -381,8 +451,9 @@ BOOL enableDebug;
     NSArray* latlon = [coords componentsSeparatedByString:@","];
     NSString* lat = [latlon objectAtIndex:0];
     NSString* lon = [latlon objectAtIndex:1];
-    CLLocationCoordinate2D start_coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
-    MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:start_coordinate addressDictionary:nil];
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
+    
+    MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:coordinate addressDictionary:nil];
     MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
     
     // Try to retrieve address via reverse geocoding
@@ -392,11 +463,11 @@ BOOL enableDebug;
         if (error == nil && [placemarks count] > 0) {
             CLPlacemark* geocodedPlacemark = [placemarks lastObject];
             NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-            [self logDebug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:start_coordinate], address]];
+            [self logDebug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:coordinate], address]];
             [mapItem setName:address];
             
             MKPlacemark* placemark = [[MKPlacemark alloc]
-                                      initWithCoordinate:start_coordinate
+                                      initWithCoordinate:coordinate
                                       addressDictionary:geocodedPlacemark.addressDictionary];
             
             successBlock(mapItem, placemark);
@@ -449,6 +520,15 @@ BOOL enableDebug;
     NSString* lat = [[NSString alloc] initWithFormat:@"%g", coords.latitude];
     NSString* lon = [[NSString alloc] initWithFormat:@"%g", coords.longitude];
     return [NSString stringWithFormat:@"%@, %@", lat, lon];
+}
+
+- (CLLocationCoordinate2D)stringToCoords: (NSString*) coordString
+{
+    NSArray* latlon = [coordString componentsSeparatedByString:@","];
+    NSString* lat = [latlon objectAtIndex:0];
+    NSString* lon = [latlon objectAtIndex:1];
+    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake([lat doubleValue], [lon doubleValue]);
+    return coordinate;
 }
 
 - (void)executeGlobalJavascript: (NSString*)jsString

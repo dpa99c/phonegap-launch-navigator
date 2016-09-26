@@ -36,7 +36,7 @@ var ln = {},
  */
 ln.isAppAvailable = function(appName, success, error){
     common.util.validateApp(appName);
-    success(true); // Bing Maps is always available on Windows
+    success(appName === common.APP.BING_MAPS); // Bing Maps is always available on Windows
 };
 
 /**
@@ -73,7 +73,7 @@ ln.v3 = {};
  * A single string argument containing the error message will be passed in.
  *
  * - {string} app - name of the navigation app to use for directions.
- * If not specified or the specified app is not installed, defaults to Bing Maps.
+ * For Windows, the only allowed value is launchnavigator.APP.BING_MAPS, as launching other apps is not possible.
  *
  * - {string} destinationName - nickname to display in app for destination. e.g. "Bob's House".
  *
@@ -91,11 +91,6 @@ ln.v3 = {};
  *
  * - {boolean} disableAutoGeolocation - if TRUE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to FALSE.
  *
- * - {string} appSelectionDialogHeader - text to display in the native picker which enables user to select which navigation app to launch.
- * Defaults to "Select app for navigation" if not specified.
- *
- * - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
- * Defaults to "Cancel" if not specified.
  */
 ln.v3.navigate = function(destination, options) {
     var url ="bingmaps:?rtp=";
@@ -108,6 +103,7 @@ ln.v3.navigate = function(destination, options) {
         throw new Error(errMsg);
     }
 
+    options = options || {};
     if(!options.app) options.app = common.APP.BING_MAPS;
     common.util.validateApp(options.app);
 

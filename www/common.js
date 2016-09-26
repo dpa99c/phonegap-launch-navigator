@@ -98,6 +98,14 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
 ];
 
+/**
+ * Stock maps app that is always present on each platform
+ * @type {object}
+ */
+ln.STOCK_APP = {};
+ln.STOCK_APP[ln.PLATFORM.ANDROID] = ln.APP.GOOGLE_MAPS;
+ln.STOCK_APP[ln.PLATFORM.IOS] = ln.APP.APPLE_MAPS;
+ln.STOCK_APP[ln.PLATFORM.WINDOWS] = ln.APP.BING_MAPS;
 
 /**
  * Display names for supported apps
@@ -394,11 +402,12 @@ ln.supportsDestName = function(app, platform){
  * @param {mixed} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
  * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
  */
-ln.userSelect = function(destination, options){
+ln.userSelect = function(destination, options, successCallback, errorCallback){
     options = options ? options : {};
-    options.errorCallback = options.errorCallback ? options.errorCallback : function(){};
+    options.errorCallback = options.errorCallback ? options.errorCallback : errorCallback || function(){};
+    options.successCallback = options.successCallback ? options.successCallback : successCallback || function(){};
     options.appSelectionCallback = options.appSelectionCallback ? options.appSelectionCallback : function(){};
-
+    
     var buttonList = [], buttonMap = {};
 
     if(launchnavigator.userSelectDisplayed) return;
@@ -438,8 +447,13 @@ ln.userSelect = function(destination, options){
         for(var app in apps){
             var isAvailable = apps[app];
             if(!isAvailable) continue;
+            if(options.appSelectionList && options.appSelectionList.length > 0 && !ln.util.arrayContainsValue(options.appSelectionList, app)) continue;
             buttonList.push(ln.getAppDisplayName(app));
             buttonMap[buttonList.length-1] = app;
+        }
+
+        if(buttonList.length == 0){
+            return options.errorCallback('No apps in selection list are available');
         }
 
         if(buttonList.length == 1){

@@ -38,6 +38,8 @@ static BOOL debugEnabled;
 
 + (void)initialize {
     debugEnabled = FALSE;
+    CMEmptyCoord = CLLocationCoordinate2DMake(CMEmptyLocation, CMEmptyLocation);
+    CMEmptyAddress = nil;
 }
 
 + (void)enableDebugLogging{
@@ -182,11 +184,12 @@ static BOOL debugEnabled;
     if (![CMMapLauncher isMapAppInstalled:mapApp]) {
         return NO;
     }
+    
+    Class mapItemClass = [MKMapItem class];
+    bool gte_iOS6 = mapItemClass && [mapItemClass respondsToSelector:@selector(openMapsWithItems:launchOptions:)];
 
-    if (mapApp == CMMapAppAppleMaps) {
-        // Check for iOS 6
-        Class mapItemClass = [MKMapItem class];
-        if (mapItemClass && [mapItemClass respondsToSelector:@selector(openMapsWithItems:launchOptions:)]) {
+    if (mapApp == CMMapAppAppleMaps && gte_iOS6) {
+        
             NSDictionary* launchOptions;
             if (directionsMode) {
                 if([directionsMode isEqual: @"walking"]){
@@ -208,34 +211,32 @@ static BOOL debugEnabled;
                     launchOptions = @{key: [extras objectForKey:key]};
                 }
             }
-
-            [self logDebug:[NSString stringWithFormat:@"Launching Apple Maps: destAddress=%@; destLatLon=%f,%f; destName=%@; startAddress=%@; startLatLon=%f,%f; startName=%@; directionsMode=%@; extras=%@",
-                end.address,
-                end.coordinate.latitude, end.coordinate.longitude,
-                end.name,
-                start.address,
-                start.coordinate.latitude, start.coordinate.longitude,
-                start.name,
-                directionsMode,
-                extras]];
-
-            return [MKMapItem openMapsWithItems:@[start.MKMapItem, end.MKMapItem] launchOptions:launchOptions];
-        } else {  // iOS 5
-            NSMutableString* url = [NSMutableString stringWithFormat:@"http://maps.google.com/maps?saddr=%@&daddr=%@",
-             [CMMapLauncher googleMapsStringForMapPoint:start],
-             [CMMapLauncher googleMapsStringForMapPoint:end]
-             ];
-            if(extras){
-                [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
-            }
-            [self logDebugURI:url];
-            return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+        
+        if(start.mapItem == nil){
+            start.mapItem = [MKMapItem mapItemForCurrentLocation];
         }
-    } else if (mapApp == CMMapAppGoogleMaps) {
+
+            return [MKMapItem openMapsWithItems:@[start.mapItem, end.mapItem] launchOptions:launchOptions];
+        
+    } else if (mapApp == CMMapAppGoogleMaps || (mapApp == CMMapAppAppleMaps && !gte_iOS6)) {
+        NSString* startStr;
+        if([self isEmptyCoordinate:start.coordinate]){
+            startStr = [start.address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }else{
+            startStr = [CMMapLauncher googleMapsStringForMapPoint:start];
+        }
+        
+        NSString* endStr;
+        if([self isEmptyCoordinate:end.coordinate]){
+            endStr = [end.address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }else{
+            endStr = [CMMapLauncher googleMapsStringForMapPoint:end];
+        }
+        
         NSMutableString* url = [[NSString stringWithFormat:@"%@?saddr=%@&daddr=%@",
                                  [self urlPrefixForMapApp:CMMapAppGoogleMaps],
-                                 [CMMapLauncher googleMapsStringForMapPoint:start],
-                                 [CMMapLauncher googleMapsStringForMapPoint:end]
+                                 startStr,
+                                 endStr
                                  ] mutableCopy];
         if (directionsMode) {
             [url appendFormat:@"&directionsmode=%@", directionsMode];
@@ -249,7 +250,9 @@ static BOOL debugEnabled;
     } else if (mapApp == CMMapAppCitymapper) {
         NSMutableArray* params = [NSMutableArray arrayWithCapacity:10];
         if (start && !start.isCurrentLocation) {
-            [params addObject:[NSString stringWithFormat:@"startcoord=%f,%f", start.coordinate.latitude, start.coordinate.longitude]];
+            if(![self isEmptyCoordinate:start.coordinate]){
+                [params addObject:[NSString stringWithFormat:@"startcoord=%f,%f", start.coordinate.latitude, start.coordinate.longitude]];
+            }
             if (start.name) {
                 [params addObject:[NSString stringWithFormat:@"startname=%@", [CMMapLauncher urlEncode:start.name]]];
             }
@@ -258,7 +261,9 @@ static BOOL debugEnabled;
             }
         }
         if (end && !end.isCurrentLocation) {
-            [params addObject:[NSString stringWithFormat:@"endcoord=%f,%f", end.coordinate.latitude, end.coordinate.longitude]];
+            if(![self isEmptyCoordinate:end.coordinate]){
+                [params addObject:[NSString stringWithFormat:@"endcoord=%f,%f", end.coordinate.latitude, end.coordinate.longitude]];
+            }
             if (end.name) {
                 [params addObject:[NSString stringWithFormat:@"endname=%@", [CMMapLauncher urlEncode:end.name]]];
             }
@@ -421,7 +426,6 @@ static BOOL debugEnabled;
                   [url appendFormat:@"&dest_name=%@", [end.name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
               }
 
-              NSMutableString* startParam;
               if (!start.isCurrentLocation) {
                   [url appendFormat:@"&orig_lat=%f&orig_lon=%f",
                       start.coordinate.latitude, start.coordinate.longitude];
@@ -438,6 +442,11 @@ static BOOL debugEnabled;
               return [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
            }
     return NO;
+}
+
++ (bool) isEmptyCoordinate:(CLLocationCoordinate2D)coordinate
+{
+    return coordinate.latitude == CMEmptyLocation && coordinate.longitude == CMEmptyLocation;
 }
 
 @end
@@ -494,24 +503,13 @@ static BOOL debugEnabled;
     return _name;
 }
 
-- (MKMapItem*)MKMapItem {
-    if (_isCurrentLocation) {
-        return [MKMapItem mapItemForCurrentLocation];
-    }
-
-    MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:_coordinate addressDictionary:nil];
-
-    MKMapItem* item = [[MKMapItem alloc] initWithPlacemark:placemark];
-    item.name = self.name;
-    return item;
-}
 
 + (CMMapPoint*)mapPointWithMapItem:(MKMapItem*)mapItem
                                name:(NSString*)name
                             address:(NSString*)address
                          coordinate:(CLLocationCoordinate2D)coordinate{
     CMMapPoint* mapPoint = [[CMMapPoint alloc] init];
-    mapPoint.MKMapItem = mapItem;
+    mapPoint.mapItem = mapItem;
     mapPoint.name = name;
     mapPoint.address = address;
     mapPoint.coordinate = coordinate;
