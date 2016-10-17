@@ -29,5 +29,6 @@
         "wp8",
         "navigation",
         "navigator"
-    ]
+    ],
+    "types": "./uk.co.workingedge.phonegap.plugin.launchnavigator.d.ts"
 }
