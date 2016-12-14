@@ -366,7 +366,7 @@ Either:
     This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
     - {function} appSelectionCallback - a callback to invoke when the user selects an app in the native picker.
     A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
-    
+    - {integer} androidTheme - (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants. Default 'actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT'
 
 ### isAppAvailable()
 
