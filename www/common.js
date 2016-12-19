@@ -432,7 +432,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
     function displayChooser(){
         launchnavigator.userSelectDisplayed = true;
         window.plugins.actionsheet.show({
-            'androidTheme': window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
+            'androidTheme': options.androidTheme || window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
             'title': options.appSelectionDialogHeader || DEFAULT_appSelectionDialogHeader,
             'buttonLabels': buttonList,
             'androidEnableCancelButton' : true, // default false
