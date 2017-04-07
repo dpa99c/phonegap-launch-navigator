@@ -543,6 +543,12 @@ This can be disabled via the `disableAutoGeolocation` option.
 ## iOS
 
 - The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
+- "Removing" Apple Maps
+  - Since iOS 10, it is possible to "remove" built-in Apple apps, including Maps, from the Home screen.
+  - Not that removing is not the same as uninstalling - the app is still actually present on the device, just the icon is removed from the Home screen.
+  - Therefore it's not possible detect if Apple Maps is unavailable - `launchnavigator.availableApps()` will always report it as present.
+  - The best that can be done is to gracefully handle the error when attempting to open Apple Maps using `launchnavigator.navigate()`
+  - For reference, see [this SO question](http://stackoverflow.com/questions/39603120/how-to-check-if-apple-maps-is-installed) and the [Apple documentation](https://support.apple.com/en-gb/HT204221).
 
 # Release notes
 **v3.0.1**
