@@ -73,6 +73,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String WAZE = "waze";
     private static final String YANDEX = "yandex";
     private static final String SYGIC = "sygic";
+    private static final String SYGIC_DRIVE = "sygic_drive";
     private static final String HERE_MAPS = "here_maps";
     private static final String MOOVIT = "moovit";
 
@@ -86,6 +87,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
+        _supportedAppPackages.put(SYGIC_DRIVE, "com.sygic.drive");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
@@ -100,6 +102,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
+        _supportedAppNames.put(SYGIC_DRIVE, "Sygic Drive");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
@@ -250,6 +253,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchYandex(args, callbackContext);
         }else if(appName.equals(SYGIC)){
             launchSygic(args, callbackContext);
+        }else if(appName.equals(SYGIC_DRIVE)){
+            launchSygicDrive(args, callbackContext);
         }else if(appName.equals(HERE_MAPS)){
             launchHereMaps(args, callbackContext);
         }else if(appName.equals(MOOVIT)){
@@ -720,6 +725,63 @@ public class LaunchNavigator extends CordovaPlugin {
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);
         }
+    }
+
+    private void launchSygicDrive(JSONArray args, CallbackContext callbackContext) throws Exception{
+
+            Context context=this.cordova.getActivity().getApplicationContext();
+            Intent i = new Intent();
+            i.setClassName("com.sygic.drive","com.sygic.drive.SygicDriveActivity");
+            i.putExtra("latitude",50.279306);
+            i.putExtra("longitude",-5.163158);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(i);
+
+
+
+           /* String destAddress = null;
+            String destLatLon = null;
+
+            String dType = args.getString(1);
+            String transportMode = args.getString(7);
+            String url = supportedAppPackages.get(SYGIC_DRIVE)+"://coordinate|";
+            String logMsg = "Using Sygic Drive to navigate to";
+
+            if(transportMode.equals("w")){
+                transportMode = "walk";
+            }else{
+                transportMode = "drive";
+            }
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtain coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+                logMsg += " ["+destLatLon+"]";
+            }
+
+            String[] pos = splitLatLon(destLatLon);
+            url += pos[1]+"|"+pos[0]+"|"+transportMode;
+
+            logMsg += " by " + transportMode;
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();*/
     }
 
     private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception{
