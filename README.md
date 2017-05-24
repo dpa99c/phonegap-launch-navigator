@@ -280,7 +280,7 @@ Supported platforms:
 - `launchnavigator.PLATFORM.WINDOWS`
 
 ### APP
-### Test
+
 Supported apps:
 
 - `launchnavigator.APP.USER_SELECT` (Android & iOS) - invokes native UI for user to select available navigation app
