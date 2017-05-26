@@ -729,17 +729,17 @@ public class LaunchNavigator extends CordovaPlugin {
 
     private void launchSygicDrive(JSONArray args, CallbackContext callbackContext) throws Exception{
 
-            Context context=this.cordova.getActivity().getApplicationContext();
+         /*   Context context=this.cordova.getActivity().getApplicationContext();
             Intent i = new Intent();
             i.setClassName("com.sygic.drive","com.sygic.drive.SygicDriveActivity");
             i.putExtra("latitude",50.279306);
             i.putExtra("longitude",-5.163158);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            context.startActivity(i);*/
 
 
 
-           /* String destAddress = null;
+            String destAddress = null;
             String destLatLon = null;
 
             String dType = args.getString(1);
@@ -780,8 +780,9 @@ public class LaunchNavigator extends CordovaPlugin {
             logDebug(logMsg);
             logDebug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		    intent.setClassName("com.sygic.drive","com.sygic.drive.SygicDriveActivity");
             this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();*/
+            callbackContext.success();
     }
 
     private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception{
