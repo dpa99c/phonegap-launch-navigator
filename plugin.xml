@@ -37,6 +37,7 @@
     </config-file>
 
     <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+	<lib-file src="src/android/navappclient.jar"/>
 
     <framework src="com.squareup.okhttp3:okhttp:3+" />
   </platform>
