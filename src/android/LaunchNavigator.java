@@ -80,7 +80,6 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String WAZE = "waze";
     private static final String YANDEX = "yandex";
     private static final String SYGIC = "sygic";
-    private static final String SYGIC_DRIVE = "sygic_drive";
     private static final String TOMTOM = "tomtom";
     private static final String HERE_MAPS = "here_maps";
     private static final String MOOVIT = "moovit";
@@ -96,7 +95,6 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
-        _supportedAppPackages.put(SYGIC_DRIVE, "com.sygic.drive");
         _supportedAppPackages.put(TOMTOM, "com.tomtom.navpad.navapp");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
@@ -113,7 +111,6 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
-        _supportedAppNames.put(SYGIC_DRIVE, "Sygic Drive");
         _supportedAppNames.put(TOMTOM, "TomTom");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
@@ -266,8 +263,6 @@ public class LaunchNavigator extends CordovaPlugin {
             launchYandex(args, callbackContext);
         } else if (appName.equals(SYGIC)) {
             launchSygic(args, callbackContext);
-        } else if (appName.equals(SYGIC_DRIVE)) {
-            launchSygicDrive(args, callbackContext);
         } else if (appName.equals(TOMTOM)) {
             launchTomTom(args, callbackContext);
         } else if (appName.equals(HERE_MAPS)) {
@@ -796,10 +791,6 @@ public class LaunchNavigator extends CordovaPlugin {
 
     public NavAppClient getNavappClient() {
         return mNavappClient;
-    }
-
-    private void launchSygicDrive(JSONArray args, CallbackContext callbackContext) throws Exception {
-
     }
 
     private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception {

@@ -59,7 +59,6 @@ ln.APP = {
     TOMTOM: "tomtom",
     BING_MAPS: "bing_maps",
     SYGIC: "sygic",
-    SYGIC_DRIVE: "sygic_drive",
     HERE_MAPS: "here_maps",
     MOOVIT: "moovit"
 };
@@ -77,7 +76,6 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.WAZE,
     ln.APP.YANDEX,
     ln.APP.SYGIC,
-    ln.APP.SYGIC_DRIVE,
     ln.APP.TOMTOM,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT
@@ -127,7 +125,6 @@ ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
 ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
-ln.APP_NAMES[ln.APP.SYGIC_DRIVE] = "Sygic Drive";
 ln.APP_NAMES[ln.APP.TOMTOM] = "TomTom";
 ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
