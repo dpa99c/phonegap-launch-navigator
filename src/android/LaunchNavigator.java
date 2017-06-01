@@ -44,8 +44,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.tomtom.navapp.ErrorCallback;
+import com.tomtom.navapp.GeoCoder;
 import com.tomtom.navapp.NavAppClient;
 import com.tomtom.navapp.NavAppError;
 import com.tomtom.navapp.Routeable;
@@ -59,6 +61,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -757,22 +760,52 @@ public class LaunchNavigator extends CordovaPlugin {
         return true;
     }
 
+    CallbackContext tomtomContext;
     private void launchTomTom(JSONArray args, CallbackContext callbackContext) throws Exception {
-        createNavAppClient();
-
+        tomtomContext = callbackContext;
         try {
-            TripManager mTripManager = null;
-            JSONArray arg_object = args.getJSONArray(2);
-            double latitude = arg_object.getDouble(0);
-            double longitude = arg_object.getDouble(1);
-            mTripManager = getNavappClient().getTripManager();
-            final Routeable destination = getNavappClient().makeRouteable(latitude, longitude);
-            mTripManager.planTrip(destination, mPlanListener);
-            callbackContext.success();
+            createNavAppClient();
+            String dType = args.getString(1);
+            String destAddress;
+
+            if (dType.equals("name")) {
+                destAddress = getLocationFromName(args, 2);
+                GeoCoder geoCoder = getNavappClient().getGeoCoder();
+                geoCoder.getRouteableFromLocationName(destAddress, 1, new Routeable.ListListener() {
+                    @Override
+                    public void onRoutable(List<Routeable> list) {
+                        if (list != null && list.size() > 0) {
+                            Routeable r = list.get(0);
+                            Double latitude = r.getLatitude();
+                            Double longitude = r.getLongitude();
+                            planTomTomTrip(latitude, longitude);
+                            tomtomContext.success();
+                        } else {
+                            String msg = "Exception: Cannot translate Address to geo position";
+                            System.err.println(msg);
+                            tomtomContext.error(msg);
+                        }
+                    }
+                });
+            } else {
+                JSONArray arg_object = args.getJSONArray(2);
+                double latitude = arg_object.getDouble(0);
+                double longitude = arg_object.getDouble(1);
+                planTomTomTrip(latitude, longitude);
+                tomtomContext.success();
+            }
+
         } catch (Exception e) {
             System.err.println("Exception: " + e.getMessage());
-            callbackContext.error(e.getMessage());
+            tomtomContext.error(e.getMessage());
         }
+    }
+
+    private void planTomTomTrip(double latitude, double longitude) {
+        TripManager mTripManager = null;
+        mTripManager = getNavappClient().getTripManager();
+        final Routeable destination = getNavappClient().makeRouteable(latitude, longitude);
+        mTripManager.planTrip(destination, mPlanListener);
     }
 
     private Trip.PlanListener mPlanListener = new Trip.PlanListener() {
