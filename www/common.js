@@ -60,7 +60,8 @@ ln.APP = {
     BING_MAPS: "bing_maps",
     SYGIC: "sygic",
     HERE_MAPS: "here_maps",
-    MOOVIT: "moovit"
+    MOOVIT: "moovit",
+    LYFT: "lyft"
 };
 
 /**
@@ -77,7 +78,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.YANDEX,
     ln.APP.SYGIC,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.LYFT
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -92,7 +94,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.TOMTOM,
     ln.APP.SYGIC,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.LYFT
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -126,6 +129,7 @@ ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
 ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
+ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 
 /**
  * All possible transport modes
@@ -204,7 +208,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.UBER,
     ln.APP.YANDEX,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.LYFT
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -215,7 +220,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.YANDEX,
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.LYFT
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS

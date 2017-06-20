@@ -75,6 +75,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String SYGIC = "sygic";
     private static final String HERE_MAPS = "here_maps";
     private static final String MOOVIT = "moovit";
+    private static final String LYFT = "lyft";
 
 
     private static final Map<String, String> supportedAppPackages;
@@ -88,6 +89,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
+        _supportedAppPackages.put(LYFT, "me.lyft.android");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -102,6 +104,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(SYGIC, "Sygic");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
+        _supportedAppNames.put(LYFT, "Lyft");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -253,8 +256,10 @@ public class LaunchNavigator extends CordovaPlugin {
         }else if(appName.equals(HERE_MAPS)){
             launchHereMaps(args, callbackContext);
         }else if(appName.equals(MOOVIT)){
-             launchMoovit(args, callbackContext);
-         }else{
+            launchMoovit(args, callbackContext);
+        }else if(appName.equals(LYFT)){
+            launchLyft(args, callbackContext);
+        }else{
             launchApp(args, callbackContext);
         }
     }
@@ -940,6 +945,83 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Moovit app is not installed on this device";
+            }
+            logError("Exception occurred: ".concat(msg));
+            callbackContext.error(msg);
+        }
+    }
+
+    private void launchLyft(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress;
+            String destLatLon = null;
+            String startAddress;
+            String startLatLon = null;
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            String url = "lyft://ridetype?";
+            String logMsg = "Using Lyft to navigate";
+
+            String extras = parseExtrasToUrl(args);
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
+            if(isNull(extras) || !extras.contains("id=")){
+                url += "id=lyft";
+            }
+
+            logMsg += " to";
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                try {
+                    destLatLon = geocodeAddressToLatLon(args.getString(2));
+                }catch(Exception e){
+                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+
+            String[] destPos = splitLatLon(destLatLon);
+            url += "&destination[latitude]=" + destPos[0] + "&destination[longitude]=" + destPos[1];
+
+            logMsg += " from";
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+            }else{
+                if(sType.equals("name")){
+                    startAddress = getLocationFromName(args, 5);
+                    logMsg += " '"+startAddress+"'";
+                    try {
+                        startLatLon = geocodeAddressToLatLon(args.getString(5));
+                    }catch(Exception e){
+                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    }
+                }else if(sType.equals("pos")){
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+
+                String[] startPos = splitLatLon(startLatLon);
+                url += "&pickup[latitude]=" + startPos[0] + "&pickup[longitude]=" + startPos[1];
+                logMsg += " ["+startLatLon+"]";
+
+            }
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Lyft app is not installed on this device";
             }
             logError("Exception occurred: ".concat(msg));
             callbackContext.error(msg);

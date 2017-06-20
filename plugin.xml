@@ -76,6 +76,7 @@
         <string>com.sygic.aura</string>
         <string>here-route</string>
         <string>moovit</string>
+        <string>lyft</string>
       </array>
     </config-file>
   </platform>
