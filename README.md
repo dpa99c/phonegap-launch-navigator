@@ -18,7 +18,8 @@ I dedicate a considerable amount of my free time to developing and maintaining t
 To help ensure this plugin is kept updated, new features are added and bugfixes are implemented quickly, please donate a couple of dollars (or a little more if you can stretch) as this will help me to afford to dedicate time to its maintenance. Please consider donating if you're using this plugin in an app that makes you money, if you're being paid to make the app, if you're asking for new features or priority bug fixes.
 <!-- END DONATE -->
 
-<!-- START table-of-contents -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
 - [General concepts](#general-concepts)
@@ -32,24 +33,48 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
   - [PhoneGap Build](#phonegap-build)
 - [Usage examples](#usage-examples)
   - [Simple usage](#simple-usage)
+    - [Navigate to a destination address from current location.](#navigate-to-a-destination-address-from-current-location)
+    - [Navigate to a destination with specified start location](#navigate-to-a-destination-with-specified-start-location)
+    - [Navigate using latitude/longitude coordinates](#navigate-using-latitudelongitude-coordinates)
   - [Advanced usage](#advanced-usage)
+    - [Navigate using a specific app](#navigate-using-a-specific-app)
+    - [List all of the apps supported by the current platform](#list-all-of-the-apps-supported-by-the-current-platform)
+    - [List apps available on the current device](#list-apps-available-on-the-current-device)
 - [Supported parameters](#supported-parameters)
   - [Transport modes](#transport-modes)
 - [Plugin API](#plugin-api)
   - [Constants](#constants)
+    - [PLATFORM](#platform)
+    - [APP](#app)
+    - [APP_NAMES](#app_names)
+    - [`launchnavigator.TRANSPORT_MODE`](#launchnavigatortransport_mode)
+    - [LAUNCH_MODE](#launch_mode)
   - [API methods](#api-methods)
+    - [navigate()](#navigate)
+    - [isAppAvailable()](#isappavailable)
+    - [availableApps()](#availableapps)
+    - [getAppDisplayName()](#getappdisplayname)
+    - [getAppsForPlatform()](#getappsforplatform)
+    - [supportsTransportMode()](#supportstransportmode)
+    - [getTransportModes()](#gettransportmodes)
+    - [supportsDestName()](#supportsdestname)
+    - [supportsStart()](#supportsstart)
+    - [supportsStartName()](#supportsstartname)
+    - [supportsLaunchMode()](#supportslaunchmode)
 - [Example project](#example-project)
 - [Legacy v2 API](#legacy-v2-api)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
   - [Windows](#windows)
   - [iOS](#ios)
+- [App-specifics](#app-specifics)
+  - [Lyft](#lyft)
 - [Release notes](#release-notes)
 - [Reporting issues](#reporting-issues)
 - [Credits](#credits)
 - [License](#license)
 
-<!-- END table-of-contents -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # General concepts
 
@@ -85,6 +110,7 @@ Android
 * [Sygic](https://play.google.com/store/apps/details?id=com.sygic.aura)
 * [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps&hl=en_GB)
 * [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
+* [Lyft](https://play.google.com/store/apps/details?id=me.lyft.android)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -101,6 +127,7 @@ iOS
 * [Sygic](https://itunes.apple.com/gb/app/sygic-gps-navigation-offline/id585193266?mt=8)
 * [HERE Maps](https://itunes.apple.com/gb/app/here-maps-offline-navigation/id955837609?mt=8)
 * [Moovit](https://itunes.apple.com/us/app/moovit-your-local-transit/id498477945?mt=8)
+* [Lyft](https://itunes.apple.com/us/app/lyft/id529379082?mt=8)
 
 Windows
 
@@ -224,6 +251,7 @@ The following table enumerates which apps support which parameters.
 | Android  | Sygic                          |   X  |           |       |            |        X       |   X  |
 | Android  | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | Lyft                           |   X  |           |   X   |            |                |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -237,6 +265,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | Sygic                          |   X  |           |       |            |        X       |   X  |
 | iOS      | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
+| iOS      | Lyft                           |   X  |           |   X   |            |                |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 Table columns:
@@ -298,6 +327,7 @@ Supported apps:
 - `launchnavigator.APP.SYGIC` (Android & iOS)
 - `launchnavigator.APP.HERE_MAPS` (Android & iOS)
 - `launchnavigator.APP.MOOVIT` (Android & iOS)
+- `launchnavigator.APP.LYFT` (Android & iOS)
 
 ### APP_NAMES
 
@@ -362,6 +392,7 @@ Either:
     Specify using `launchnavigator.TRANSPORT_MODE` constants.
     - {boolean} enableDebug - if true, debug log output will be generated by the plugin. Defaults to false.
     - {object} extras - a key/value map of extra app-specific parameters. For example, to tell Google Maps on Android to display Satellite view in "maps" launch mode: `{"t": "k"}`
+    These will be appended to the URL used to invoke the app, e.g. `google_maps://?t=k&...`
     - {string} launchMode - (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn".
     Defaults to "maps" if not specified.
     Specify using `launchnavigator.LAUNCH_MODE` constants.
@@ -549,6 +580,14 @@ This can be disabled via the `disableAutoGeolocation` option.
   - Therefore it's not possible detect if Apple Maps is unavailable - `launchnavigator.availableApps()` will always report it as present.
   - The best that can be done is to gracefully handle the error when attempting to open Apple Maps using `launchnavigator.navigate()`
   - For reference, see [this SO question](http://stackoverflow.com/questions/39603120/how-to-check-if-apple-maps-is-installed) and the [Apple documentation](https://support.apple.com/en-gb/HT204221).
+  
+# App-specifics
+
+## Lyft
+
+On both Android and iOS, the "ride type" will default to "Lyft" unless otherwise specified in the `extras` list as `id`. 
+
+See the [Lyft documentation](https://developer.lyft.com/v1/docs/deeplinking) for URL scheme details and other supported ride types.
 
 # Release notes
 **v3.0.1**

@@ -28,6 +28,9 @@
 var ln = {},
     common = launchnavigator;
 
+// Empty object for cross-platform compatibility
+ln.LAUNCH_MODE = {};
+
 /**
  * Determines if the given app is installed and available on the current device.
  * @param {string} appName - name of the app to check availability for. Define as a constant using ln.APP

@@ -71,7 +71,7 @@ BOOL enableDebug;
  **************/
 
 + (void)initialize{
-    supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit"];
+    supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit", @"lyft"];
     AppLocationTypes = @{
                          @(CMMapAppAppleMaps): LNLocTypeBoth,
                         @(CMMapAppCitymapper): LNLocTypeBoth,
@@ -84,7 +84,8 @@ BOOL enableDebug;
                          @(CMMapAppTomTom): LNLocTypeCoords,
                          @(CMMapAppSygic): LNLocTypeCoords,
                          @(CMMapAppHereMaps): LNLocTypeCoords,
-                         @(CMMapAppMoovit): LNLocTypeCoords
+                         @(CMMapAppMoovit): LNLocTypeCoords,
+                         @(CMMapAppLyft): LNLocTypeCoords
     };
 }
 
@@ -377,6 +378,9 @@ BOOL enableDebug;
         case CMMapAppMoovit:
             lnName = @"moovit";
             break;
+        case CMMapAppLyft:
+            lnName = @"lyft";
+            break;
         default:
             [NSException raise:NSGenericException format:@"Unexpected CMMapApp name"];
         
@@ -411,6 +415,8 @@ BOOL enableDebug;
         cmmName = CMMapAppHereMaps;
     }else if([lnName isEqual: @"moovit"]){
         cmmName = CMMapAppMoovit;
+    }else if([lnName isEqual: @"lyft"]){
+        cmmName = CMMapAppLyft;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
