@@ -62,6 +62,7 @@
 
     <framework src="MapKit.framework" />
     <framework src="CoreLocation.framework" />
+    <framework src="SystemConfiguration.framework" />
 
     <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
       <array>

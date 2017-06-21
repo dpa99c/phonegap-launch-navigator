@@ -27,6 +27,7 @@
  *
  */
 #import "LaunchNavigator.h"
+#import <SystemConfiguration/SCNetworkReachability.h>
 
 NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
@@ -44,8 +45,17 @@ static NSDictionary* AppLocationTypes;
 @implementation LaunchNavigator
 @synthesize debugEnabled;
 @synthesize cordova_command;
+
 @synthesize start_mapItem;
 @synthesize dest_mapItem;
+
+BOOL enableGeocoding = TRUE;
+
+NSString* destAddress = CMEmptyAddress;
+CLLocationCoordinate2D destCoord = CMEmptyCoord;
+NSString* startAddress = CMEmptyAddress;
+CLLocationCoordinate2D startCoord = CMEmptyCoord;
+
 
 MKPlacemark* start_placemark;
 MKPlacemark* dest_placemark;
@@ -54,17 +64,22 @@ CMMapApp cmmApp;
 CMMapPoint* start_cmm;
 CMMapPoint* dest_cmm;
 
+NSString* logMsg;
+
+NSString* destName = nil;
+NSString* startName = nil;
+
 // Navigate JS args
-NSString* destination;
-NSString* destType;
-NSString* destName;
-NSString* start;
-NSString* startType;
-NSString* startName;
-NSString* appName;
-NSString* transportMode;
-NSString* sExtras;
-BOOL enableDebug;
+NSString* jsDestination;
+NSString* jsDestType;
+NSString* jsDestName;
+NSString* jsStart;
+NSString* jsStartType;
+NSString* jsStartName;
+NSString* jsAppName;
+NSString* jsTransportMode;
+NSString* jsExtra;
+BOOL jsEnableDebug;
 
 /**************
  * Plugin API
@@ -73,19 +88,19 @@ BOOL enableDebug;
 + (void)initialize{
     supportedApps = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit", @"lyft"];
     AppLocationTypes = @{
-                         @(CMMapAppAppleMaps): LNLocTypeBoth,
-                        @(CMMapAppCitymapper): LNLocTypeBoth,
-                         @(CMMapAppGoogleMaps): LNLocTypeBoth,
-                         @(CMMapAppNavigon): LNLocTypeCoords,
-                         @(CMMapAppTheTransitApp): LNLocTypeCoords,
-                         @(CMMapAppWaze): LNLocTypeCoords,
-                         @(CMMapAppYandex): LNLocTypeCoords,
-                         @(CMMapAppUber): LNLocTypeCoords,
-                         @(CMMapAppTomTom): LNLocTypeCoords,
-                         @(CMMapAppSygic): LNLocTypeCoords,
-                         @(CMMapAppHereMaps): LNLocTypeCoords,
-                         @(CMMapAppMoovit): LNLocTypeCoords,
-                         @(CMMapAppLyft): LNLocTypeCoords
+        @(CMMapAppAppleMaps): LNLocTypeBoth,
+		@(CMMapAppCitymapper): LNLocTypeBoth,
+        @(CMMapAppGoogleMaps): LNLocTypeBoth,
+        @(CMMapAppNavigon): LNLocTypeCoords,
+        @(CMMapAppTheTransitApp): LNLocTypeCoords,
+        @(CMMapAppWaze): LNLocTypeCoords,
+        @(CMMapAppYandex): LNLocTypeCoords,
+        @(CMMapAppUber): LNLocTypeCoords,
+        @(CMMapAppTomTom): LNLocTypeCoords,
+        @(CMMapAppSygic): LNLocTypeCoords,
+        @(CMMapAppHereMaps): LNLocTypeCoords,
+        @(CMMapAppMoovit): LNLocTypeCoords,
+        @(CMMapAppLyft): LNLocTypeCoords
     };
 }
 
@@ -93,44 +108,49 @@ BOOL enableDebug;
 {
     self.cordova_command = command;
     
-    
     @try {
         // Get JS arguments
-        destination = [command.arguments objectAtIndex:0];
-        destType = [command.arguments objectAtIndex:1];
-        destName = [command.arguments objectAtIndex:2];
-        start = [command.arguments objectAtIndex:3];
-        startType = [command.arguments objectAtIndex:4];
-        startName = [command.arguments objectAtIndex:5];
-        appName = [command.arguments objectAtIndex:6];
-        transportMode = [command.arguments objectAtIndex:7];
-        enableDebug = [[command argumentAtIndex:8] boolValue];
-        sExtras = [command.arguments objectAtIndex:9];
-
+        jsDestination = [command.arguments objectAtIndex:0];
+        jsDestType = [command.arguments objectAtIndex:1];
+        jsDestName = [command.arguments objectAtIndex:2];
+        jsStart = [command.arguments objectAtIndex:3];
+        jsStartType = [command.arguments objectAtIndex:4];
+        jsStartName = [command.arguments objectAtIndex:5];
+        jsAppName = [command.arguments objectAtIndex:6];
+        jsTransportMode = [command.arguments objectAtIndex:7];
+        jsEnableDebug = [[command argumentAtIndex:8] boolValue];
+        jsExtra = [command.arguments objectAtIndex:9];
+		jsEnableGeocoding = [command.arguments objectAtIndex:10];
         
-        if(enableDebug == TRUE){
-            self.debugEnabled = enableDebug;
+        if(jsEnableDebug == TRUE){
+            self.debugEnabled = jsEnableDebug;
             [CMMapLauncher enableDebugLogging];
         }else{
             self.debugEnabled = FALSE;
         }
         
-        [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; extras=%@", destination, destType, destName, start, startType, startName, appName, transportMode, sExtras]];
+        [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; extras=%@", jsDestination, jsDestType, jsDestName, jsStart, jsStartType, jsStartName, jsAppName, jsTransportMode, jsExtra]];
         
-        CMMapApp app = [self mapAppName_lnToCmm:appName];
+        CMMapApp app = [self mapAppName_lnToCmm:jsAppName];
         BOOL isAvailable = [CMMapLauncher isMapAppInstalled:app];
         if(!isAvailable){
-            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ is not installed on the device", appName]] callbackId:self.cordova_command.callbackId];
+            [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ is not installed on the device", jsAppName]] callbackId:self.cordova_command.callbackId];
             return;
         }
         
-        if (![destination isKindOfClass:[NSString class]]) {
+        if (![jsDestination isKindOfClass:[NSString class]]) {
             [self sendPluginError:@"Missing destination argument"];
             return;
         }
-        
+
+		if(![self isNull:jsEnableGeocoding]){
+			self.enableGeocoding = [[command argumentAtIndex:10] boolValue];
+		}
+		
+
+		logMsg = [NSString stringWithFormat:@"Using %@ to navigate", jsAppName];
         [self getDest:^{
-            if([startType isEqual: LNLocTypeNone]){
+            if([jsStartType isEqual: LNLocTypeNone]){
                 [self launchApp];
             }else{
                 [self getStart:^{
@@ -161,10 +181,10 @@ BOOL enableDebug;
     NSMutableDictionary* results = [NSMutableDictionary new];
     @try {
         for(id object in supportedApps){
-            NSString* appName = object;
-            CMMapApp app = [self mapAppName_lnToCmm:appName];
+            NSString* jsAppName = object;
+            CMMapApp app = [self mapAppName_lnToCmm:jsAppName];
             BOOL result = [CMMapLauncher isMapAppInstalled:app];
-            [results setObject:[NSNumber numberWithBool:result] forKey:appName];
+            [results setObject:[NSNumber numberWithBool:result] forKey:jsAppName];
         }
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -178,90 +198,39 @@ BOOL enableDebug;
  **************/
 
 - (void) launchApp{
-    cmmApp = [self mapAppName_lnToCmm:appName];
+    cmmApp = [self mapAppName_lnToCmm:jsAppName];
     
     // Destination
-    NSString* logMsg = [NSString stringWithFormat:@"Using %@ to navigate to %@ [%@]", appName, [self getAddressFromPlacemark:dest_placemark], [self coordsToString:dest_placemark.coordinate]];
-    if(![self isNull:destName]){
-        logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, destName];
-    }
-    
-    NSString* destAddress = CMEmptyAddress;
-    CLLocationCoordinate2D destCoord = CMEmptyCoord;
-    
-    if([destType isEqual: LNLocTypeCoords]){
-        destCoord = [self stringToCoords:destination];
-        if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
-            destAddress = [self getAddressFromPlacemark:dest_placemark];
-        }
-    }
-    if([destType isEqual: LNLocTypeAddress]){
-        destAddress = destination;
-        if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
-            destCoord = dest_placemark.coordinate;
-        }
-    }
-    
     dest_cmm = [CMMapPoint
-                            mapPointWithMapItem:dest_mapItem
-                            name:dest_mapItem.name
-                            address:destAddress
-                            coordinate:destCoord];
+        mapPointWithMapItem:dest_mapItem
+        name:destName
+        address:destAddress
+        coordinate:destCoord];
     
-    // Start
-    logMsg = [NSString stringWithFormat:@"%@ from ", logMsg];
-    if([startType  isEqual: LNLocTypeNone]){
-        logMsg = [NSString stringWithFormat:@"%@ current location", logMsg];
-        start_cmm = [CMMapPoint currentLocation];
-    }else{
-        logMsg = [NSString stringWithFormat:@"%@ %@ [%@]", logMsg, [self getAddressFromPlacemark:start_placemark], [self coordsToString:start_placemark.coordinate]];
-        if(![self isNull:startName]){
-            logMsg = [NSString stringWithFormat:@"%@ (%@)", logMsg, startName];
-        }
-        
-        NSString* startAddress = CMEmptyAddress;
-        CLLocationCoordinate2D startCoord = CMEmptyCoord;
-        
-        if([startType isEqual: LNLocTypeCoords]){
-            startCoord = [self stringToCoords:start];
-            if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
-                startAddress = [self getAddressFromPlacemark:start_placemark];
-            }
-        }
-        if([startType isEqual: LNLocTypeAddress]){
-            startAddress = start;
-            if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
-                startCoord = start_placemark.coordinate;
-            }
-        }
-        
-        
-        start_cmm = [CMMapPoint
-                     mapPointWithMapItem:start_mapItem
-                     name:start_mapItem.name
-                     address:startAddress
-                     coordinate:startCoord];
-    }
-    
-    
+    // Start        
+    start_cmm = [CMMapPoint
+        mapPointWithMapItem:start_mapItem
+        name:startName
+        address:startAddress
+        coordinate:startCoord];
     
     // Extras
     NSDictionary* dExtras = nil;
-    if(![self isNull:sExtras]){
+    if(![self isNull:jsExtra]){
         NSError* error;
-        dExtras = [NSJSONSerialization JSONObjectWithData:[sExtras dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+        dExtras = [NSJSONSerialization JSONObjectWithData:[jsExtra dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
         if (error != nil){
             [self logError:@"Failed to parse extras parameter as valid JSON"];
             dExtras = nil;
         }else{
-            logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, sExtras];
+            logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, jsExtra];
         }
     }
-
+	
     [self logDebug:logMsg];
     
     // Launch
-    [CMMapLauncher launchMapApp:cmmApp forDirectionsFrom:start_cmm to:dest_cmm directionsMode:transportMode extras:dExtras];
+    [CMMapLauncher launchMapApp:cmmApp forDirectionsFrom:start_cmm to:dest_cmm directionsMode:jsTransportMode extras:dExtras];
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.cordova_command.callbackId];
 }
@@ -271,63 +240,153 @@ BOOL enableDebug;
  **************/
 
 - (void) getDest:(void (^)(void))completeBlock{
-    if([destType isEqual: LNLocTypeCoords]){
-        [self reverseGeocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
-            dest_mapItem = destItem;
-            dest_placemark = destPlacemark;
-            if(![self isNull:destName]){
-                [destItem setName:destName];
-            }else{
-                [destItem setName:destPlacemark.name];
-            }
-            completeBlock();
-        } fail:^(NSString* failMsg) {
-            [self sendPluginError:failMsg];
-        }];
-    }else{
-        [self geocode:destination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
-            dest_mapItem = destItem;
-            dest_placemark = destPlacemark;
-            if(![self isNull:destName]){
-                [destItem setName:destName];
-            }else{
-                [destItem setName:destPlacemark.name];
-            }
-            completeBlock();
-        }];
+	
+	logMsg = [NSString stringWithFormat:@"%@ to %@", logMsg, jsDestination];
+
+	if(![self isNull:jsDestName]){
+		destName = jsDestName;
+	}
+
+    if([jsDestType isEqual: LNLocTypeCoords]){
+		destCoord = [self stringToCoords:jsDestination];
+		
+
+		if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
+           if([self isGeocodingEnabled]){
+			   if([self isNetworkAvailable]){
+				   [self reverseGeocode:jsDestination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
+						dest_mapItem = destItem;
+						dest_placemark = destPlacemark;
+						destAddress = [self getAddressFromPlacemark:dest_placemark];
+						logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, destAddress];
+
+						if(![self isNull:destName]){
+							[dest_mapItem setName:destName];
+						}else{
+							[dest_mapItem setName:destPlacemark.name];
+							destName = destPlacemark.name;
+						}
+						completeBlock();
+						} fail:^(NSString* failMsg) {
+							[self sendPluginError:failMsg];
+						}
+					];
+			   }else{
+				   [self sendPluginError:[NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires destination as address but plugin was passed a lat,lon", app]];
+			   }
+		   }else{
+			   [self sendPluginError:[NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires destination as address but plugin was passed a lat,lon", app]];
+		   }
+        }else{
+			completeBlock();
+		}
+    }else{ // [jsDestType isEqual: LNLocTypeAddress]
+		destAddress = jsDestination;
+
+		if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
+           if([self isGeocodingEnabled]){
+			   if([self isNetworkAvailable]){
+				   [self geocode:jsDestination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
+						dest_mapItem = destItem;
+						dest_placemark = destPlacemark;
+						destCoord = dest_placemark.coordinate;
+						logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, [coordsToString destCoord]];
+
+						if(![self isNull:destName]){
+							[dest_mapItem setName:destName];
+						}else{
+							[dest_mapItem setName:destPlacemark.name];
+							destName = destPlacemark.name;
+						}
+						completeBlock();
+					}];
+			   }else{
+				   [self sendPluginError:[NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires destination as lat,lon but plugin was passed an address", app]];
+			   }
+		   }else{
+		   	   [self sendPluginError:[NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires destination as lat,lon but plugin was passed an address", app]];
+		   }
+        }else{
+			completeBlock();
+		}
     }
-    
 }
 
 - (void) getStart:(void (^)(void))completeBlock{
-    if([startType isEqual: LNLocTypeNone]){
+	if(![self isNull:jsStartName]){
+		startName = jsStartName;
+	}
+    if([jsStartType isEqual: LNLocTypeNone]){
         MKMapItem* startItem = [MKMapItem mapItemForCurrentLocation];
         start_mapItem = startItem;
+		logMsg = [NSString stringWithFormat:@"%@ from current location", logMsg];
+		if([self isNull:startName]){
+			startName = "Current location";
+		}
         completeBlock();
-    }else if([startType isEqual: LNLocTypeCoords]){
-        [self reverseGeocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
-            start_placemark = startPlacemark;
-            start_mapItem = startItem;
-            if(![self isNull:startName]){
-                [startItem setName:startName];
-            }else{
-                [startItem setName:startPlacemark.name];
-            }
-            completeBlock();
-        } fail:^(NSString* failMsg) {
-            [self sendPluginError:failMsg];
-        }];
-    }else{
-        [self geocode:start success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
-            start_placemark = startPlacemark;
-            start_mapItem = startItem;
-            if(![self isNull:startName]){
-                [startItem setName:startName];
-            }else{
-                [startItem setName:startPlacemark.name];
-            }
-            completeBlock();
-        }];
+    }else if([jsStartType isEqual: LNLocTypeCoords]){
+		startCoord = [self stringToCoords:jsStart];
+		logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, jsStart];
+
+		if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeAddress){
+			if([self isGeocodingEnabled]){
+			   if([self isNetworkAvailable]){
+				   [self reverseGeocode:jsStart success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+						start_placemark = startPlacemark;
+						start_mapItem = startItem;
+						startAddress = [self getAddressFromPlacemark:start_placemark];
+						logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, startAddress];
+
+						if(![self isNull:startName]){
+							[start_mapItem setName:startName];
+						}else{
+							[start_mapItem setName:startPlacemark.name];
+							startName = startPlacemark.name;
+						}
+						completeBlock();
+					} fail:^(NSString* failMsg) {
+						[self sendPluginError:failMsg];
+					}];
+			   }else{
+				   [self sendPluginError:[NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires start as address but plugin was passed a lat,lon", app]];
+			   }
+		   }else{
+			   [self sendPluginError:[NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires start as address but plugin was passed a lat,lon", app]];
+		   }		
+		}else{
+			completeBlock();
+		}
+
+    }else{ //[jsStartType isEqual: LNLocTypeAddress]
+		startAddress = jsStart;
+		logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, jsStart];
+
+        if([AppLocationTypes objectForKey:@(cmmApp)] == LNLocTypeCoords){
+			if([self isGeocodingEnabled]){
+			   if([self isNetworkAvailable]){
+					[self geocode:jsStart success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+						start_placemark = startPlacemark;
+						start_mapItem = startItem;
+						startCoord = start_placemark.coordinate;
+						logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, [coordsToString startCoord]];
+
+						if(![self isNull:startName]){
+							[start_mapItem setName:startName];
+						}else{
+							[start_mapItem setName:startPlacemark.name];
+							startName = startPlacemark.name;
+						}
+						completeBlock();
+					}];
+			   }else{
+				   [self sendPluginError:[NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires start as lat,lon but plugin was passed an address", app]];
+			   }
+		   }else{
+		   	   [self sendPluginError:[NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires start as lat,lon but plugin was passed an address", app]];
+		   }
+		}else{
+			completeBlock();
+		}
     }
 }
 
@@ -570,5 +629,25 @@ BOOL enableDebug;
 - (bool)isNull: (NSString*)str
 {
     return str == nil || str == (id)[NSNull null] || str.length == 0 || [str isEqual: @"<null>"];
+}
+
+- (bool)isGeocodingEnabled
+{
+    return self.enableGeocoding;
+}
+
++(bool)isNetworkAvailable
+{
+    SCNetworkReachabilityFlags flags;
+    SCNetworkReachabilityRef address;
+    address = SCNetworkReachabilityCreateWithName(NULL, "www.appleiphonecell.com" );
+    Boolean success = SCNetworkReachabilityGetFlags(address, &flags);
+    CFRelease(address);
+
+    bool canReach = success
+                    && !(flags & kSCNetworkReachabilityFlagsConnectionRequired)
+                    && (flags & kSCNetworkReachabilityFlagsReachable);
+
+    return canReach;
 }
 @end
