@@ -42,6 +42,8 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -116,6 +118,7 @@ public class LaunchNavigator extends CordovaPlugin {
     OkHttpClient httpClient = new OkHttpClient();
 
     boolean enableDebug = false;
+    boolean enableGeocoding = true;
 
     // Map of app name to package name
     Map<String, String> availableApps;
@@ -146,7 +149,11 @@ public class LaunchNavigator extends CordovaPlugin {
                  * args[8] - launchMode
                  * args[9] - enableDebug
                  * args[10] - extras
+                 * args[11] - enableGeolocation
                  */
+                if(args.get(11) != null){
+                    enableGeocoding = args.getBoolean(11);
+                }
                 enableDebug = args.getBoolean(9);
                 if(enableDebug){
                     String navigateArgs = "Called navigate() with args"
@@ -159,7 +166,8 @@ public class LaunchNavigator extends CordovaPlugin {
                             + "; startNickname="+ args.getString(6)
                             + "; transportMode="+ args.getString(7)
                             + "; launchMode="+ args.getString(8)
-                            + "; extras="+ args.getString(10);
+                            + "; extras="+ args.getString(10)
+                            + "; enableGeocoding="+ args.getString(11);
                     logDebug(navigateArgs);
                 }
                 this.navigate(args, callbackContext);
@@ -177,9 +185,7 @@ public class LaunchNavigator extends CordovaPlugin {
                 return false;
             }
         }catch(Exception e){
-            String msg = "Exception occurred: "+e.getMessage();
-            logError(msg);
-            callbackContext.error(msg);
+            handleException(e.getMessage(), callbackContext);
         }
         return true;
     }
@@ -280,7 +286,10 @@ public class LaunchNavigator extends CordovaPlugin {
 
         if(dType.equals("name")){
             destName = getLocationFromName(args, 2);
-            destLatLon = geocodeAddressToLatLon(args.getString(2));
+            destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+            if(destLatLon == null){
+                return;
+            }
             logMsg += destName;
             if(!isNull(destLatLon)){
                 logMsg += "["+destLatLon+"]";
@@ -402,34 +411,14 @@ public class LaunchNavigator extends CordovaPlugin {
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
-                }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
-                try {
-                    destAddress = reverseGeocodeLatLonToAddress(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
-                }
             }
 
             if(sType.equals("name")){
                 startAddress = getLocationFromName(args, 5);
-                try {
-                    startLatLon = geocodeAddressToLatLon(args.getString(5));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
-                }
             }else if(sType.equals("pos")){
                 startLatLon = getLocationFromPos(args, 5);
-                try {
-                    startAddress = reverseGeocodeLatLonToAddress(args.getString(5));
-                }catch(Exception e){
-                    logError("Unable to obtains address for coords '"+startLatLon+"': "+e.getMessage());
-                }
             }
 
             String url = "citymapper://directions?";
@@ -479,8 +468,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Citymapper app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -498,34 +486,14 @@ public class LaunchNavigator extends CordovaPlugin {
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
-                }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
-                try {
-                    destAddress = reverseGeocodeLatLonToAddress(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
-                }
             }
 
             if(sType.equals("name")){
                 startAddress = getLocationFromName(args, 5);
-                try {
-                    startLatLon = geocodeAddressToLatLon(args.getString(5));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
-                }
             }else if(sType.equals("pos")){
                 startLatLon = getLocationFromPos(args, 5);
-                try {
-                    startAddress = reverseGeocodeLatLonToAddress(args.getString(5));
-                }catch(Exception e){
-                    logError("Unable to obtains address for coords '"+startLatLon+"': "+e.getMessage());
-                }
             }
 
             String url = "uber://?action=setPickup";
@@ -580,8 +548,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Uber app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -594,18 +561,8 @@ public class LaunchNavigator extends CordovaPlugin {
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
-                }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
-                try {
-                    destAddress = reverseGeocodeLatLonToAddress(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains address for coords '"+destLatLon+"': "+e.getMessage());
-                }
             }
 
             String url = "waze://?";
@@ -636,8 +593,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Waze app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -653,10 +609,9 @@ public class LaunchNavigator extends CordovaPlugin {
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
@@ -664,10 +619,9 @@ public class LaunchNavigator extends CordovaPlugin {
 
             if(sType.equals("name")){
                 startAddress = getLocationFromName(args, 5);
-                try {
-                    startLatLon = geocodeAddressToLatLon(args.getString(5));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                if(isNull(startLatLon)){
+                    return;
                 }
             }else if(sType.equals("pos")){
                 startLatLon = getLocationFromPos(args, 5);
@@ -722,8 +676,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Yandex app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -746,15 +699,15 @@ public class LaunchNavigator extends CordovaPlugin {
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
                 logMsg += " '"+destAddress+"'";
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtain coords for address '"+destAddress+"': "+e.getMessage());
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
-                logMsg += " ["+destLatLon+"]";
             }
+
+            logMsg += " ["+destLatLon+"]";
 
             String[] pos = splitLatLon(destLatLon);
             url += pos[1]+"|"+pos[0]+"|"+transportMode;
@@ -777,8 +730,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Sygic app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -806,10 +758,9 @@ public class LaunchNavigator extends CordovaPlugin {
                 if(sType.equals("name")){
                     startAddress = getLocationFromName(args, 5);
                     logMsg += " '"+startAddress+"'";
-                    try {
-                        startLatLon = geocodeAddressToLatLon(args.getString(5));
-                    }catch(Exception e){
-                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
                     }
                 }else if(sType.equals("pos")){
                     startLatLon = getLocationFromPos(args, 5);
@@ -829,10 +780,9 @@ public class LaunchNavigator extends CordovaPlugin {
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
                 logMsg += " '"+destAddress+"'";
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
@@ -861,8 +811,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "HERE Maps app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -886,10 +835,9 @@ public class LaunchNavigator extends CordovaPlugin {
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
                 logMsg += " '"+destAddress+"'";
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
@@ -911,10 +859,9 @@ public class LaunchNavigator extends CordovaPlugin {
                 if(sType.equals("name")){
                     startAddress = getLocationFromName(args, 5);
                     logMsg += " '"+startAddress+"'";
-                    try {
-                        startLatLon = geocodeAddressToLatLon(args.getString(5));
-                    }catch(Exception e){
-                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
                     }
                 }else if(sType.equals("pos")){
                     startLatLon = getLocationFromPos(args, 5);
@@ -946,8 +893,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Moovit app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -978,10 +924,9 @@ public class LaunchNavigator extends CordovaPlugin {
             if(dType.equals("name")){
                 destAddress = getLocationFromName(args, 2);
                 logMsg += " '"+destAddress+"'";
-                try {
-                    destLatLon = geocodeAddressToLatLon(args.getString(2));
-                }catch(Exception e){
-                    logError("Unable to obtains coords for address '"+destAddress+"': "+e.getMessage());
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
                 }
             }else{
                 destLatLon = getLocationFromPos(args, 2);
@@ -998,10 +943,9 @@ public class LaunchNavigator extends CordovaPlugin {
                 if(sType.equals("name")){
                     startAddress = getLocationFromName(args, 5);
                     logMsg += " '"+startAddress+"'";
-                    try {
-                        startLatLon = geocodeAddressToLatLon(args.getString(5));
-                    }catch(Exception e){
-                        logError("Unable to obtains coords for address '"+startAddress+"': "+e.getMessage());
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
                     }
                 }else if(sType.equals("pos")){
                     startLatLon = getLocationFromPos(args, 5);
@@ -1023,8 +967,7 @@ public class LaunchNavigator extends CordovaPlugin {
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Lyft app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            handleException(msg, callbackContext);
         }
     }
 
@@ -1125,29 +1068,64 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
-    private String geocodeAddressToLatLon(String address) throws Exception {
-        address = address.replaceAll(" ", "%20");
+    private String geocodeAddressToLatLon(String address, CallbackContext callbackContext) throws Exception {
+        String result = null;
+        String errMsg = "Unable to geocode coords from address '"+address;
+        try {
 
-        JSONObject oResponse = doGeocode("address=" + address);
+            if(!enableGeocoding){
+                handleError("Geocoding disabled: "+errMsg, callbackContext);
+                return result;
+            }
 
-        double longitude = oResponse
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lng");
+            if(!isNetworkAvailable()){
+                handleError("No internet connection: "+errMsg, callbackContext);
+                return result;
+            }
 
-        double latitude = oResponse
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lat");
+            address = address.replaceAll(" ", "%20");
 
-        String result = latitude+","+longitude;
-        logDebug("Geocoded '"+address+"' to '"+result+"'");
-        return result;
+            JSONObject oResponse = doGeocode("address=" + address);
+
+            double longitude = oResponse
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lng");
+
+            double latitude = oResponse
+                    .getJSONObject("geometry").getJSONObject("location")
+                    .getDouble("lat");
+
+            result = latitude+","+longitude;
+            logDebug("Geocoded '"+address+"' to '"+result+"'");
+            return result;
+        }catch(Exception e){
+            handleException(errMsg+": "+e.getMessage(), callbackContext);
+            return result;
+        }
     }
 
-    private String reverseGeocodeLatLonToAddress(String latLon) throws Exception {
-        JSONObject oResponse = doGeocode("latlng=" + latLon);
-        String result = oResponse.getString("formatted_address");
-        logDebug("Reverse geocoded '"+latLon+"' to '"+result+"'");
-        return result;
+    private String reverseGeocodeLatLonToAddress(String latLon, CallbackContext callbackContext) throws Exception {
+        String result = null;
+        String errMsg = "Unable to reverse geocode address from coords '"+latLon;
+        try {
+            if(!enableGeocoding){
+                handleError("Geocoding disabled: "+errMsg, callbackContext);
+                return result;
+            }
+
+            if(!isNetworkAvailable()){
+                handleError("No internet connection: "+errMsg, callbackContext);
+                return result;
+            }
+
+            JSONObject oResponse = doGeocode("latlng=" + latLon);
+            result = oResponse.getString("formatted_address");
+            logDebug("Reverse geocoded '"+latLon+"' to '"+result+"'");
+            return result;
+        }catch(Exception e){
+            handleException(errMsg+": "+e.getMessage(), callbackContext);
+            return result;
+        }
     }
 
     private JSONObject doGeocode(String query) throws Exception{
@@ -1180,6 +1158,16 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
+    private void handleError(String msg, CallbackContext callbackContext){
+        logError(msg);
+        callbackContext.error(msg);
+    }
+
+    private void handleException(String msg, CallbackContext callbackContext){
+        msg = "Exception occurred: ".concat(msg);
+        handleError(msg, callbackContext);
+    }
+
     private String escapeDoubleQuotes(String string){
         final String escapedString = string.replace("\"", "\\\"");
         return escapedString;
@@ -1208,6 +1196,13 @@ public class LaunchNavigator extends CordovaPlugin {
             }
         }
         return name;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }

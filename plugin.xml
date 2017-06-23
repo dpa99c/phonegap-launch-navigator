@@ -38,6 +38,10 @@
 
     <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
 
+    <config-file target="AndroidManifest.xml" parent="/*">
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    </config-file>
+
     <framework src="com.squareup.okhttp3:okhttp:3+" />
   </platform>
 
