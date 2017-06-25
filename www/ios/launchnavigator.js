@@ -98,7 +98,9 @@ ln.v3 = {};
  * Defaults to "Cancel" if not specified.
  *
  * - {array} appSelectionList - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
- This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
+ * This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
+ *
+ * - {boolean} enableGeolocation - if true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to true.
  */
 ln.v3.navigate = function(destination, options) {
     options = options ? options : {};
@@ -114,6 +116,7 @@ ln.v3.navigate = function(destination, options) {
     // Set defaults
     options.transportMode = options.transportMode ? options.transportMode : common.TRANSPORT_MODE.DRIVING;
     options.enableDebug = options.enableDebug ? !!options.enableDebug : false;
+    options.enableGeolocation = typeof options.enableGeolocation !== "undefined" ? options.enableGeolocation : true;
 
     // Input validation
     function throwError(errMsg){
@@ -164,7 +167,8 @@ ln.v3.navigate = function(destination, options) {
         options.app,
         options.transportMode,
         options.enableDebug,
-        options.extras
+        options.extras,
+        options.enableGeolocation
     ]);
 
 };

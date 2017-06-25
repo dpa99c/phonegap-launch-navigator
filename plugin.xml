@@ -59,13 +59,14 @@
       </feature>
     </config-file>
 
-    <header-file src="src/ios/CMMapLauncher.h" />
-    <source-file src="src/ios/CMMapLauncher.m" />
     <header-file src="src/ios/LaunchNavigator.h" />
     <source-file src="src/ios/LaunchNavigator.m" />
+    <header-file src="src/ios/Reachability.h" />
+    <source-file src="src/ios/Reachability.m" />
 
     <framework src="MapKit.framework" />
     <framework src="CoreLocation.framework" />
+    <framework src="SystemConfiguration.framework" />
 
     <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
       <array>

@@ -33,19 +33,43 @@
 #endif
 
 #import <MapKit/MapKit.h>
-#import "CMMapLauncher.h"
+
+ // This enumeration identifies the mapping apps
+ // that this launcher knows how to support.
+typedef NS_ENUM(NSUInteger, LNApp) {
+	LNAppAppleMaps = 0,  // Preinstalled Apple Maps
+	LNAppCitymapper,     // Citymapper
+	LNAppGoogleMaps,     // Standalone Google Maps App
+	LNAppNavigon,        // Navigon
+	LNAppTheTransitApp,  // The Transit App
+	LNAppWaze,           // Waze
+	LNAppYandex,         // Yandex Navigator
+	LNAppUber,           // Uber
+	LNAppTomTom,         // TomTom
+	LNAppSygic,          // Sygic
+	LNAppHereMaps,       // HERE Maps
+	LNAppMoovit,         // Moovit
+	LNAppLyft            // Lyft
+};
+
+
+/**
+Indicates an empty coordinate
+*/
+CLLocationCoordinate2D LNEmptyCoord;
+
+/**
+Indicates an empty latitude or longitude component
+*/
+static const CLLocationDegrees LNEmptyLocation = -1000.0;
 
 
 @interface LaunchNavigator :CDVPlugin {
     BOOL debugEnabled;
-    CDVInvokedUrlCommand* cordova_command;
-    MKMapItem* start_mapItem;
-    MKMapItem* dest_mapItem;
+    CDVInvokedUrlCommand* cordova_command;    
 }
 @property (nonatomic) BOOL debugEnabled;
 @property (nonatomic,retain) CDVInvokedUrlCommand* cordova_command;
-@property (nonatomic,retain) MKMapItem* start_mapItem;
-@property (nonatomic,retain) MKMapItem* dest_mapItem;
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
