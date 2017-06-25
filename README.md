@@ -1,7 +1,7 @@
 Launch Navigator Cordova/Phonegap Plugin [![Latest Stable Version](https://img.shields.io/npm/v/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) [![Total Downloads](https://img.shields.io/npm/dt/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://npm-stat.com/charts.html?package=uk.co.workingedge.phonegap.plugin.launchnavigator)
 =================================
 
-This Cordova/Phonegap plugin can be used to navigate to a destination by launching native navigation apps on Android, iOS and Windows Phone.
+This Cordova/Phonegap plugin can be used to navigate to a destination by launching native navigation apps on Android, iOS and Windows.
 
 The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
@@ -24,12 +24,11 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 
 - [General concepts](#general-concepts)
   - [App detection, selection and launching](#app-detection-selection-and-launching)
-  - [Format of start/destination locations](#format-of-startdestination-locations)
+  - [Geocoding and input format of start/destination locations](#geocoding-and-input-format-of-startdestination-locations)
 - [Supported navigation apps](#supported-navigation-apps)
   - [Adding support for more apps](#adding-support-for-more-apps)
 - [Installing](#installing)
-  - [Using the Cordova/Phonegap CLI](#using-the-cordovaphonegap-cli)
-  - [Using Cordova Plugman](#using-cordova-plugman)
+  - [Using the CLI](#using-the-cli)
   - [PhoneGap Build](#phonegap-build)
 - [Usage examples](#usage-examples)
   - [Simple usage](#simple-usage)
@@ -62,14 +61,12 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [supportsStartName()](#supportsstartname)
     - [supportsLaunchMode()](#supportslaunchmode)
 - [Example project](#example-project)
-- [Legacy v2 API](#legacy-v2-api)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
   - [Windows](#windows)
   - [iOS](#ios)
 - [App-specifics](#app-specifics)
   - [Lyft](#lyft)
-- [Release notes](#release-notes)
 - [Reporting issues](#reporting-issues)
 - [Credits](#credits)
 - [License](#license)
@@ -87,14 +84,15 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - check which apps support which navigation options
     - launch a specific app for navigation
 
-## Format of start/destination locations
+## Geocoding and input format of start/destination locations
 - Some navigation apps require that destination/start locations be specified as coordinates, and others require an address.
-- This plugin will appropriately geocode or reverse-geocode the locations you provide to ensure the app receives the location in the required format.
-- So you can supply location as an address or as coordinates and the plugin will take care of getting it into the correct format for a particular app.
+    - See [App location support type wiki page](https://github.com/dpa99c/phonegap-launch-navigator/wiki/App-location-type-support) for details of which apps support which location types.
+- By default, this plugin will appropriately geocode or reverse-geocode the locations you provide to ensure the app receives the location in the required format.
 - However, geocoding requires use of a remote service, so an internet connection is required.
-
-<!-- - Hence if `navigate()` is called and no internet connection is detected, an error will be returned. -->
-
+- If `navigate()` is passed a location type which the selected app doesn't support, the error callback will be invoked if:
+  - geocoding is disabled by passing `enableGeocoding: false` in the options object
+  - there is no internet connection to perform the remote geocode operation
+  - geocoding fails (e.g. an address cannot be found for the given lat/long coords)
 
 # Supported navigation apps
 
@@ -149,18 +147,11 @@ I don't have time to research launch mechanisms for every suggested app, so I wi
 This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
 
 
-## Using the Cordova/Phonegap CLI
+## Using the CLI
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-
-## Using Cordova Plugman
-
-    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=<platform> --project=<project_path> --plugins_dir=plugins
-
-For example, to install for the Android platform
-
-    $ plugman install --plugin=uk.co.workingedge.phonegap.plugin.launchnavigator --platform=android --project=platforms/android --plugins_dir=plugins
+    $ ionic plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
 ## PhoneGap Build
 
@@ -392,7 +383,8 @@ Either:
     Specify using `launchnavigator.TRANSPORT_MODE` constants.
     - {boolean} enableDebug - if true, debug log output will be generated by the plugin. Defaults to false.
     - {object} extras - a key/value map of extra app-specific parameters. For example, to tell Google Maps on Android to display Satellite view in "maps" launch mode: `{"t": "k"}`
-    These will be appended to the URL used to invoke the app, e.g. `google_maps://?t=k&...`
+        - These will be appended to the URL used to invoke the app, e.g. `google_maps://?t=k&...`
+        - See [Supported app URL scheme documentation wiki page](https://github.com/dpa99c/phonegap-launch-navigator/wiki/Supported-app-URL-scheme-documentation) for links to find app-specific parameters.
     - {string} launchMode - (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn".
     Defaults to "maps" if not specified.
     Specify using `launchnavigator.LAUNCH_MODE` constants.
@@ -540,12 +532,6 @@ Note that currently only Google Maps on Android does.
 There is an [example Cordova project](https://github.com/dpa99c/phonegap-launch-navigator-example) which demonstrates usage of this plugin.
 The example currently runs on Android, iOS, Windows Phone 8.1, Windows 8.1 (PC), and Windows 10 (PC) platforms.
 
-# Legacy v2 API
-
-The plugin API has changed in v3, but the v2 API is still supported, although deprecated and will be removed in a future version, so plugin users are urged to migrate to the new API.
-Calls to the plugin which use the v2 API syntax will display a deprecation warning message in the JS console.
-
-
 # Platform-specifics
 
 ## Android
@@ -567,13 +553,12 @@ Calls to the plugin which use the v2 API syntax will display a deprecation warni
 
 - Bing Maps requires the user to press the enter key to initiate navigation if you don't provide the start location.
 Therefore, if a start location is not going to be passed to the plugin from your app, you should install the [Geolocation plugin](https://github.com/apache/cordova-plugin-geolocation) into your project.
-If the geolocation plugin is detected, the plugin will attempt to retrieve the current device location using it, and use this as the start location.
-This can be disabled via the `disableAutoGeolocation` option.
+By default, if the geolocation plugin is detected, the plugin will attempt to retrieve the current device location using it, and use this as the start location.
+This can be disabled via the `enableGeolocation` option.
 
 
 ## iOS
 
-- The iOS implementation uses a [forked version](https://github.com/dpa99c/CMMapLauncher) of the [CMMapLauncher library](https://github.com/citymapper/CMMapLauncher) to invoke apps.
 - "Removing" Apple Maps
   - Since iOS 10, it is possible to "remove" built-in Apple apps, including Maps, from the Home screen.
   - Not that removing is not the same as uninstalling - the app is still actually present on the device, just the icon is removed from the Home screen.
@@ -588,20 +573,6 @@ This can be disabled via the `disableAutoGeolocation` option.
 On both Android and iOS, the "ride type" will default to "Lyft" unless otherwise specified in the `extras` list as `id`. 
 
 See the [Lyft documentation](https://developer.lyft.com/v1/docs/deeplinking) for URL scheme details and other supported ride types.
-
-# Release notes
-**v3.0.1**
-Replaced legacy Apache HTTP client with OkHttp client on Android to prevent Gradle build issues
-
-**v3.0.0**
-
-Version 3 is a complete rewrite of the plugin in order to support launching of 3rd party navigation apps on Android and iOS.
-The plugin API has changed significantly, but is backwardly-compatible to support the version 2 API syntax.
-
-If for any reason you have issues with v3, the final release of v2 is on this branch: [https://github.com/dpa99c/phonegap-launch-navigator/tree/v2](https://github.com/dpa99c/phonegap-launch-navigator/tree/v2). It can be specified in a Cordova project as `uk.co.workingedge.phonegap.plugin.launchnavigator@2`.
-
-[cordova-plugin-actionsheet](https://github.com/EddyVerbruggen/cordova-plugin-actionsheet) has been introduced as a plugin dependency.
-It is used to display a native picker (both on Android and iOS) to choose which available navigation app should be used. This is used if [app](#app) is specified as `launchnavigator.APP.USER_SELECT`, which is the default in v3 if an app is not explicitly specified.
 
 # Reporting issues
 
@@ -633,7 +604,6 @@ Thanks to:
 
 - [opadro](https://github.com/opadro) for Windows implementation
 - [Eddy Verbruggen](https://github.com/EddyVerbruggen) for [cordova-plugin-actionsheet](https://github.com/EddyVerbruggen/cordova-plugin-actionsheet)
-- [Citymapper](http://citymapper.com/) for [CMMapLauncher iOS library](https://github.com/citymapper/CMMapLauncher)
 
 License
 ================
