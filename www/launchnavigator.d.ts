@@ -1,1 +1,1 @@
-declare var launchnavigator:any;
+declare var launchnavigator:LaunchNavigator;
