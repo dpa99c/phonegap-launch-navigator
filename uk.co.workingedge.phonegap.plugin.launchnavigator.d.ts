@@ -1,4 +1,4 @@
-﻿// Type definitions for uk.co.workingedge.phonegap.plugin.launchnavigator@3.2.1
+﻿// Type definitions for uk.co.workingedge.phonegap.plugin.launchnavigator@4
 // Project: https://github.com/dpa99c/phonegap-launch-navigator
 // Definitions by: Dave Alden <https://github.com/dpa99c>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -95,6 +95,11 @@ interface LaunchNavigatorOptions {
      * A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
      */
     appSelectionCallback?: (app: string) => void;
+
+    /**
+     * If true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to true.
+     */
+    enableGeolocation?: boolean;
 }
 
 
