@@ -189,7 +189,8 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.GOOGLE_MAPS] = [
 ];
 ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.APPLE_MAPS] = [
     ln.TRANSPORT_MODE.DRIVING,
-    ln.TRANSPORT_MODE.WALKING
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.TRANSIT
 ];
 ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.DRIVING,
@@ -241,7 +242,7 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
 ];
 ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
-    ln.APP.APPLE_MAPS,
+    ln.APP.APPLE_MAPS, // Only launchMode=mapkit
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
@@ -263,7 +264,7 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
 ];
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
-    ln.APP.APPLE_MAPS,
+    ln.APP.APPLE_MAPS, // Only launchMode=mapkit
     ln.APP.CITYMAPPER,
     ln.APP.NAVIGON,
     ln.APP.UBER,
@@ -280,6 +281,10 @@ ln.SUPPORTS_LAUNCH_MODE = {};
 ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [
     ln.APP.USER_SELECT,
     ln.APP.GOOGLE_MAPS
+];
+ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.IOS] = [
+    ln.APP.USER_SELECT,
+    ln.APP.APPLE_MAPS
 ];
 
 ln.COORDS_REGEX = /^[-\d.]+,[\s]*[-\d.]+$/;
@@ -338,7 +343,6 @@ ln.getTransportModes = function(app, platform){
 
 /**
  * Indicates if an app on a given platform supports specification of launch mode.
- * Note that currently only Google Maps on Android does.
  * @param {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
  * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.ANDROID`.
  * @return {boolean} - true if app/platform combination supports specification of transport mode.
@@ -534,6 +538,19 @@ ln.util.extractCoordsFromLocationString = function(location){
         location = [parts[0], parts[1]];
     }
     return location;
+};
+
+ln.util.isValidLaunchMode = function(launchMode){
+    for(var LAUNCH_MODE in ln.LAUNCH_MODE){
+        if(launchMode == ln.LAUNCH_MODE[LAUNCH_MODE]) return true;
+    }
+    return false;
+};
+
+ln.util.validateLaunchMode = function(launchMode){
+    if(!ln.util.isValidLaunchMode(launchMode)){
+        throw new Error("'"+launchMode+"' is not a recognised launch mode");
+    }
 };
 
 /*********************

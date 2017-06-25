@@ -47,7 +47,8 @@ static NSDictionary* AppLocationTypes;
 @synthesize debugEnabled;
 @synthesize cordova_command;
 
-BOOL enableGeocoding = TRUE;
+BOOL enableGeocoding;
+BOOL useMapKit;
 
 LNApp app;
 NSString* logMsg;
@@ -61,6 +62,7 @@ NSString* jsStartType;
 NSString* jsStartName;
 NSString* jsAppName;
 NSString* jsTransportMode;
+NSString* jsLaunchMode;
 NSString* jsExtras;
 BOOL jsEnableDebug;
 
@@ -86,7 +88,7 @@ NSDictionary* extras;
 + (void)initialize{
     appNames = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit", @"lyft"];
     AppLocationTypes = @{
-                         @(LNAppAppleMaps): LNLocTypeCoords,
+                         @(LNAppAppleMaps): LNLocTypeBoth,
                          @(LNAppCitymapper): LNLocTypeBoth,
                          @(LNAppGoogleMaps): LNLocTypeBoth,
                          @(LNAppNavigon): LNLocTypeCoords,
@@ -128,9 +130,16 @@ NSDictionary* extras;
         jsStartName = [command.arguments objectAtIndex:5];
         jsAppName = [command.arguments objectAtIndex:6];
         jsTransportMode = [command.arguments objectAtIndex:7];
-        jsEnableDebug = [[command argumentAtIndex:8] boolValue];
-        jsExtras = [command.arguments objectAtIndex:9];
-        enableGeocoding = [[command argumentAtIndex:10] boolValue];
+        jsLaunchMode = [command.arguments objectAtIndex:8];
+        jsEnableDebug = [[command argumentAtIndex:9] boolValue];
+        jsExtras = [command.arguments objectAtIndex:10];
+        enableGeocoding = [[command argumentAtIndex:11] boolValue];
+        
+        if([jsLaunchMode isEqual: @"mapkit"]){
+            useMapKit = TRUE;
+        }else{
+            useMapKit = FALSE;
+        }
         
         if(jsEnableDebug == TRUE){
             self.debugEnabled = jsEnableDebug;
@@ -205,8 +214,52 @@ NSDictionary* extras;
 /**************
  * Apps
  **************/
-
 -(void)launchAppleMaps {
+    if(useMapKit){
+        [self launchAppleMapsWithMapKit];
+    }else{
+        [self launchAppleMapsWithURI];
+    }
+}
+
+-(void)launchAppleMapsWithURI {
+    
+    NSMutableString* url = [[NSString stringWithFormat:@"%@?",
+                             [self urlPrefixForMapApp:LNAppAppleMaps]
+                             ] mutableCopy];
+    
+    if([self isEmptyCoordinate:destCoord]){
+        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }else{
+        [url appendFormat:@"daddr=%@", [self stringForCoord:destCoord]];
+    }
+    
+    if(![jsStartType isEqual: LNLocTypeNone]){
+        if([self isEmptyCoordinate:startCoord]){
+            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }else{
+            [url appendFormat:@"&saddr=%@", [self stringForCoord:startCoord]];
+        }
+    }
+    
+    if (directionsMode) {
+        if([directionsMode isEqual: @"walking"]){
+            [url appendFormat:@"&dirflg=w"];
+        }else if([directionsMode isEqual: @"transit"]){
+            [url appendFormat:@"&dirflg=r"];
+        }else{
+            [url appendFormat:@"&dirflg=d"];
+        }
+    }
+    
+    if(extras){
+        [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
+    }
+    [self logDebugURI:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+}
+
+-(void)launchAppleMapsWithMapKit {
     NSDictionary* launchOptions;
     if (directionsMode) {
         if([directionsMode isEqual: @"walking"]){
@@ -252,25 +305,24 @@ NSDictionary* extras;
 }
 
 -(void)launchGoogleMaps {
-    NSString* startStr;
-    if([self isEmptyCoordinate:startCoord]){
-        startStr = [startAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    }else{
-        startStr = [self googleMapsStringForCoord:startCoord];
-    }
     
-    NSString* endStr;
-    if([self isEmptyCoordinate:destCoord]){
-        endStr = [destAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    }else{
-        endStr = [self googleMapsStringForCoord:destCoord];
-    }
-    
-    NSMutableString* url = [[NSString stringWithFormat:@"%@?saddr=%@&daddr=%@",
-                             [self urlPrefixForMapApp:LNAppGoogleMaps],
-                             startStr,
-                             endStr
+    NSMutableString* url = [[NSString stringWithFormat:@"%@?",
+                             [self urlPrefixForMapApp:LNAppGoogleMaps]
                              ] mutableCopy];
+    
+    if([self isEmptyCoordinate:destCoord]){
+        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    }else{
+        [url appendFormat:@"daddr=%@", [self stringForCoord:destCoord]];
+    }
+    
+    if(![jsStartType isEqual: LNLocTypeNone]){
+        if([self isEmptyCoordinate:startCoord]){
+            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        }else{
+            [url appendFormat:@"&saddr=%@", [self stringForCoord:startCoord]];
+        }
+    }
     
     if (directionsMode) {
         [url appendFormat:@"&directionsmode=%@", directionsMode];
@@ -579,7 +631,7 @@ NSDictionary* extras;
     }else{ // [jsDestType isEqual: LNLocTypeAddress]
         destAddress = jsDestination;
         
-        if([AppLocationTypes objectForKey:@(app)] == LNLocTypeCoords){
+        if([AppLocationTypes objectForKey:@(app)] == LNLocTypeCoords || (app == LNAppAppleMaps && useMapKit)){
             if([self isGeocodingEnabled]){
                 if([self isNetworkAvailable]){
                     [self geocode:jsDestination success:^(MKMapItem* destItem, MKPlacemark* destPlacemark) {
@@ -657,7 +709,7 @@ NSDictionary* extras;
         startAddress = jsStart;
         logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, jsStart];
         
-        if([AppLocationTypes objectForKey:@(app)] == LNLocTypeCoords){
+        if([AppLocationTypes objectForKey:@(app)] == LNLocTypeCoords || (app == LNAppAppleMaps && useMapKit)){
             if([self isGeocodingEnabled]){
                 if([self isNetworkAvailable]){
                     [self geocode:jsStart success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
@@ -1013,6 +1065,9 @@ NSDictionary* extras;
 
 - (NSString*)urlPrefixForMapApp:(LNApp)mapApp {
     switch (mapApp) {
+        case LNAppAppleMaps:
+        return @"http://maps.apple.com/";
+        
         case LNAppCitymapper:
         return @"citymapper://";
         
@@ -1078,7 +1133,7 @@ NSDictionary* extras;
     return queryParams;
 }
 
-- (NSString*)googleMapsStringForCoord:(CLLocationCoordinate2D)coordinate {
+- (NSString*)stringForCoord:(CLLocationCoordinate2D)coordinate {
     if ([self isEmptyCoordinate:coordinate]) {
         return @"";
     }
@@ -1090,6 +1145,5 @@ NSDictionary* extras;
 {
     return coordinate.latitude == LNEmptyLocation && coordinate.longitude == LNEmptyLocation;
 }
-
 
 @end

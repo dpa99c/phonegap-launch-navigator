@@ -244,7 +244,8 @@ The following table enumerates which apps support which parameters.
 | Android  | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Lyft                           |   X  |           |   X   |            |                |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
-| iOS      | Apple Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
+| iOS      | Apple Maps - URI scheme        |   X  |           |   X   |            |        X       |   X  |
+| iOS      | Apple Maps - MapKit class      |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Waze                           |   X  |           |       |            |                |   X  |
 | iOS      | Citymapper                     |   X  |     X     |   X   |      X     |                |   X  |
@@ -385,9 +386,12 @@ Either:
     - {object} extras - a key/value map of extra app-specific parameters. For example, to tell Google Maps on Android to display Satellite view in "maps" launch mode: `{"t": "k"}`
         - These will be appended to the URL used to invoke the app, e.g. `google_maps://?t=k&...`
         - See [Supported app URL scheme documentation wiki page](https://github.com/dpa99c/phonegap-launch-navigator/wiki/Supported-app-URL-scheme-documentation) for links to find app-specific parameters.
-    - {string} launchMode - (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn".
-    Defaults to "maps" if not specified.
-    Specify using `launchnavigator.LAUNCH_MODE` constants.
+    - {string} launchModeGoogleMaps - (Android only) mode in which to open Google Maps app
+        - `launchnavigator.LAUNCH_MODE.MAPS` or `launchnavigator.LAUNCH_MODE.TURN_BY_TURN`
+        - Defaults to `launchnavigator.LAUNCH_MODE.MAPS` if not specified.
+    - {string} launchModeAppleMaps - (iOS only) method to use to open Apple Maps app
+            - `launchnavigator.LAUNCH_MODE.URI_SCHEME` or `launchnavigator.LAUNCH_MODE.MAPKIT`
+            - Defaults to `launchnavigator.LAUNCH_MODE.URI_SCHEME` if not specified.
     - {string} appSelectionDialogHeader - text to display in the native picker which enables user to select which navigation app to launch.
     Defaults to "Select app for navigation" if not specified.
     - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
@@ -468,7 +472,7 @@ Returns the list of transport modes supported by an app on a given platform.
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
-- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- {string} launchMode (optional) - Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
 - returns {boolean} - {array} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
 If app/platform combination doesn't support specification of transport mode, the list will be empty;
 
@@ -483,7 +487,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
-- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- {string} launchMode (optional) - Only applies to Google Maps on Android and Apple Maps on iOS. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
 - returns {boolean} - true if app/platform combination supports specification of a custom nickname for destination location.
 
 
@@ -496,7 +500,7 @@ Indicates if an app on a given platform supports specification of start location
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
-- {string} launchMode (optional) - Android only. Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
+- {string} launchMode (optional) - Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
 - returns {boolean} - true if app/platform combination supports specification of start location.
 
 
@@ -510,6 +514,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
+- {string} launchMode (optional) - Only applies to Apple Maps on iOS. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPKIT`.
 - returns {boolean} - {boolean} - true if app/platform combination supports specification of a custom nickname for start location.
 
 
@@ -517,7 +522,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 ### supportsLaunchMode()
 
 Indicates if an app on a given platform supports specification of launch mode.
-Note that currently only Google Maps on Android does.
+- Currently only Google Maps on Android and Apple Maps on iOS does.
 
     launchnavigator.supportsLaunchMode(app, platform);
 
@@ -544,7 +549,7 @@ The example currently runs on Android, iOS, Windows Phone 8.1, Windows 8.1 (PC),
     - Maps mode (`launchnavigator.LAUNCH_MODE.MAPS`) - launches in Map view. Enables start location to be specified, but not transport mode or destination name.
     - Turn-by-turn mode (`launchnavigator.LAUNCH_MODE.TURN_BY_TURN`) - launches in Navigation view. Enables transport mode to be specified, but not start location or destination name.
     - Geo mode (`launchnavigator.LAUNCH_MODE.GEO`) - invokes Navigation view via `geo`: URI scheme. Enables destination name to be specified, but not start location or transport mode.
-    - Launch mode can be specified via the `launchMode` option, but defaults to Maps mode if not specified.
+    - Launch mode can be specified via the `launchModeGoogleMaps` option, but defaults to Maps mode if not specified.
 
 
 ## Windows
@@ -559,13 +564,35 @@ This can be disabled via the `enableGeolocation` option.
 
 ## iOS
 
-- "Removing" Apple Maps
+### "Removing" Apple Maps
   - Since iOS 10, it is possible to "remove" built-in Apple apps, including Maps, from the Home screen.
   - Not that removing is not the same as uninstalling - the app is still actually present on the device, just the icon is removed from the Home screen.
   - Therefore it's not possible detect if Apple Maps is unavailable - `launchnavigator.availableApps()` will always report it as present.
   - The best that can be done is to gracefully handle the error when attempting to open Apple Maps using `launchnavigator.navigate()`
   - For reference, see [this SO question](http://stackoverflow.com/questions/39603120/how-to-check-if-apple-maps-is-installed) and the [Apple documentation](https://support.apple.com/en-gb/HT204221).
   
+### Apple Maps launch method
+
+This plugin supports 2 different launch methods for launching the Apple Maps app on iOS.
+
+- Specified by passing the `launchModeAppleMaps` option as a `launchnavigator.LAUNCH_MODE` constant to `navigate()`
+    - `launchnavigator.LAUNCH_MODE.URI_SCHEME`: use the URI scheme launch method. Default if not specified.
+    - `launchnavigator.LAUNCH_MODE.MAPKIT`: use the MapKit class launch method.
+
+#### URI scheme launch method
+- Launches the app using the [Apple Maps URI scheme](https://developer.apple.com/library/content/featuredarticles/iPhoneURLScheme_Reference/MapLinks/MapLinks.html)
+- The default method used by the plugin.
+- Supports input location types of both coordinates and address string without requiring remote geocoding service (works offline)
+- Doesn't support specifying nicknames for start/destination locations.
+
+#### MapKit class launch method
+- Launches the app using the [MapKit class](https://developer.apple.com/documentation/mapkit/mkmapitem/1452207-openmapswithitems?language=objc) to launch Apple Maps
+- Only supports input location type of coordinates without requiring remote geocoding service (works offline)
+- An input location type of an address (formatted as a single string) requires use of remote geocoding service (requires internet connection)
+    - MapKit class input requires an address which is formatted as an [address dictionary](https://developer.apple.com/documentation/contacts/cnpostaladdress), in which the address is split into known fields such as street, city and state.  
+- Support specifying nicknames for start/destination locations.
+- Provides [additional launch options](https://developer.apple.com/documentation/mapkit/mkmapitem/launch_options_dictionary_keys?language=objc) which are not available via the URI scheme launch method.
+
 # App-specifics
 
 ## Lyft
