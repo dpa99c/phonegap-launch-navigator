@@ -53,12 +53,6 @@ ln.availableApps = function(success, error){
     success(apps);
 };
 
-/*********
- * v3 API
- *********/
-ln.v3 = {};
-
-
 /**
  * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
  * If a start location is not also specified, current location will be used for the start.
@@ -95,7 +89,7 @@ ln.v3 = {};
  * - {boolean} enableGeolocation - if FALSE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to TRUE.
  *
  */
-ln.v3.navigate = function(destination, options) {
+ln.navigate = function(destination, options) {
     var url ="bingmaps:?rtp=";
 
     if(!destination){
@@ -179,48 +173,6 @@ ln.v3.navigate = function(destination, options) {
         msg += "current location";
         doNavigate(url);
     }
-};
-
-/*********************************
- * v2 legacy API to map to v3 API
- *********************************/
-ln.v2 = {};
-
-/**
- * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
- * If a start location is not also specified, current location will be used for the start. User will be requried to hit the enter key.
- *
- * @param {Mixed} destination (required) - destination location to use for navigation.
- * Either:
- * - a {String} containing the place name. e.g. "London"
- * - an {Array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
- * @param {Mixed} start (optional) - start location to use for navigation. If not specified, the current location of the device will be used.
- * Either:
- * - a {String} containing the place name. e.g. "London"
- * - an {Array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
- * @param {Function} successCallback (optional) - A callback which will be called when plugin call is successful.
- * @param {Function} errorCallback (optional) - A callback which will be called when plugin encounters an error.
- * This callback function have a string param with the error.
- * @param {Object} options (optional) - platform-specific options:
- * {String} transportMode - transportation mode for navigation: "driving", "walking" or "transit". Defaults to "driving" if not specified.
- * {Boolean} disableAutoGeolocation - if TRUE, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to FALSE.
- */
-ln.v2.navigate = function(destination, start, successCallback, errorCallback, options) {
-    // Set defaults
-    options = options ? options : {};
-
-    ln.console.warn("launchnavigator.navigate() called using deprecated v2 API signature. Please update to use v3 API signature as deprecated API support will be removed in a future version");
-
-    // Map to and call v3 API
-    ln.v3.navigate(destination, {
-        successCallback: successCallback,
-        errorCallback: errorCallback,
-        app: common.APP.BING_MAPS,
-        start: start,
-        transportMode: options.transportMode,
-        enableGeolocation: !options.disableAutoGeolocation,
-        enableDebug: false
-    });
 };
 
 /******************
