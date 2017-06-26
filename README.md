@@ -25,6 +25,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 - [General concepts](#general-concepts)
   - [App detection, selection and launching](#app-detection-selection-and-launching)
   - [Geocoding and input format of start/destination locations](#geocoding-and-input-format-of-startdestination-locations)
+  - [Remember user's choice of navigation app](#remember-users-choice-of-navigation-app)
 - [Supported navigation apps](#supported-navigation-apps)
   - [Adding support for more apps](#adding-support-for-more-apps)
 - [Installing](#installing)
@@ -46,7 +47,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [PLATFORM](#platform)
     - [APP](#app)
     - [APP_NAMES](#app_names)
-    - [`launchnavigator.TRANSPORT_MODE`](#launchnavigatortransport_mode)
+    - [TRANSPORT_MODE](#transport_mode)
     - [LAUNCH_MODE](#launch_mode)
   - [API methods](#api-methods)
     - [navigate()](#navigate)
@@ -60,11 +61,20 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [supportsStart()](#supportsstart)
     - [supportsStartName()](#supportsstartname)
     - [supportsLaunchMode()](#supportslaunchmode)
-- [Example project](#example-project)
+    - [appSelection.userChoice.exists()](#appselectionuserchoiceexists)
+    - [appSelection.userChoice.get()](#appselectionuserchoiceget)
+    - [appSelection.userChoice.set()](#appselectionuserchoiceset)
+    - [appSelection.userChoice.clear()](#appselectionuserchoiceclear)
+    - [appSelection.userPrompted.get()](#appselectionuserpromptedget)
+    - [appSelection.userPrompted.set()](#appselectionuserpromptedset)
+    - [appSelection.userPrompted.clear()](#appselectionuserpromptedclear)
+- [Example projects](#example-projects)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
   - [Windows](#windows)
   - [iOS](#ios)
+    - ["Removing" Apple Maps](#removing-apple-maps)
+    - [Apple Maps launch method](#apple-maps-launch-method)
 - [App-specifics](#app-specifics)
   - [Lyft](#lyft)
 - [Reporting issues](#reporting-issues)
@@ -93,6 +103,13 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
   - geocoding is disabled by passing `enableGeocoding: false` in the options object
   - there is no internet connection to perform the remote geocode operation
   - geocoding fails (e.g. an address cannot be found for the given lat/long coords)
+  
+## Remember user's choice of navigation app
+
+- If the built-in app selection mechanism is used, the plugin enables the user's choice of app to be locally persisted, meaning they don't have to choose every time.
+- This can either be done without or without prompting the user to do so.
+- See the `appSelection` section of options for the [`navigate()`](#navigate) function more details.
+- See the "Advanced Example" project] in the [example repo](https://github.com/dpa99c/phonegap-launch-navigator-example) for an illustrated example.
 
 # Supported navigation apps
 
@@ -327,7 +344,7 @@ Display names for supported apps, referenced by `launchnavigator.APP`.
 
 e.g. `launchnavigator.APP_NAMES[launchnavigator.APP.GOOGLE_MAPS] == "Google Maps"`
 
-### `launchnavigator.TRANSPORT_MODE`
+### TRANSPORT_MODE
 
 Transport modes for navigation:
 
@@ -526,7 +543,6 @@ Indicates if an app on a given platform supports specification of start location
 - returns {boolean} - true if app/platform combination supports specification of start location.
 
 
-
 ### supportsStartName()
 
 Indicates if an app on a given platform supports specification of a custom nickname for start location.
@@ -553,12 +569,77 @@ Indicates if an app on a given platform supports specification of launch mode.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.ANDROID`.
 - returns {boolean} - true if app/platform combination supports specification of transport mode.
 
-//TODO app selection API
+### appSelection.userChoice.exists()
+Indicates whether a user choice exists for a preferred navigator app.
 
-# Example project
+    launchnavigator.appSelection.userChoice.exists(function(exists){
+        console.log("User preference of app: " + (exists ? "exists" : "doesn't exist"));
+    });
+#### Parameters
+- [function} cb - function to pass result to: will receive a boolean argument.
 
-There is an [example Cordova project](https://github.com/dpa99c/phonegap-launch-navigator-example) which demonstrates usage of this plugin.
-The example currently runs on Android, iOS, Windows Phone 8.1, Windows 8.1 (PC), and Windows 10 (PC) platforms.
+### appSelection.userChoice.get()
+Returns current user choice of preferred navigator app.
+
+    launchnavigator.appSelection.userChoice.get(function(app){
+        console.log("User preferred app is: " + launchnavigator.getAppDisplayName(app));
+    });
+#### Parameters
+- [function} cb - function to pass result to: will receive a string argument indicating the app, which is a constant in `launchnavigator.APP`.
+
+### appSelection.userChoice.set()
+Sets the current user choice of preferred navigator app.
+
+    launchnavigator.appSelection.userChoice.set(launchnavigator.APP.GOOGLE_MAPS, function(){
+        console.log("User preferred app is set");
+    });
+#### Parameters
+- {string} app - app to set as preferred choice as a constant in `launchnavigator.APP`.
+- [function} cb - function to call once operation is complete.
+
+### appSelection.userChoice.clear()
+Clears the current user choice of preferred navigator app.
+
+    launchnavigator.appSelection.userChoice.clear(function(){
+        console.log("User preferred app is cleared");
+    });
+#### Parameters
+- [function} cb - function to call once operation is complete.
+
+### appSelection.userPrompted.get()
+Indicates whether user has already been prompted whether to remember their choice a preferred navigator app.
+
+    launchnavigator.appSelection.userPrompted.get(function(alreadyPrompted){
+        console.log("User " + (alreadyPrompted ? "has" : "hasn't") + " already been asked whether to remember their choice of navigator app");
+    });
+#### Parameters
+- [function} cb - function to pass result to: will receive a boolean argument.
+
+### appSelection.userPrompted.set()
+Sets flag indicating user has already been prompted whether to remember their choice a preferred navigator app.
+
+    launchnavigator.appSelection.userPrompted.set(function(){
+        console.log("Flag set to indicate user chose to remember their choice of navigator app");
+    });
+#### Parameters
+- [function} cb - function to call once operation is complete.
+
+### appSelection.userPrompted.clear()
+Clears flag which indicates if user has already been prompted whether to remember their choice a preferred navigator app.
+
+    launchnavigator.appSelection.userPrompted.clear(function(){
+        console.log("Clear flag indicating whether user chose to remember their choice of navigator app");
+    });
+#### Parameters
+- [function} cb - function to call once operation is complete.
+
+# Example projects
+
+There are several example projects in the [example repo](https://github.com/dpa99c/phonegap-launch-navigator-example) which illustrate usage of this plugin:
+- SimpleExample - illustrates basic usage of the plugin
+- AdvancedExample - illustrates advanced usage of the plugin
+- IonicExample - illustrates usage of the plugin with the Ionic v1 framework
+- Ionic2Example - illustrates usage of the plugin with the Ionic v2 framework and Ionic Native plugin wrapper.
 
 # Platform-specifics
 
