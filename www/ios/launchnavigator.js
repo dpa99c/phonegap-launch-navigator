@@ -122,12 +122,12 @@ ln.navigate = function(destination, options) {
     options.launchModeAppleMaps = typeof options.launchModeAppleMaps !== "undefined" ? options.launchModeAppleMaps : ln.LAUNCH_MODE.URI_SCHEME;
 
     // Input validation
-    function throwError(errMsg){
+    var throwError = function(errMsg){
         if(options.errorCallback){
             options.errorCallback(errMsg);
         }
         throw new Error(errMsg);
-    }
+    };
 
     if(!destination){
         throwError("No destination was specified");;

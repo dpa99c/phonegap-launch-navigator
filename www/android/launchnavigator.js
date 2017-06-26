@@ -145,12 +145,13 @@ ln.navigate = function(destination, options) {
     var dType, sType = "none";
 
     // Input validation
-    function throwError(errMsg){
+    var throwError = function(errMsg){
         if(options.errorCallback){
             options.errorCallback(errMsg);
         }
         throw new Error(errMsg);
-    }
+    };
+
     if(!destination){
         throwError("No destination was specified");
     }
@@ -239,7 +240,7 @@ ln.supportsTransportMode = function(app, platform, launchMode){
 
     var result;
     if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
-        ln.util.validateLaunchMode(launchMode);
+        common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.TURN_BY_TURN;
     }else{
         result = common._supportsTransportMode(app, platform);
@@ -276,7 +277,7 @@ ln.supportsStart = function(app, platform, launchMode){
 
     var result;
     if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
-        ln.util.validateLaunchMode(launchMode);
+        common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.MAPS;
     }else{
         result = common._supportsStart(app, platform);
@@ -296,7 +297,7 @@ ln.supportsDestName = function(app, platform, launchMode){
     common.util.validateApp(app);
     common.util.validatePlatform(platform);
     if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
-        ln.util.validateLaunchMode(launchMode);
+        common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.GEO;
     }else{
         result = common._supportsDestName(app, platform);

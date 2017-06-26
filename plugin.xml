@@ -22,9 +22,14 @@
     <clobbers target="launchnavigator" />
   </js-module>
 
+  <js-module src="www/localforage.v1.5.0.nopromises.min.js" name="LocalForage">
+    <clobbers target="localforage" />
+  </js-module>
+
   <!-- android -->
   <platform name="android">
-    <dependency id="cordova-plugin-actionsheet" version="^2.2.2" />
+    <dependency id="cordova-plugin-actionsheet" version="2" />
+    <dependency id="cordova-plugin-dialogs" version="1" />
 
     <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />
@@ -47,7 +52,8 @@
 
   <!-- ios -->
   <platform name="ios">
-    <dependency id="cordova-plugin-actionsheet" version="^2.2.2" />
+    <dependency id="cordova-plugin-actionsheet" version="2" />
+    <dependency id="cordova-plugin-dialogs" version="1" />
 
     <js-module src="www/ios/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />

@@ -392,15 +392,37 @@ Either:
     - {string} launchModeAppleMaps - (iOS only) method to use to open Apple Maps app
             - `launchnavigator.LAUNCH_MODE.URI_SCHEME` or `launchnavigator.LAUNCH_MODE.MAPKIT`
             - Defaults to `launchnavigator.LAUNCH_MODE.URI_SCHEME` if not specified.
-    - {string} appSelectionDialogHeader - text to display in the native picker which enables user to select which navigation app to launch.
-    Defaults to "Select app for navigation" if not specified.
-    - {string} appSelectionCancelButton - text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
-    Defaults to "Cancel" if not specified.
-    - {array} appSelectionList - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
-    This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
-    - {function} appSelectionCallback - a callback to invoke when the user selects an app in the native picker.
-    A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
-    - {integer} androidTheme - (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants. Default `actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT`
+    - {object} - appSelection - options related to the default native actionsheet picker which enables user to select which navigation app to launch if `app` is not specified.
+        - {string} dialogHeaderText - text to display in the native picker body, above the app buttons.
+            - Defaults to "Select app for navigation" if not specified.
+        - {string} cancelButtonText - text to display for the cancel button.
+            - Defaults to "Cancel" if not specified.
+        - {array} list - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
+        This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
+        - {function} callback - a callback to invoke when the user selects an app in the native picker.
+            - A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
+        - {integer} androidTheme - (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants. Default `actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT`
+        - {object} - rememberChoice - options related to whether to remember user choice of app for next time, instead of asking again for user choice.
+            - {string/boolean} enabled - whether to remember user choice of app for next time. Valid values:
+                - `false` - Do not remember user choice. Default value if unspecified.
+                - `true` - Remember user choice.
+                - `"prompt"` - Prompt user to decide whether to remember choice.
+                    - If `promptFn` is defined, this will be user.
+                    - Otherwise (by default), a native dialog will be displayed to ask user. 
+            - {function} promptFn - a function to which asks the user whether to remember their choice of app.
+                - If this is defined, then the default dialog prompt will not be shown, allowing for a custom UI for asking the user.
+                - This will be passed a callback function which should be invoked with a single boolean argument which indicates the user's decision to remember their choice.
+            - {object} - prompt - options related to the default dialog prompt used to ask the user whether to remember their choice of app.
+                - {function} callback - a function to pass the user's decision whether to remember their choice of app.
+                    - This will be passed a single boolean value indicating the user's decision.
+                - {string} headerText - text to display in the native prompt header asking user whether to remember their choice.
+                    - Defaults to "Remember your choice?" if not specified.
+                - {string} bodyText - text to display in the native prompt body asking user whether to remember their choice.
+                    - Defaults to "Use the same app for navigating next time?" if not specified.
+                - {string} yesButtonText - text to display for the Yes button.
+                    - Defaults to "Yes" if not specified.
+                - {string} noButtonText - text to display for the No button.
+                    - Defaults to "No" if not specified.
 
 ### isAppAvailable()
 
@@ -531,6 +553,7 @@ Indicates if an app on a given platform supports specification of launch mode.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.ANDROID`.
 - returns {boolean} - true if app/platform combination supports specification of transport mode.
 
+//TODO app selection API
 
 # Example project
 

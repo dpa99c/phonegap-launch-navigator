@@ -107,7 +107,7 @@ ln.navigate = function(destination, options) {
 
     var msg = "Using " + common.APP_NAMES[common.APP.BING_MAPS] + " to navigate";
 
-    function doNavigate(url){
+    var doNavigate = function(url){
         url += "~";
         destination = common.util.extractCoordsFromLocationString(destination);
         msg += " to ";
@@ -140,7 +140,7 @@ ln.navigate = function(destination, options) {
         }catch(e){
             if(options.errorCallback) options.errorCallback(e);
         }
-    }
+    };
 
     msg += " from ";
     if(options.start){

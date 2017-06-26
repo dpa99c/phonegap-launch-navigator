@@ -28,6 +28,57 @@
 
 var ln = {};
 
+/*********************
+ * Internal properties
+ *********************/
+
+var DEFAULT_appSelectionDialogHeaderText = "Select app for navigation",
+    DEFAULT_appSelectionCancelButtonText = "Cancel",
+    DEFAULT_rememberChoicePromptDialogHeaderText = "Remember your choice?",
+    DEFAULT_rememberChoicePromptDialogBodyText = "Use the same app for navigating next time?",
+    DEFAULT_rememberChoicePromptDialogYesButtonText = "Yes",
+    DEFAULT_rememberChoicePromptDialogNoButtonText = "No";
+
+var store;
+
+var emptyFn = function(){};
+
+/********************
+ * Internal functions
+ ********************/
+
+var ensureStore = function(){
+    if(!store){
+        store = localforage.createInstance({
+            name: "launchnavigator"
+        });
+    }
+};
+
+var setItem = function(key, value, callback){
+    ensureStore();
+    return store.setItem(key, value, callback);
+};
+
+var getItem = function(key, callback){
+    ensureStore();
+    return store.getItem(key, function(err, value){
+        callback(value);
+    });
+};
+
+var removeItem = function(key, callback){
+    ensureStore();
+    return store.removeItem(key, callback);
+};
+
+var itemExists = function(key, callback){
+    ensureStore();
+    return store.getItem(key, function(err, value){
+        callback(value !== null);
+    });
+};
+
 /******************
  * Public Constants
  ******************/
@@ -396,53 +447,128 @@ ln.supportsDestName = function(app, platform){
  * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
  */
 ln.userSelect = function(destination, options, successCallback, errorCallback){
-    options = options ? options : {};
-    options.errorCallback = options.errorCallback ? options.errorCallback : errorCallback || function(){};
-    options.successCallback = options.successCallback ? options.successCallback : successCallback || function(){};
-    options.appSelectionCallback = options.appSelectionCallback ? options.appSelectionCallback : function(){};
+    var userSelectDisplayed, app;
+
+    options = options || {};
+    options.errorCallback = options.errorCallback || errorCallback || emptyFn;
+    options.successCallback = options.successCallback || successCallback || emptyFn;
+    
+    // app selection
+    options.appSelection = options.appSelection || {};
+    options.appSelection.callback = options.appSelection.callback || emptyFn;
+    options.appSelection.rememberChoice = options.appSelection.rememberChoice || {};
+    options.appSelection.rememberChoice.prompt = options.appSelection.rememberChoice.prompt || {};
+    options.appSelection.rememberChoice.prompt.callback = options.appSelection.rememberChoice.prompt.callback || emptyFn;
     
     var buttonList = [], buttonMap = {};
 
-    if(launchnavigator.userSelectDisplayed) return;
+    if(userSelectDisplayed) return;
 
-    function launchApp(app){
+    var launchApp = function (){
         options.app = app;
         launchnavigator.navigate(destination, options);
-    }
+    };
 
-    function onChooseApp(btnNumber){
-        delete launchnavigator.userSelectDisplayed;
-        var idx = btnNumber - 1,
-            app = buttonMap[idx];
-        if(app != "cancel"){
-            launchApp(app);
-            options.appSelectionCallback(app);
-        } else {
-            options.errorCallback('cancelled');
-        }
-    }
-
-    function displayChooser(){
-        launchnavigator.userSelectDisplayed = true;
+    var displayChooser = function(){
+        userSelectDisplayed = true;
         window.plugins.actionsheet.show({
-            'androidTheme': options.androidTheme || window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
-            'title': options.appSelectionDialogHeader || DEFAULT_appSelectionDialogHeader,
+            'androidTheme': options.appSelection.androidTheme || window.plugins.actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT,
+            'title': options.appSelection.dialogHeaderText || DEFAULT_appSelectionDialogHeaderText,
             'buttonLabels': buttonList,
             'androidEnableCancelButton' : true, // default false
             //'winphoneEnableCancelButton' : true, // default false
-            'addCancelButtonWithLabel': options.appSelectionCancelButton || DEFAULT_appSelectionCancelButton,
+            'addCancelButtonWithLabel': options.appSelection.cancelButtonText || DEFAULT_appSelectionCancelButtonText,
             'position': [550, 500] // for iPad pass in the [x, y] position of the popover
         }, onChooseApp);
-    }
+    };
+
+    var onChooseApp = function (btnNumber){
+        userSelectDisplayed = false;
+        var idx = btnNumber - 1;
+        app = buttonMap[idx];
+        if(app != "cancel"){
+            options.appSelection.callback(app);
+            if(options.appSelection.rememberChoice.enabled === true || options.appSelection.rememberChoice.enabled === "true"){
+                rememberUserChoiceAndLaunch();
+            }else if(options.appSelection.rememberChoice.enabled === "prompt"){
+                checkIfAlreadyPrompted();
+            }else{
+                // Don't remember, just launch app
+                launchApp();
+            }
+        } else {
+            options.errorCallback('cancelled');
+        }
+    };
+
+    var rememberUserChoiceAndLaunch = function(){
+        setItem("choice", app, function(){
+            launchApp();
+        });
+    };
+
+    var checkForChoice = function(){
+        getItem("choice", function(choice){
+            if(choice){
+                app = choice;
+                launchApp();
+            }else{
+                displayChooser();
+            }
+        })
+    };
+
+    // Check if user has already been prompted whether to remember their choice
+    var checkIfAlreadyPrompted = function(){
+        getItem("prompted", function(prompted){
+            if(prompted){
+                launchApp();
+            }else{
+                promptUser();
+            }
+        });
+    };
+
+    // Prompt user whether to remember their choice
+    var promptUser = function(){
+        if(options.appSelection.rememberChoice.promptFn){
+            options.appSelection.rememberChoice.promptFn(handleUserPromptChoice);
+        }else{
+            // Show prompt using cordova dialogs
+            navigator.notification.confirm(
+                options.appSelection.rememberChoice.prompt.bodyText || DEFAULT_rememberChoicePromptDialogBodyText,
+                function(idx){
+                    handleUserPromptChoice(idx === 1);
+                },
+                options.appSelection.rememberChoice.prompt.headerText || DEFAULT_rememberChoicePromptDialogHeaderText,
+                [
+                    options.appSelection.rememberChoice.prompt.yesButtonText || DEFAULT_rememberChoicePromptDialogYesButtonText,
+                    options.appSelection.rememberChoice.prompt.noButtonText || DEFAULT_rememberChoicePromptDialogNoButtonText
+                ]
+            );
+        }
+    };
+
+    var handleUserPromptChoice = function(shouldRemember){
+        options.appSelection.rememberChoice.prompt.callback(shouldRemember);
+        setItem("prompted", true, function(){
+            if(shouldRemember){
+                rememberUserChoiceAndLaunch();
+            }else{
+                launchApp();
+            }
+        });
+    };
+
 
     // Get list of available apps
     launchnavigator.availableApps(function(apps){
-        for(var app in apps){
-            var isAvailable = apps[app];
+        for(var _app in apps){
+            var isAvailable = apps[_app];
             if(!isAvailable) continue;
-            if(options.appSelectionList && options.appSelectionList.length > 0 && !ln.util.arrayContainsValue(options.appSelectionList, app)) continue;
-            buttonList.push(ln.getAppDisplayName(app));
-            buttonMap[buttonList.length-1] = app;
+            if(options.appSelection.list && options.appSelection.list.length > 0 && !ln.util.arrayContainsValue(options.appSelection.list, _app)) continue;
+            buttonList.push(ln.getAppDisplayName(_app));
+            buttonMap[buttonList.length-1] = _app;
         }
 
         if(buttonList.length == 0){
@@ -455,9 +581,76 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
 
         buttonMap[buttonList.length] = "cancel"; // Add an entry for cancel button
 
-        displayChooser();
+        // Check if a user choice exists
+        checkForChoice();
 
     }, options.errorCallback);
+};
+
+/*****************************
+ * App selection API functions
+ *****************************/
+ln.appSelection = {
+    userChoice: {},
+    userPrompted: {}
+};
+
+/**
+ * Indicates whether a user choice exists for a preferred navigator app.
+ * @param [function} cb - function to pass result to: will receive a boolean argument.
+ */
+ln.appSelection.userChoice.exists = function(cb){
+    itemExists("choice", cb);
+};
+
+/**
+ * Returns current user choice of preferred navigator app.
+ * @param [function} cb - function to pass result to: will receive a string argument indicating the app, which is a constant in `launchnavigator.APP`.
+ * If no current choice exists, value will be null.
+ */
+ln.appSelection.userChoice.get = function(cb){
+    getItem("choice", cb);
+};
+
+/**
+ * Sets the current user choice of preferred navigator app.
+ * @param {string} app - app to set as preferred choice as a constant in `launchnavigator.APP`.
+ * @param [function} cb - function to call once operation is complete.
+ */
+ln.appSelection.userChoice.set = function(app, cb){
+    setItem("choice", app, cb);
+};
+
+/**
+ * Clears current user choice of preferred navigator app.
+ * @param [function} cb - function to call once operation is complete.
+ */
+ln.appSelection.userChoice.clear = function(cb){
+    removeItem("choice", cb);
+};
+
+/**
+ * Indicates whether user has already been prompted whether to remember their choice a preferred navigator app.
+ * @param [function} cb - function to pass result to: will receive a boolean argument.
+ */
+ln.appSelection.userPrompted.get = function(cb){
+    itemExists("prompted", cb);
+};
+
+/**
+ * Sets flag indicating user has already been prompted whether to remember their choice a preferred navigator app.
+ * @param [function} cb - function to call once operation is complete.
+ */
+ln.appSelection.userPrompted.set = function(cb){
+    setItem("prompted", true, cb);
+};
+
+/**
+ * Clears flag which indicates if user has already been prompted whether to remember their choice a preferred navigator app.
+ * @param [function} cb - function to call once operation is complete.
+ */
+ln.appSelection.userPrompted.clear = function(cb){
+    removeItem("prompted", cb);
 };
 
 /*******************
@@ -553,15 +746,5 @@ ln.util.validateLaunchMode = function(launchMode){
     }
 };
 
-/*********************
- * Internal properties
- *********************/
-
-var DEFAULT_appSelectionDialogHeader = "Select app for navigation",
-    DEFAULT_appSelectionCancelButton = "Cancel";
-
-/********************
- * Internal functions
- ********************/
 
 module.exports = ln;
