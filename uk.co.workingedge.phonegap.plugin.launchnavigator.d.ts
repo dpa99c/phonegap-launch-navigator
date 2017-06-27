@@ -12,6 +12,108 @@ interface Window {
     LaunchNavigator(): LaunchNavigator;
 }
 
+interface PromptsOptions {
+
+    /**
+     * a function to pass the user's decision whether to remember their choice of app.
+     * This will be passed a single boolean value indicating the user's decision.
+     * @param rememberChoice
+     */
+    callback?: (rememberChoice: boolean) => void;
+
+    /**
+     * text to display in the native prompt header asking user whether to remember their choice.
+     * Defaults to "Remember your choice?" if not specified.
+     */
+    headerText?: string;
+
+    /**
+     * text to display in the native prompt body asking user whether to remember their choice.
+     * Defaults to "Use the same app for navigating next time?" if not specified.
+     */
+    bodyText?: string;
+
+
+    /**
+     * text to display for the Yes button.
+     * Defaults to "Yes" if not specified.
+     */
+    yesButtonText?: string;
+
+    /**
+     * text to display for the No button.
+     * Defaults to "No" if not specified.
+     */
+    noButtonText?: string;
+}
+
+interface RememberChoiceOptions {
+
+    /**
+     * whether to remember user choice of app for next time, instead of asking again for user choice.
+     * `false` - Do not remember user choice. Default value if unspecified.
+     * `true` - Remember user choice.
+     * `"prompt"` - Prompt user to decide whether to remember choice.
+     *  - If `promptFn` is defined, this will be user.
+     *  - Otherwise (by default), a native dialog will be displayed to ask user.
+     */
+    enabled?:boolean|string;
+
+
+    /**
+     * a function which asks the user whether to remember their choice of app.
+     * If this is defined, then the default dialog prompt will not be shown, allowing for a custom UI for asking the user.
+     * This will be passed a callback function which should be invoked with a single boolean argument which indicates the user's decision to remember their choice.
+     * @param callback
+     */
+    promptFn?: (callback: (rememberChoice: boolean) => void) => void;
+
+    /**
+     * options related to the default dialog prompt used to ask the user whether to remember their choice of app.
+     */
+    prompt?: PromptsOptions
+}
+
+interface AppSelectionOptions {
+    /**
+     * text to display in the native picker which enables user to select which navigation app to launch.
+     * Defaults to "Select app for navigation" if not specified.
+     */
+    dialogHeaderText?: string;
+
+    /**
+     * text to display for the cancel button in the native picker which enables user to select which navigation app to launch.
+     * Defaults to "Cancel" if not specified.
+     */
+    cancelButtonText?: string;
+
+    /**
+     * List of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
+     * This can be used to restrict which apps are displayed, even if they are installed.
+     * By default, all available apps will be displayed.
+     */
+    list?: string[];
+
+    /**
+     * Callback to invoke when the user selects an app in the native picker.
+     * A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
+     */
+    callback?: (app: string) => void;
+
+    /**
+     * (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants.
+     * Default `actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT`
+     */
+    androidTheme?: number;
+
+    /**
+     * options related to whether to remember user choice of app for next time, instead of asking again for user choice.
+     */
+    rememberChoice?: RememberChoiceOptions;
+
+
+}
+
 interface LaunchNavigatorOptions {
 
     /**
@@ -69,39 +171,83 @@ interface LaunchNavigatorOptions {
     extras?: any;
 
     /**
-     * (Android only) mode in which to open Google Maps app: "maps" or "turn-by-turn". Defaults to "maps" if not specified. Specify using launchnavigator.LAUNCH_MODE constants.
+     * (Android only) mode in which to open Google Maps app.
+     * `launchnavigator.LAUNCH_MODE.MAPS` or `launchnavigator.LAUNCH_MODE.TURN_BY_TURN`
+     * Defaults to `launchnavigator.LAUNCH_MODE.MAPS` if not specified.
      */
-    launchMode?: string;
+    launchModeGoogleMaps?: string;
 
     /**
-     * text to display in the native picker which enables user to select which navigation app to launch. Defaults to "Select app for navigation" if not specified.
+     * (iOS only) method to use to open Apple Maps app.
+     * `launchnavigator.LAUNCH_MODE.URI_SCHEME` or `launchnavigator.LAUNCH_MODE.MAPKIT`
+     * Defaults to `launchnavigator.LAUNCH_MODE.URI_SCHEME` if not specified.
      */
-    appSelectionDialogHeader?: string;
+    launchModeAppleMaps?: string;
 
-    /**
-     * text to display for the cancel button in the native picker which enables user to select which navigation app to launch. Defaults to "Cancel" if not specified.
-     */
-    appSelectionCancelButton?: string;
-
-    /**
-     * List of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
-     * This can be used to restrict which apps are displayed, even if they are installed.
-     * By default, all available apps will be displayed.
-     */
-    appSelectionList?: string[];
-
-    /**
-     * Callback to invoke when the user selects an app in the native picker.
-     * A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
-     */
-    appSelectionCallback?: (app: string) => void;
 
     /**
      * If true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to true.
      */
     enableGeolocation?: boolean;
+
+    /**
+     * options related to the default native actionsheet picker which enables user to select which navigation app to launch if `app` is not specified.
+     */
+    appSelection?: AppSelectionOptions;
 }
 
+interface UserChoice{
+
+    /**
+     * Indicates whether a user choice exists for a preferred navigator app.
+     * @param callback - function to pass result to: will receive a boolean argument.
+     */
+    exists: (callback: (exists: boolean) => void) => void;
+
+    /**
+     * Returns current user choice of preferred navigator app.
+     * @param callback - function to pass result to: will receive a string argument indicating the app, which is a constant in `launchnavigator.APP`.
+     */
+    get: (callback: (app: string) => void) => void;
+
+    /**
+     * Sets the current user choice of preferred navigator app.
+     * @param app - app to set as preferred choice as a constant in `launchnavigator.APP`.
+     * @param callback - function to call once operation is complete.
+     */
+    set: (app: string, callback: () => void) => void;
+
+    /**
+     * Clears the current user choice of preferred navigator app.
+     * @param callback - function to call once operation is complete.
+     */
+    clear: (callback: () => void) => void;
+}
+
+interface UserPrompted{
+    /**
+     * Indicates whether user has already been prompted whether to remember their choice a preferred navigator app.
+     * @param callback - function to pass result to: will receive a boolean argument.
+     */
+    get: (callback: (exists: boolean) => void) => void;
+
+    /**
+     * Sets flag indicating user has already been prompted whether to remember their choice a preferred navigator app.
+     * @param callback - function to call once operation is complete.
+     */
+    set: ( callback: () => void) => void;
+
+    /**
+     * Clears flag which indicates if user has already been prompted whether to remember their choice a preferred navigator app.
+     * @param callback - function to call once operation is complete.
+     */
+    clear: ( callback: () => void) => void;
+}
+
+interface AppSelection{
+    userChoice: UserChoice;
+    userPrompted: UserPrompted;
+}
 
 interface LaunchNavigator {
 
@@ -258,6 +404,8 @@ interface LaunchNavigator {
         destination: string | number[],
         options: LaunchNavigatorOptions
     ) => void;
+
+    appSelection: AppSelection;
 }
 
 declare var launchnavigator: LaunchNavigator;

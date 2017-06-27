@@ -420,13 +420,13 @@ Either:
             - A single string argument is passed which is the app what was selected defined as a `launchnavigator.APP` constant.
         - {integer} androidTheme - (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants. Default `actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT`
         - {object} - rememberChoice - options related to whether to remember user choice of app for next time, instead of asking again for user choice.
-            - {string/boolean} enabled - whether to remember user choice of app for next time. Valid values:
+            - {string/boolean} enabled - whether to remember user choice of app for next time, instead of asking again for user choice.
                 - `false` - Do not remember user choice. Default value if unspecified.
                 - `true` - Remember user choice.
                 - `"prompt"` - Prompt user to decide whether to remember choice.
                     - If `promptFn` is defined, this will be user.
                     - Otherwise (by default), a native dialog will be displayed to ask user. 
-            - {function} promptFn - a function to which asks the user whether to remember their choice of app.
+            - {function} promptFn - a function which asks the user whether to remember their choice of app.
                 - If this is defined, then the default dialog prompt will not be shown, allowing for a custom UI for asking the user.
                 - This will be passed a callback function which should be invoked with a single boolean argument which indicates the user's decision to remember their choice.
             - {object} - prompt - options related to the default dialog prompt used to ask the user whether to remember their choice of app.
