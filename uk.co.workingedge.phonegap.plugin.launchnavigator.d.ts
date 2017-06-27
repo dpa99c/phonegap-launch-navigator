@@ -51,11 +51,12 @@ interface RememberChoiceOptions {
 
     /**
      * whether to remember user choice of app for next time, instead of asking again for user choice.
-     * `false` - Do not remember user choice. Default value if unspecified.
-     * `true` - Remember user choice.
      * `"prompt"` - Prompt user to decide whether to remember choice.
-     *  - If `promptFn` is defined, this will be user.
+     *  - Default value if unspecified.
+     *  - If `promptFn` is defined, this will be used for user confirmation.
      *  - Otherwise (by default), a native dialog will be displayed to ask user.
+     * `false` - Do not remember user choice.
+     * `true` - Remember user choice.
      */
     enabled?:boolean|string;
 

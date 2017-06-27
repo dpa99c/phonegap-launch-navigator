@@ -457,6 +457,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
     options.appSelection = options.appSelection || {};
     options.appSelection.callback = options.appSelection.callback || emptyFn;
     options.appSelection.rememberChoice = options.appSelection.rememberChoice || {};
+    options.appSelection.rememberChoice.enabled = typeof options.appSelection.rememberChoice.enabled !== "undefined" ? options.appSelection.rememberChoice.enabled : "prompt";
     options.appSelection.rememberChoice.prompt = options.appSelection.rememberChoice.prompt || {};
     options.appSelection.rememberChoice.prompt.callback = options.appSelection.rememberChoice.prompt.callback || emptyFn;
     
@@ -490,11 +491,12 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
             options.appSelection.callback(app);
             if(options.appSelection.rememberChoice.enabled === true || options.appSelection.rememberChoice.enabled === "true"){
                 rememberUserChoiceAndLaunch();
-            }else if(options.appSelection.rememberChoice.enabled === "prompt"){
-                checkIfAlreadyPrompted();
-            }else{
+            }else if(options.appSelection.rememberChoice.enabled === false || options.appSelection.rememberChoice.enabled === "false"){
                 // Don't remember, just launch app
                 launchApp();
+            }else{
+                // Default
+                checkIfAlreadyPrompted();
             }
         } else {
             options.errorCallback('cancelled');

@@ -107,8 +107,8 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 ## Remember user's choice of navigation app
 
 - If the built-in app selection mechanism is used, the plugin enables the user's choice of app to be locally persisted, meaning they don't have to choose every time.
-- This can either be done without or without prompting the user to do so.
-- See the `appSelection` section of options for the [`navigate()`](#navigate) function more details.
+- By default, this as the user to confirm they wish their choice to be remembered.
+- See the `appSelection` section of options for the [`navigate()`](#navigate) function for more details.
 - See the "Advanced Example" project] in the [example repo](https://github.com/dpa99c/phonegap-launch-navigator-example) for an illustrated example.
 
 # Supported navigation apps
@@ -421,11 +421,12 @@ Either:
         - {integer} androidTheme - (Android only) native picker theme. Specify using `actionsheet.ANDROID_THEMES` constants. Default `actionsheet.ANDROID_THEMES.THEME_HOLO_LIGHT`
         - {object} - rememberChoice - options related to whether to remember user choice of app for next time, instead of asking again for user choice.
             - {string/boolean} enabled - whether to remember user choice of app for next time, instead of asking again for user choice.
-                - `false` - Do not remember user choice. Default value if unspecified.
-                - `true` - Remember user choice.
                 - `"prompt"` - Prompt user to decide whether to remember choice.
-                    - If `promptFn` is defined, this will be user.
-                    - Otherwise (by default), a native dialog will be displayed to ask user. 
+                    - Default value if unspecified.
+                    - If `promptFn` is defined, this will be used for user confirmation.
+                    - Otherwise (by default), a native dialog will be displayed to ask user.
+                - `false` - Do not remember user choice.
+                - `true` - Remember user choice.
             - {function} promptFn - a function which asks the user whether to remember their choice of app.
                 - If this is defined, then the default dialog prompt will not be shown, allowing for a custom UI for asking the user.
                 - This will be passed a callback function which should be invoked with a single boolean argument which indicates the user's decision to remember their choice.
