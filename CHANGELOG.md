@@ -12,7 +12,10 @@
 - Remove backward compatibility shim for legacy v2 API.
 - Update Typescript types for v4.
 - Support specification of launch mode for Apple Maps on iOS: URI scheme or MapKit class. 
-Default to URI scheme method in order to support address location types without geocoding.  Resolves #106 and #107. 
+Default to URI scheme method in order to support address location types without geocoding.  Resolves #106 and #107.
+- Rework app selection options structure for navigate().
+NOTE: this is backwardly incompatible with v3 and below.
+- Add mechanism to optionally offer to remember user choice of app.
 
 ##v3.2.2
 - Rename typing files to use NPM package names instead of Github repo names.
