@@ -465,7 +465,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
 
     if(userSelectDisplayed) return;
 
-    var launchApp = function (){
+    var launchApp = function(){
         options.app = app;
         launchnavigator.navigate(destination, options);
     };
@@ -578,7 +578,8 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         }
 
         if(buttonList.length == 1){
-            return launchApp(buttonMap[0]);
+            app = buttonMap[0];
+            return launchApp();
         }
 
         buttonMap[buttonList.length] = "cancel"; // Add an entry for cancel button
