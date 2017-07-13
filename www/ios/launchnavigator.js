@@ -102,7 +102,7 @@ ln.availableApps = function(success, error){
  * - {array} appSelectionList - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
  * This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
  *
- * - {boolean} enableGeolocation - if true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to TRUE.
+ * - {boolean} enableGeocoding - if true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to TRUE.
  */
 ln.navigate = function(destination, options) {
     options = options ? options : {};
@@ -118,7 +118,7 @@ ln.navigate = function(destination, options) {
     // Set defaults
     options.transportMode = options.transportMode ? options.transportMode : common.TRANSPORT_MODE.DRIVING;
     options.enableDebug = options.enableDebug ? !!options.enableDebug : false;
-    options.enableGeolocation = typeof options.enableGeolocation !== "undefined" ? options.enableGeolocation : true;
+    options.enableGeocoding = typeof options.enableGeocoding !== "undefined" ? options.enableGeocoding : true;
     options.launchModeAppleMaps = typeof options.launchModeAppleMaps !== "undefined" ? options.launchModeAppleMaps : ln.LAUNCH_MODE.URI_SCHEME;
 
     // Input validation
@@ -172,7 +172,7 @@ ln.navigate = function(destination, options) {
         options.launchModeAppleMaps,
         options.enableDebug,
         options.extras,
-        options.enableGeolocation
+        options.enableGeocoding
     ]);
 
 };

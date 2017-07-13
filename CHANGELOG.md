@@ -1,5 +1,8 @@
 # CHANGELOG
 
+##v4.0.1
+- Fix references to enableGelocation vs enableGeocoding
+
 ##v4.0.0
 - Add Lyft support to Android and iOS. Resolves #130
 - Add CHANGELOG
