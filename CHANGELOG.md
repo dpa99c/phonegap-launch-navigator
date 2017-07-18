@@ -1,5 +1,8 @@
 # CHANGELOG
 
+##v4.0.2
+- Fix infinite recursion when calling navigate() if only 1 supported app is present. Resolves #141.
+
 ##v4.0.1
 - Fix references to enableGelocation vs enableGeocoding
 
