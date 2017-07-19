@@ -83,7 +83,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String WAZE = "waze";
     private static final String YANDEX = "yandex";
     private static final String SYGIC = "sygic";
-    private static final String TOMTOM = "tomtom";
+    private static final String TOMTOM_BRIDGE_DEVICE = "tomtom_bridge_device";
     private static final String HERE_MAPS = "here_maps";
     private static final String MOOVIT = "moovit";
 
@@ -98,7 +98,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
-        _supportedAppPackages.put(TOMTOM, "com.tomtom.navpad.navapp");
+        _supportedAppPackages.put(TOMTOM_BRIDGE_DEVICE, "com.tomtom.navpad.navapp");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
@@ -114,7 +114,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
-        _supportedAppNames.put(TOMTOM, "TomTom");
+        _supportedAppNames.put(TOMTOM_BRIDGE_DEVICE, "TomTom");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
@@ -124,7 +124,7 @@ public class LaunchNavigator extends CordovaPlugin {
 
     PackageManager packageManager;
     Context context;
-    private NavAppClient mNavappClient;
+    private NavAppClient tomTomBridgeAppClient;
 
     OkHttpClient httpClient = new OkHttpClient();
 
@@ -163,16 +163,16 @@ public class LaunchNavigator extends CordovaPlugin {
                 enableDebug = args.getBoolean(9);
                 if (enableDebug) {
                     String navigateArgs = "Called navigate() with args"
-                            + ": app=" + args.getString(0)
-                            + "; dType=" + args.getString(1)
-                            + "; dest=" + args.getString(2)
-                            + "; destNickname=" + args.getString(3)
-                            + "; sType=" + args.getString(4)
-                            + "; start=" + args.getString(5)
-                            + "; startNickname=" + args.getString(6)
-                            + "; transportMode=" + args.getString(7)
-                            + "; launchMode=" + args.getString(8)
-                            + "; extras=" + args.getString(10);
+                        + ": app=" + args.getString(0)
+                        + "; dType=" + args.getString(1)
+                        + "; dest=" + args.getString(2)
+                        + "; destNickname=" + args.getString(3)
+                        + "; sType=" + args.getString(4)
+                        + "; start=" + args.getString(5)
+                        + "; startNickname=" + args.getString(6)
+                        + "; transportMode=" + args.getString(7)
+                        + "; launchMode=" + args.getString(8)
+                        + "; extras=" + args.getString(10);
                     logDebug(navigateArgs);
                 }
                 this.navigate(args, callbackContext);
@@ -266,8 +266,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchYandex(args, callbackContext);
         } else if (appName.equals(SYGIC)) {
             launchSygic(args, callbackContext);
-        } else if (appName.equals(TOMTOM)) {
-            launchTomTom(args, callbackContext);
+        } else if (appName.equals(TOMTOM_BRIDGE_DEVICE)) {
+            launchTomTomBridgeDevice(args, callbackContext);
         } else if (appName.equals(HERE_MAPS)) {
             launchHereMaps(args, callbackContext);
         } else if (appName.equals(MOOVIT)) {
@@ -276,6 +276,9 @@ public class LaunchNavigator extends CordovaPlugin {
             launchApp(args, callbackContext);
         }
     }
+      /*
+     * Launch apps
+     */
 
 
     /*
@@ -740,92 +743,6 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
-    private ErrorCallback mErrorCallback = new ErrorCallback() {
-        @Override
-        public void onError(NavAppError error) {
-            Log.e("TomTom", "onError(" + error.getErrorMessage() + ")\n" + error.getStackTraceString());
-        }
-    };
-
-    public boolean createNavAppClient() {
-        if (mNavappClient == null) {
-            // Create the NavAppClient
-            try {
-                mNavappClient = NavAppClient.Factory.make(this.cordova.getActivity(), mErrorCallback);
-            } catch (RuntimeException e) {
-                Log.e("TomTom", "Failed creating NavAppClient", e);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    CallbackContext tomtomContext;
-    private void launchTomTom(JSONArray args, CallbackContext callbackContext) throws Exception {
-        tomtomContext = callbackContext;
-        try {
-            createNavAppClient();
-            String dType = args.getString(1);
-            String destAddress;
-
-            if (dType.equals("name")) {
-                destAddress = getLocationFromName(args, 2);
-                GeoCoder geoCoder = getNavappClient().getGeoCoder();
-                geoCoder.getRouteableFromLocationName(destAddress, 1, new Routeable.ListListener() {
-                    @Override
-                    public void onRoutable(List<Routeable> list) {
-                        if (list != null && list.size() > 0) {
-                            Routeable r = list.get(0);
-                            Double latitude = r.getLatitude();
-                            Double longitude = r.getLongitude();
-                            planTomTomTrip(latitude, longitude);
-                            tomtomContext.success();
-                        } else {
-                            String msg = "Exception: Cannot translate Address to geo position";
-                            System.err.println(msg);
-                            tomtomContext.error(msg);
-                        }
-                    }
-                });
-            } else {
-                JSONArray arg_object = args.getJSONArray(2);
-                double latitude = arg_object.getDouble(0);
-                double longitude = arg_object.getDouble(1);
-                planTomTomTrip(latitude, longitude);
-                tomtomContext.success();
-            }
-
-        } catch (Exception e) {
-            System.err.println("Exception: " + e.getMessage());
-            tomtomContext.error(e.getMessage());
-        }
-    }
-
-    private void planTomTomTrip(double latitude, double longitude) {
-        TripManager mTripManager = null;
-        mTripManager = getNavappClient().getTripManager();
-        final Routeable destination = getNavappClient().makeRouteable(latitude, longitude);
-        mTripManager.planTrip(destination, mPlanListener);
-    }
-
-    private Trip.PlanListener mPlanListener = new Trip.PlanListener() {
-        public void onTripPlanResult(Trip trip, Trip.PlanResult result) {
-            Log.d("TomTom", "onTripPlanResult result[" + result + "]");
-            launchNavApp();
-        }
-    };
-
-    private void launchNavApp() {
-        Context context = this.cordova.getActivity().getApplicationContext();
-        final Intent intent = new Intent(NavAppClient.ACTION_LAUNCH_NAVAPP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
-
-    public NavAppClient getNavappClient() {
-        return mNavappClient;
-    }
-
     private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception {
         try {
             String destAddress = null;
@@ -1053,6 +970,95 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
     /*
+     * Launch TomTom bridge device
+     */
+
+    private ErrorCallback tomTomBridgeErrorCallback = new ErrorCallback() {
+        @Override
+        public void onError(NavAppError error) {
+            Log.e("TomTom bridge device", "onError(" + error.getErrorMessage() + ")\n" + error.getStackTraceString());
+        }
+    };
+
+    public boolean createTomTomBridgeAppClient() {
+        if (tomTomBridgeAppClient == null) {
+            try {
+                tomTomBridgeAppClient = NavAppClient.Factory.make(this.cordova.getActivity(), tomTomBridgeErrorCallback);
+            } catch (RuntimeException e) {
+                Log.e("TomTom bridge device", "Failed creating NavAppClient", e);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    CallbackContext tomTomBridgeContext;
+
+    private void launchTomTomBridgeDevice(JSONArray args, CallbackContext callbackContext) throws Exception {
+        tomTomBridgeContext = callbackContext;
+        try {
+            createTomTomBridgeAppClient();
+            String dType = args.getString(1);
+            String destAddress;
+
+            if (dType.equals("name")) {
+                destAddress = getLocationFromName(args, 2);
+                GeoCoder geoCoder = getTomTomBridgeAppClient().getGeoCoder();
+                geoCoder.getRouteableFromLocationName(destAddress, 1, new Routeable.ListListener() {
+                    @Override
+                    public void onRoutable(List<Routeable> list) {
+                        if (list != null && list.size() > 0) {
+                            Routeable r = list.get(0);
+                            Double latitude = r.getLatitude();
+                            Double longitude = r.getLongitude();
+                            planTomTomBridgeDeviceTrip(latitude, longitude);
+                            tomTomBridgeContext.success();
+                        } else {
+                            String msg = "Exception: Cannot translate Address to geo position";
+                            System.err.println(msg);
+                            tomTomBridgeContext.error(msg);
+                        }
+                    }
+                });
+            } else {
+                JSONArray arg_object = args.getJSONArray(2);
+                double latitude = arg_object.getDouble(0);
+                double longitude = arg_object.getDouble(1);
+                planTomTomBridgeDeviceTrip(latitude, longitude);
+                tomTomBridgeContext.success();
+            }
+        } catch (Exception e) {
+            System.err.println("Exception: " + e.getMessage());
+            tomTomBridgeContext.error(e.getMessage());
+        }
+    }
+
+    private void planTomTomBridgeDeviceTrip(double latitude, double longitude) {
+        TripManager mTripManager = null;
+        mTripManager = getTomTomBridgeAppClient().getTripManager();
+        final Routeable destination = getTomTomBridgeAppClient().makeRouteable(latitude, longitude);
+        mTripManager.planTrip(destination, tomTomBridgePlanListener);
+    }
+
+    private Trip.PlanListener tomTomBridgePlanListener = new Trip.PlanListener() {
+        public void onTripPlanResult(Trip trip, Trip.PlanResult result) {
+            Log.d("TomTom bridge device", "onTripPlanResult result[" + result + "]");
+            launchTomTomBridgeApp();
+        }
+    };
+
+    private void launchTomTomBridgeApp() {
+        Context context = this.cordova.getActivity().getApplicationContext();
+        final Intent intent = new Intent(NavAppClient.ACTION_LAUNCH_NAVAPP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
+    public NavAppClient getTomTomBridgeAppClient() {
+        return tomTomBridgeAppClient;
+    }
+
+    /*
      * Utilities
      */
 
@@ -1155,12 +1161,12 @@ public class LaunchNavigator extends CordovaPlugin {
         JSONObject oResponse = doGeocode("address=" + address);
 
         double longitude = oResponse
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lng");
+            .getJSONObject("geometry").getJSONObject("location")
+            .getDouble("lng");
 
         double latitude = oResponse
-                .getJSONObject("geometry").getJSONObject("location")
-                .getDouble("lat");
+            .getJSONObject("geometry").getJSONObject("location")
+            .getDouble("lat");
 
         String result = latitude + "," + longitude;
         logDebug("Geocoded '" + address + "' to '" + result + "'");
@@ -1177,8 +1183,8 @@ public class LaunchNavigator extends CordovaPlugin {
     private JSONObject doGeocode(String query) throws Exception {
         String url = "http://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false";
         Request request = new Request.Builder()
-                .url(url)
-                .build();
+            .url(url)
+            .build();
 
         Response response = httpClient.newCall(request).execute();
         String responseBody = response.body().string();

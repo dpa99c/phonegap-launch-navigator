@@ -82,6 +82,7 @@ Android
 * [Citymapper](https://play.google.com/store/apps/details?id=com.citymapper.app.release)
 * [Uber](https://play.google.com/store/apps/details?id=com.ubercab)
 * [Yandex Navigator](https://play.google.com/store/apps/details?id=ru.yandex.yandexnavi)
+* [TomTom Bridge](https://www.tomtom.com/de_de/business-and-government/bridge)
 * [Sygic](https://play.google.com/store/apps/details?id=com.sygic.aura)
 * [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps&hl=en_GB)
 * [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
@@ -221,6 +222,7 @@ The following table enumerates which apps support which parameters.
 | Android  | CityMapper                     |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Uber                           |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Yandex                         |   X  |           |   X   |            |                |   X  |
+| Android  | TomTom Bridge                  |   X  |     X     |       |            |                |      |
 | Android  | Sygic                          |   X  |           |       |            |        X       |   X  |
 | Android  | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
@@ -294,6 +296,7 @@ Supported apps:
 - `launchnavigator.APP.TRANSIT_APP` (iOS)
 - `launchnavigator.APP.YANDEX` (Android & iOS)
 - `launchnavigator.APP.TOMTOM` (iOS)
+- `launchnavigator.APP.TOMTOM_BRIDGE` (Android)
 - `launchnavigator.APP.BING_MAPS` (Windows)
 - `launchnavigator.APP.SYGIC` (Android & iOS)
 - `launchnavigator.APP.HERE_MAPS` (Android & iOS)
