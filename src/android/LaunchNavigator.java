@@ -78,6 +78,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String HERE_MAPS = "here_maps";
     private static final String MOOVIT = "moovit";
     private static final String LYFT = "lyft";
+    private static final String MAPS_ME = "maps_me";
 
 
     private static final Map<String, String> supportedAppPackages;
@@ -92,6 +93,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         _supportedAppPackages.put(LYFT, "me.lyft.android");
+        _supportedAppPackages.put(MAPS_ME, "com.mapswithme.maps.pro");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -107,6 +109,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
         _supportedAppNames.put(LYFT, "Lyft");
+        _supportedAppNames.put(MAPS_ME, "MAPS.ME");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -265,6 +268,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchMoovit(args, callbackContext);
         }else if(appName.equals(LYFT)){
             launchLyft(args, callbackContext);
+        }else if(appName.equals(MAPS_ME)){
+            launchMapsMe(args, callbackContext);
         }else{
             launchApp(args, callbackContext);
         }
@@ -966,6 +971,90 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Lyft app is not installed on this device";
+            }
+            handleException(msg, callbackContext);
+        }
+    }
+
+    private void launchMapsMe(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress;
+            String destLatLon = null;
+            String startAddress;
+            String startLatLon = null;
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+            String transportMode = args.getString(7);
+
+            Intent intent = new Intent(supportedAppPackages.get(MAPS_ME).concat(".action.BUILD_ROUTE"));
+            intent.setPackage(supportedAppPackages.get(MAPS_ME));
+
+            String logMsg = "Using MAPs.ME to navigate";
+
+            logMsg += " to";
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+
+            String[] destPos = splitLatLon(destLatLon);
+            intent.putExtra("lat_to", Double.parseDouble(destPos[0]));
+            intent.putExtra("lon_to", Double.parseDouble(destPos[1]));
+
+            logMsg += " from";
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+            }else{
+                if(sType.equals("name")){
+                    startAddress = getLocationFromName(args, 5);
+                    logMsg += " '"+startAddress+"'";
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
+                    }
+                }else if(sType.equals("pos")){
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+
+                String[] startPos = splitLatLon(startLatLon);
+                intent.putExtra("lat_from", Double.parseDouble(startPos[0]));
+                intent.putExtra("lon_from", Double.parseDouble(startPos[1]));
+                logMsg += " ["+startLatLon+"]";
+            }
+
+
+
+            if(transportMode.equals("d")){
+                transportMode = "vehicle";
+            }else if(transportMode.equals("w")){
+                transportMode = "pedestrian";
+            }else if(transportMode.equals("b")){
+                transportMode = "bicycle";
+            }else if(transportMode.equals("t")){
+                transportMode = "taxi";
+            }
+
+            if(!isNull(transportMode)){
+                intent.putExtra("router", transportMode);
+                logMsg += " by transportMode=" + transportMode;
+            }
+
+            logDebug(logMsg);
+
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "MAPS.ME app is not installed on this device";
             }
             handleException(msg, callbackContext);
         }

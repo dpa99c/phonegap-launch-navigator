@@ -126,6 +126,7 @@ Android
 * [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps&hl=en_GB)
 * [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
 * [Lyft](https://play.google.com/store/apps/details?id=me.lyft.android)
+* [MAPS.ME](https://play.google.com/store/apps/details?id=com.mapswithme.maps.pro&hl=en_GB)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -143,6 +144,7 @@ iOS
 * [HERE Maps](https://itunes.apple.com/gb/app/here-maps-offline-navigation/id955837609?mt=8)
 * [Moovit](https://itunes.apple.com/us/app/moovit-your-local-transit/id498477945?mt=8)
 * [Lyft](https://itunes.apple.com/us/app/lyft/id529379082?mt=8)
+* [MAPS.ME](https://itunes.apple.com/us/app/maps-me-offline-map-with-navigation-directions/id510623322?mt=8)
 
 Windows
 
@@ -260,6 +262,7 @@ The following table enumerates which apps support which parameters.
 | Android  | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Lyft                           |   X  |           |   X   |            |                |   X  |
+| Android  | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | iOS      | Apple Maps - URI scheme        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Apple Maps - MapKit class      |   X  |     X     |   X   |      X     |        X       |   X  |
@@ -275,6 +278,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | HERE Maps                      |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Lyft                           |   X  |           |   X   |            |                |   X  |
+| iOS      | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 Table columns:
@@ -295,9 +299,11 @@ Apps that support specifying transport mode.
 |----------|--------------------------------|:-------:|:-------:|:---------:|:-------:|
 | Android  | Google Maps (Turn-by-turn mode)|    X    |    X    |     X     |    X    |
 | Android  | Sygic                          |    X    |    X    |           |         |
+| Android  | MAPS.ME                        |    X    |    X    |     X     |    X    |
 | iOS      | Apple Maps                     |    X    |    X    |           |         |
 | iOS      | Google Maps                    |    X    |    X    |     X     |    X    |
 | iOS      | Sygic                          |    X    |    X    |           |         |
+| iOS      | MAPS.ME                        |    X    |    X    |     X     |    X    |
 | Windows  | Bing Maps                      |    X    |    X    |           |    X    |
 
 
@@ -337,6 +343,7 @@ Supported apps:
 - `launchnavigator.APP.HERE_MAPS` (Android & iOS)
 - `launchnavigator.APP.MOOVIT` (Android & iOS)
 - `launchnavigator.APP.LYFT` (Android & iOS)
+- `launchnavigator.APP.MAPS_ME` (Android & iOS)
 
 ### APP_NAMES
 

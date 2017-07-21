@@ -112,7 +112,8 @@ ln.APP = {
     SYGIC: "sygic",
     HERE_MAPS: "here_maps",
     MOOVIT: "moovit",
-    LYFT: "lyft"
+    LYFT: "lyft",
+    MAPS_ME: "maps_me"
 };
 
 /**
@@ -130,7 +131,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.SYGIC,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.LYFT
+    ln.APP.LYFT,
+    ln.APP.MAPS_ME
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -146,7 +148,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.SYGIC,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.LYFT
+    ln.APP.LYFT,
+    ln.APP.MAPS_ME
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -181,6 +184,7 @@ ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
 ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
+ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 
 /**
  * All possible transport modes
@@ -216,6 +220,13 @@ ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING
 ];
+ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.MAPS_ME] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.BICYCLING,
+    ln.TRANSPORT_MODE.TRANSIT
+];
+
 // Windows
 ln.TRANSPORT_MODES[ln.PLATFORM.WINDOWS] = {};
 ln.TRANSPORT_MODES[ln.PLATFORM.WINDOWS][ln.APP.BING_MAPS] = [
@@ -247,6 +258,12 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING
 ];
+ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.MAPS_ME] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.BICYCLING,
+    ln.TRANSPORT_MODE.TRANSIT
+];
 
 /**
  * Apps by platform that support specifying a start location
@@ -261,7 +278,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.YANDEX,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.LYFT
+    ln.APP.LYFT,
+    ln.APP.MAPS_ME
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -273,7 +291,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.LYFT
+    ln.APP.LYFT,
+    ln.APP.MAPS_ME
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
