@@ -1,5 +1,8 @@
 # CHANGELOG
 
+##v4.0.3
+- Replace bundled localforage with version that contains polyfill for promises API. Resolves #142.
+
 ##v4.0.2
 - Fix infinite recursion when calling navigate() if only 1 supported app is present. Resolves #141.
 
