@@ -22,7 +22,7 @@
     <clobbers target="launchnavigator" />
   </js-module>
 
-  <js-module src="www/localforage.v1.5.0.nopromises.min.js" name="LocalForage">
+  <js-module src="www/localforage.v1.5.0.min.js" name="LocalForage">
     <clobbers target="localforage" />
   </js-module>
 
