@@ -74,8 +74,8 @@ static const CLLocationDegrees LNEmptyLocation = 0.000000;
 @property (nonatomic,retain) CDVInvokedUrlCommand* cordova_command;
 @property (retain, nonatomic) CLLocationManager* locationManager;
 
-typedef void(^locationSuccess)();
-typedef void(^locationError)(NSString*);
+typedef void(^locationSuccess)(CLLocation*);
+typedef void(^locationError)(NSError*);
 
 @property (nonatomic, strong) locationSuccess _locationSuccess;
 @property (nonatomic, strong) locationError _locationError;

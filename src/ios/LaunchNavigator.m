@@ -49,6 +49,7 @@ static NSDictionary* AppLocationTypes;
 
 BOOL enableGeocoding;
 BOOL useMapKit;
+BOOL awaitingLocation = NO;
 
 LNApp app;
 NSString* logMsg;
@@ -159,7 +160,7 @@ NSDictionary* extras;
         
         [self logDebug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; extras=%@", jsDestination, jsDestType, jsDestName, jsStart, jsStartType, jsStartName, jsAppName, jsTransportMode, jsExtras]];
         
-        LNApp app = [self mapApp_NameToLN:jsAppName];
+        app = [self mapApp_NameToLN:jsAppName];
         BOOL isAvailable = [self isMapAppInstalled:app];
         if(!isAvailable){
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ is not installed on the device", jsAppName]] callbackId:self.cordova_command.callbackId];
@@ -186,7 +187,14 @@ NSDictionary* extras;
                     startName = @"Current location";
                 }
                 if([self requiresStartLocation:app]){
-                    // TODO get current location then launchApp
+                    [self getCurrentLocation:^(CLLocation* currentLoc){
+                        NSString* _start = [NSString stringWithFormat:@"%f,%f",currentLoc.coordinate.latitude,currentLoc.coordinate.longitude];
+                        startCoord = [self stringToCoords:_start];
+                        logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, _start];
+                        [self launchApp];
+                    } error:^(NSError* error){
+                        [self sendPluginError:[NSString stringWithFormat:@"Start location was not specified and could not be automatically determined but is required by %@: %@", jsAppName, error.description]];
+                    }];
                 }else{
                     [self launchApp];
                 }
@@ -206,8 +214,7 @@ NSDictionary* extras;
 
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;{
     @try {
-        LNApp app = [self mapApp_NameToLN:[command.arguments objectAtIndex:0]];
-        BOOL result = [self isMapAppInstalled:app];
+        BOOL result = [self isMapAppInstalled:[self mapApp_NameToLN:[command.arguments objectAtIndex:0]]];
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:result];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }@catch (NSException *exception) {
@@ -220,8 +227,7 @@ NSDictionary* extras;
     @try {
         for(id object in appNames){
             NSString* jsAppName = object;
-            LNApp app = [self mapApp_NameToLN:jsAppName];
-            BOOL result = [self isMapAppInstalled:app];
+            BOOL result = [self isMapAppInstalled:[self mapApp_NameToLN:jsAppName]];
             [results setObject:[NSNumber numberWithBool:result] forKey:jsAppName];
         }
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:results];
@@ -606,23 +612,13 @@ NSDictionary* extras;
 -(void)launchMapsMe {
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@route?", [self urlPrefixForMapApp:LNAppMapsMe]];
     
-    if (!startIsCurrentLocation) {
-        [url appendFormat:@"sll=%f,%f",
-         startCoord.latitude, startCoord.longitude];
-    }else{
-        if([self isEmptyCoordinate:start_mapItem.placemark.coordinate]){
-            @throw [NSException exceptionWithName:@"Start location unknown" reason:@"MAPS.ME requires a start location but one was not specified and could not automatically be determined" userInfo:nil];
-        }
-        //TODO: determine current lat/lon
-        // https://stackoverflow.com/questions/21554127/how-to-get-current-location-using-cllocationmanager-in-ios
-        [url appendFormat:@"sll=%f,%f",
-         start_mapItem.placemark.coordinate.latitude, start_mapItem.placemark.coordinate.longitude];
-    }
+    [url appendFormat:@"sll=%f,%f",
+     startCoord.latitude, startCoord.longitude];
     
     if(!startName){
         startName = @"Start";
     }
-    [url appendFormat:@"&saddr=%@",startName];
+    [url appendFormat:@"&saddr=%@",[self urlEncode:startName]];
     
     [url appendFormat:@"&dll=%f,%f",
      destCoord.latitude, destCoord.longitude];
@@ -630,7 +626,7 @@ NSDictionary* extras;
     if(!destName){
         destName = @"Destination";
     }
-    [url appendFormat:@"&daddr=%@",destName];
+    [url appendFormat:@"&daddr=%@",[self urlEncode:destName]];
     
     
     if([directionsMode isEqual: @"walking"]){
@@ -642,9 +638,6 @@ NSDictionary* extras;
     }else{
         [url appendFormat:@"&type=vehicle"];
     }
-    
-    //url = @"mapsme://route?sll=55.7522,37.6155&saddr=Destination&dll=55.763,37.6155&daddr=Destionation&type=pedestrian";
-    //url = @"mapsme://route?sll=53.493002,-2.240080&saddr=Start&dll=51.498739,-0.133827&daddr=Destination&type=vehicle";
     
     [self logDebugURI:url];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
@@ -798,8 +791,6 @@ NSDictionary* extras;
 }
 
 - (void) launchApp{
-    app = [self mapApp_NameToLN:jsAppName];
-    
     
     // Extras
     if(![self isNull:jsExtras]){
@@ -1228,8 +1219,11 @@ NSDictionary* extras;
 }
 
 #pragma mark - CLLocationManager
--(void)getCurrentLocation:(locationSuccess)onSuccess:(locationError)onError {
+-(void)getCurrentLocation:(locationSuccess)onSuccess
+                    error:(locationError)onError {
     self._locationSuccess = onSuccess;
+    self._locationError = onError;
+    
     _locationManager = [[CLLocationManager alloc] init];
     [_locationManager setDelegate:self];
     [_locationManager setDistanceFilter:kCLDistanceFilterNone];
@@ -1239,22 +1233,21 @@ NSDictionary* extras;
             [_locationManager requestWhenInUseAuthorization];
         }
     #endif
+    awaitingLocation = YES;
     [_locationManager startUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    CLLocation *currentLoc=[locations objectAtIndex:0];
-    NSString* _start = [NSString stringWithFormat:@"%f,%f",currentLoc.coordinate.latitude,currentLoc.coordinate.longitude];
-
-    
-    startCoord = [self stringToCoords:_start];
-    logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, _start];
-    self._locationSuccess();
+    if(awaitingLocation){
+        awaitingLocation = NO;
+        self._locationSuccess([locations objectAtIndex:0]);
+    }
     [_locationManager stopUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
+    self._locationError(error);
     [_locationManager stopUpdatingLocation];
 }
 /*
