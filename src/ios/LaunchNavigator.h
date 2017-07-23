@@ -33,6 +33,7 @@
 #endif
 
 #import <MapKit/MapKit.h>
+#import <CoreLocation/CoreLocation.h>
 
  // This enumeration identifies the mapping apps
  // that this launcher knows how to support.
@@ -49,7 +50,8 @@ typedef NS_ENUM(NSUInteger, LNApp) {
 	LNAppSygic,          // Sygic
 	LNAppHereMaps,       // HERE Maps
 	LNAppMoovit,         // Moovit
-	LNAppLyft            // Lyft
+	LNAppLyft,           // Lyft
+    LNAppMapsMe          // MAPS.ME
 };
 
 
@@ -61,15 +63,22 @@ CLLocationCoordinate2D LNEmptyCoord;
 /**
 Indicates an empty latitude or longitude component
 */
-static const CLLocationDegrees LNEmptyLocation = -1000.0;
+static const CLLocationDegrees LNEmptyLocation = 0.000000;
 
 
-@interface LaunchNavigator :CDVPlugin {
+@interface LaunchNavigator :CDVPlugin <CLLocationManagerDelegate> {
     BOOL debugEnabled;
     CDVInvokedUrlCommand* cordova_command;    
 }
 @property (nonatomic) BOOL debugEnabled;
 @property (nonatomic,retain) CDVInvokedUrlCommand* cordova_command;
+@property (retain, nonatomic) CLLocationManager* locationManager;
+
+typedef void(^locationSuccess)();
+typedef void(^locationError)(NSString*);
+
+@property (nonatomic, strong) locationSuccess _locationSuccess;
+@property (nonatomic, strong) locationError _locationError;
 
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
