@@ -768,5 +768,21 @@ ln.util.validateLaunchMode = function(launchMode){
     }
 };
 
+ln.util.conformNavigateOptions = function(args){
+    var options;
+    if(args.length > 1 && typeof args[1] === "function"){
+        // assume (dest, success, error, opts)
+        options = (args.length > 3 && typeof args[3] === "object") ? args[3] : {};
+        options.successCallback = args[1];
+        if(args.length > 2 && typeof args[2] === "function"){
+            options.errorCallback = args[2];
+        }
+    }else{
+        // assume (dest, opts)
+        options = (args.length > 1 && typeof args[1] === "object") ? args[1] : {};
+    }
+    return options;
+};
+
 
 module.exports = ln;

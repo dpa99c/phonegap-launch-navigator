@@ -141,7 +141,8 @@ ln.isAppAvailable = function(appName, success, error){
  * - {boolean} enableGeocoding - if true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to true.
  */
 ln.navigate = function(destination, options) {
-    options = options ? options : {};
+    options = common.util.conformNavigateOptions(arguments);
+
     var dType, sType = "none";
 
     // Input validation

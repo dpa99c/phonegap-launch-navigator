@@ -90,6 +90,8 @@ ln.availableApps = function(success, error){
  *
  */
 ln.navigate = function(destination, options) {
+    options = common.util.conformNavigateOptions(arguments);
+
     var url ="bingmaps:?rtp=";
 
     if(!destination){
@@ -100,7 +102,6 @@ ln.navigate = function(destination, options) {
         throw new Error(errMsg);
     }
 
-    options = options || {};
     if(!options.app) options.app = common.APP.BING_MAPS;
     options.enableGeolocation = typeof options.enableGeolocation !== "undefined" ? options.enableGeolocation : true;
     common.util.validateApp(options.app);
