@@ -528,11 +528,20 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         });
     };
 
-    var checkForChoice = function(){
+    var checkForChoice = function(availableApps){
         getItem("choice", function(choice){
             if(choice){
-                app = choice;
-                launchApp();
+                if(availableApps[choice]){
+                    app = choice;
+                    launchApp();
+                }else{
+                    // Chosen app is no longer available on device
+                    ln.appSelection.userChoice.clear(function(){
+                        ln.appSelection.userPrompted.clear(function(){
+                            displayChooser();
+                        });
+                    })
+                }
             }else{
                 displayChooser();
             }
@@ -604,7 +613,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         buttonMap[buttonList.length] = "cancel"; // Add an entry for cancel button
 
         // Check if a user choice exists
-        checkForChoice();
+        checkForChoice(apps);
 
     }, options.errorCallback);
 };
