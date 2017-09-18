@@ -28,7 +28,7 @@
  */
 #import "LaunchNavigator.h"
 #import <SystemConfiguration/SCNetworkReachability.h>
-#import "Reachability.h"
+#import "LN_Reachability.h"
 
 NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
@@ -1102,7 +1102,7 @@ NSDictionary* extras;
 
 -(bool)isNetworkAvailable
 {
-    Reachability *reachability = [Reachability reachabilityForInternetConnection];
+    LN_Reachability *reachability = [Reachability reachabilityForInternetConnection];
     NetworkStatus networkStatus = [reachability currentReachabilityStatus];
     return networkStatus != NotReachable;
 }
