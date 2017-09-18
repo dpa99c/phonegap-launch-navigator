@@ -1102,7 +1102,7 @@ NSDictionary* extras;
 
 -(bool)isNetworkAvailable
 {
-    LN_Reachability *reachability = [Reachability reachabilityForInternetConnection];
+    LN_Reachability *reachability = [LN_Reachability reachabilityForInternetConnection];
     NetworkStatus networkStatus = [reachability currentReachabilityStatus];
     return networkStatus != NotReachable;
 }
