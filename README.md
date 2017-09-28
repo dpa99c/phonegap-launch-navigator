@@ -127,6 +127,7 @@ Android
 * [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
 * [Lyft](https://play.google.com/store/apps/details?id=me.lyft.android)
 * [MAPS.ME](https://play.google.com/store/apps/details?id=com.mapswithme.maps.pro&hl=en_GB)
+* [Cabify](https://play.google.com/store/apps/details?id=com.cabify.rider)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -145,6 +146,7 @@ iOS
 * [Moovit](https://itunes.apple.com/us/app/moovit-your-local-transit/id498477945?mt=8)
 * [Lyft](https://itunes.apple.com/us/app/lyft/id529379082?mt=8)
 * [MAPS.ME](https://itunes.apple.com/us/app/maps-me-offline-map-with-navigation-directions/id510623322?mt=8)
+* [Cabify](https://itunes.apple.com/us/app/cabify-enjoy-the-ride/id476087442?mt=8)
 
 Windows
 
@@ -264,6 +266,7 @@ The following table enumerates which apps support which parameters.
 | Android  | Lyft                           |   X  |           |   X   |            |                |   X  |
 | Android  | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
+| Android  | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Apple Maps - URI scheme        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Apple Maps - MapKit class      |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -279,6 +282,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | Moovit                         |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Lyft                           |   X  |           |   X   |            |                |   X  |
 | iOS      | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
+| iOS      | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 Table columns:
@@ -344,6 +348,7 @@ Supported apps:
 - `launchnavigator.APP.MOOVIT` (Android & iOS)
 - `launchnavigator.APP.LYFT` (Android & iOS)
 - `launchnavigator.APP.MAPS_ME` (Android & iOS)
+- `launchnavigator.APP.CABIFY` (Android & iOS)
 
 ### APP_NAMES
 

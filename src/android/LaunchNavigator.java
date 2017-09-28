@@ -79,6 +79,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String MOOVIT = "moovit";
     private static final String LYFT = "lyft";
     private static final String MAPS_ME = "maps_me";
+    private static final String CABIFY = "cabify";
 
 
     private static final Map<String, String> supportedAppPackages;
@@ -94,6 +95,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         _supportedAppPackages.put(LYFT, "me.lyft.android");
         _supportedAppPackages.put(MAPS_ME, "com.mapswithme.maps.pro");
+        _supportedAppPackages.put(CABIFY, "com.cabify.rider");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -110,6 +112,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(MOOVIT, "Moovit");
         _supportedAppNames.put(LYFT, "Lyft");
         _supportedAppNames.put(MAPS_ME, "MAPS.ME");
+        _supportedAppNames.put(CABIFY, "Cabify");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -270,6 +273,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchLyft(args, callbackContext);
         }else if(appName.equals(MAPS_ME)){
             launchMapsMe(args, callbackContext);
+        }else if(appName.equals(CABIFY)){
+            launchCabify(args, callbackContext);
         }else{
             launchApp(args, callbackContext);
         }
@@ -1060,6 +1065,115 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
+    private void launchCabify(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress;
+            String destLatLon = null;
+            String startAddress;
+            String startLatLon = null;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+
+            String url = "cabify://cabify/journey?json=";
+            String logMsg = "Using Cabify to navigate";
+            JSONObject oJson = new JSONObject();
+
+            // Parse dest
+            JSONObject oDest = new JSONObject();
+            logMsg += " to";
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+            String[] destPos = splitLatLon(destLatLon);
+
+            JSONObject oDestLoc = new JSONObject();
+            oDestLoc.put("latitude", destPos[0]);
+            oDestLoc.put("longitude", destPos[1]);
+            oDest.put("loc", oDestLoc);
+
+            if(!isNull(destNickname)){
+                oDest.put("name", destNickname);
+                logMsg += " ("+destNickname+")";
+            }
+
+            // Parse start
+            JSONObject oStart = new JSONObject();
+            logMsg += " from";
+
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+                oStart.put("loc", "current");
+            }else{
+                if(sType.equals("name")){
+                    startAddress = getLocationFromName(args, 5);
+                    logMsg += " '"+startAddress+"'";
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
+                    }
+                }else if(sType.equals("pos")){
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+                logMsg += " ["+startLatLon+"]";
+                String[] startPos = splitLatLon(startLatLon);
+
+                JSONObject oStartLoc = new JSONObject();
+                oStartLoc.put("latitude", startPos[0]);
+                oStartLoc.put("longitude", startPos[1]);
+                oStart.put("loc", oStartLoc);
+            }
+
+            if(!isNull(startNickname)){
+                oStart.put("name", startNickname);
+                logMsg += " ("+startNickname+")";
+            }
+
+            String extras = args.getString(10);
+            if(!isNull(extras)){
+                oJson =  new JSONObject(extras);
+                logMsg += " - extras="+extras;
+            }
+
+            // Assemble JSON
+            JSONArray aStops = new JSONArray();
+            aStops.put(oStart);
+            if(oJson.has("stops")){
+                JSONArray stops = oJson.getJSONArray("stops");
+                for (int i = 0; i < stops.length(); i++) {
+                    aStops.put(stops.getJSONObject(i));
+                }
+            }
+            aStops.put(oDest);
+            oJson.put("stops", aStops);
+
+            url += oJson.toString();
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Cabify app is not installed on this device";
+            }
+            handleException(msg, callbackContext);
+        }
+    }
+
     /*
      * Utilities
      */
@@ -1258,7 +1372,8 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
     private String escapeDoubleQuotes(String string){
-        final String escapedString = string.replace("\"", "\\\"");
+        String escapedString = string.replace("\"", "\\\"");
+        escapedString = escapedString.replace("%22", "\\%22");
         return escapedString;
     }
 

@@ -113,7 +113,8 @@ ln.APP = {
     HERE_MAPS: "here_maps",
     MOOVIT: "moovit",
     LYFT: "lyft",
-    MAPS_ME: "maps_me"
+    MAPS_ME: "maps_me",
+    CABIFY: "cabify"
 };
 
 /**
@@ -132,7 +133,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME
+    ln.APP.MAPS_ME,
+    ln.APP.CABIFY
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -149,7 +151,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME
+    ln.APP.MAPS_ME,
+    ln.APP.CABIFY
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -185,6 +188,7 @@ ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
+ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
 
 /**
  * All possible transport modes
@@ -279,7 +283,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME
+    ln.APP.MAPS_ME,
+    ln.APP.CABIFY
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -292,7 +297,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME
+    ln.APP.MAPS_ME,
+    ln.APP.CABIFY
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -308,7 +314,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.CABIFY
 ];
 ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -316,7 +323,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.CABIFY
 ];
 
 /**
@@ -330,7 +338,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.CITYMAPPER,
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.CABIFY
 ];
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -340,7 +349,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.UBER,
     ln.APP.TOMTOM,
     ln.APP.HERE_MAPS,
-    ln.APP.MOOVIT
+    ln.APP.MOOVIT,
+    ln.APP.CABIFY
 ];
 
 /**
