@@ -110,7 +110,8 @@ NSDictionary* extras;
                          @(LNAppHereMaps): LNLocTypeCoords,
                          @(LNAppMoovit): LNLocTypeCoords,
                          @(LNAppLyft): LNLocTypeCoords,
-                         @(LNAppMapsMe): LNLocTypeCoords
+                         @(LNAppMapsMe): LNLocTypeCoords,
+                         @(LNAppCabify): LNLocTypeCoords
                          };
     LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
     
@@ -643,6 +644,54 @@ NSDictionary* extras;
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
 
+-(void)launchCabify {
+    NSMutableString* url = [NSMutableString stringWithFormat:@"%@cabify/journey?json=", [self urlPrefixForMapApp:LNAppCabify]];
+
+    NSMutableDictionary* dJson = [NSMutableDictionary new];
+
+    NSMutableDictionary* dDest = [NSMutableDictionary new];
+    NSMutableDictionary* dDestLoc = [NSMutableDictionary new];
+    [dDestLoc setValue:[NSMutableString stringWithFormat:@"%f",destCoord.latitude] forKey:@"latitude"];
+    [dDestLoc setValue:[NSMutableString stringWithFormat:@"%f",destCoord.longitude] forKey:@"longitude"];
+    [dDest setObject:dDestLoc forKey:@"loc"];
+
+
+    if (destName) {
+        [dDest setValue:[self urlEncode:destName] forKey:@"name"];
+    }
+
+    NSMutableDictionary* dStart = [NSMutableDictionary new];
+    NSMutableDictionary* dStartLoc = [NSMutableDictionary new];
+    if (startIsCurrentLocation) {
+        [dDest setValue:@"current" forKey:@"loc"];
+    }else{
+        [dStartLoc setValue:[NSMutableString stringWithFormat:@"%f",startCoord.latitude] forKey:@"latitude"];
+        [dStartLoc setValue:[NSMutableString stringWithFormat:@"%f",startCoord.longitude] forKey:@"longitude"];
+        [dStart setObject:dStartLoc forKey:@"loc"];
+    }
+
+    if (startName) {
+        [dStart setValue:[self urlEncode:startName]  forKey:@"name"];
+    }
+
+    NSMutableArray* aStops = [NSMutableArray new];
+    [aStops addObject:dStart];
+    if(extras){
+        dJson = (NSMutableDictionary*) extras;
+        if([dJson objectForKey:@"stops"] != nil){
+            [aStops addObjectsFromArray:[dJson objectForKey:@"stops"]];
+        }
+    }
+    [aStops addObject:dDest];
+    [dJson setObject:aStops forKey:@"stops"];
+
+    url = [NSMutableString stringWithFormat:@"%@%@", url, [self dictionaryToJsonString:dJson]];
+
+    //url = [NSMutableString stringWithFormat:@"%@", @"cabify://cabify/journey?json={\"vehicle_type\":\"c52ce29f50438491f8d6e55d5259dd40\",\"stops\":[{\"loc\":{\"latitude\":40.3979288915956,\"longitude\":-3.70257262140512 },\"name\":\"Goiko%20Grill\"},{\"loc\":{\"latitude\":40.697,\"longitude\":-3.90257262140512}}]}"];
+
+    [self logDebugURI:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+}
 /**************
  * Utilities
  **************/
@@ -794,11 +843,9 @@ NSDictionary* extras;
     
     // Extras
     if(![self isNull:jsExtras]){
-        NSError* error;
-        extras = [NSJSONSerialization JSONObjectWithData:[jsExtras dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-        if (error != nil){
+        extras = [self jsonStringToDictionary:jsExtras];
+        if (extras == nil){
             [self logError:@"Failed to parse extras parameter as valid JSON"];
-            extras = nil;
         }else{
             logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, jsExtras];
         }
@@ -835,6 +882,8 @@ NSDictionary* extras;
         [self launchLyft];
     }else if(app == LNAppMapsMe){
         [self launchMapsMe];
+    }else if(app == LNAppCabify){
+        [self launchCabify];
     }
     
     [self sendPluginSuccess];
@@ -897,6 +946,9 @@ NSDictionary* extras;
         case LNAppMapsMe:
         name = @"maps_me";
         break;
+        case LNAppCabify:
+        name = @"cabify";
+        break;
         default:
         [NSException raise:NSGenericException format:@"Unexpected app name"];
         
@@ -935,6 +987,8 @@ NSDictionary* extras;
         cmmName = LNAppLyft;
     }else if([lnName isEqual: @"maps_me"]){
         cmmName = LNAppMapsMe;
+    }else if([lnName isEqual: @"cabify"]){
+        cmmName = LNAppCabify;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
@@ -1164,6 +1218,8 @@ NSDictionary* extras;
         case LNAppMapsMe:
         return @"mapsme://";
         
+        case LNAppCabify:
+        return @"cabify://";
         default:
         return nil;
     }
@@ -1250,9 +1306,35 @@ NSDictionary* extras;
     self._locationError(error);
     [_locationManager stopUpdatingLocation];
 }
-/*
-- (void) reverseGeocode:(NSString*)coords
-                success:(void (^)(MKMapItem* resultItem, MKPlacemark* placemark))successBlock
-                   fail:(void (^)(NSString* failMsg))failBlock*/
+
+- (NSArray*) jsonStringToArray:(NSString*)jsonStr
+{
+    NSError* error = nil;
+    NSArray* array = [NSJSONSerialization JSONObjectWithData:[jsonStr dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
+    if (error != nil){
+        array = nil;
+    }
+    return array;
+}
+
+- (NSDictionary*) jsonStringToDictionary:(NSString*)jsonStr
+{
+    return (NSDictionary*) [self jsonStringToArray:jsonStr];
+}
+
+- (NSString*) arrayToJsonString:(NSArray*)array
+{
+    NSString* jsonString = nil;
+    NSError* error = nil;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:array options:0 error:&error];
+    if(error == nil){
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    return jsonString;
+}
+
+- (NSString*) dictionaryToJsonString:(NSDictionary*)dictionary{
+    return [self arrayToJsonString:(NSArray*) dictionary];
+}
 
 @end
