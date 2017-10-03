@@ -91,7 +91,7 @@ ln.isAppAvailable = function(appName, success, error){
  * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
  * If a start location is not also specified, current location will be used for the start.
  *
- * @param {mixed} destination (required) - destination location to use for navigation.
+ * @param {string/number[]} destination (required) - destination location to use for navigation.
  * Either:
  * - a {string} containing the address. e.g. "Buckingham Palace, London"
  * - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
@@ -165,20 +165,20 @@ ln.navigate = function(destination, options) {
     options.enableGeocoding = typeof options.enableGeocoding !== "undefined" ? options.enableGeocoding : true;
 
     // If app is user-selection
-    if(options.app == common.APP.USER_SELECT){
+    if(options.app === common.APP.USER_SELECT){
         // Invoke user-selection UI and return (as it will re-invoke this method)
         return common.userSelect(destination, options);
     }
 
     destination = common.util.extractCoordsFromLocationString(destination);
-    if(typeof(destination) == "object"){
+    if(typeof(destination) === "object"){
         dType = "pos";
     }else{
         dType = "name";
     }
     if(options.start){
         options.start = common.util.extractCoordsFromLocationString(options.start);
-        if(typeof(options.start) == "object"){
+        if(typeof(options.start) === "object"){
             sType = "pos";
         }else{
             sType = "name";
@@ -240,7 +240,7 @@ ln.supportsTransportMode = function(app, platform, launchMode){
     common.util.validatePlatform(platform);
 
     var result;
-    if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
+    if(launchMode && platform === common.PLATFORM.ANDROID && app === common.APP.GOOGLE_MAPS){
         common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.TURN_BY_TURN;
     }else{
@@ -255,7 +255,7 @@ common._supportsTransportMode = common.supportsTransportMode;
  * @param {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
  * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
  * @param {string} launchMode (optional) - only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
- * @return {array} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
+ * @return {string[]} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
  * If app/platform combination doesn't support specification of transport mode, the list will be empty;
  */
 ln.getTransportModes = function(app, platform, launchMode){
@@ -277,7 +277,7 @@ ln.supportsStart = function(app, platform, launchMode){
     common.util.validatePlatform(platform);
 
     var result;
-    if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
+    if(launchMode && platform === common.PLATFORM.ANDROID && app === common.APP.GOOGLE_MAPS){
         common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.MAPS;
     }else{
@@ -297,7 +297,7 @@ common._supportsStart = common.supportsStart;
 ln.supportsDestName = function(app, platform, launchMode){
     common.util.validateApp(app);
     common.util.validatePlatform(platform);
-    if(launchMode && platform == common.PLATFORM.ANDROID && app == common.APP.GOOGLE_MAPS){
+    if(launchMode && platform === common.PLATFORM.ANDROID && app === common.APP.GOOGLE_MAPS){
         common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.GEO;
     }else{

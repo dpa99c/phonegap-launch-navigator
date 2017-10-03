@@ -401,7 +401,7 @@ interface LaunchNavigator {
 
     /**
      * Triggers the native dialog picker for user to choose wich app to use.
-     * @param {mixed} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
+     * @param {string/number[]} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
      * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
      * @param {Function} successCallback (optional) - optional callback to be invoked on success
      * @param {Function} errorCallback (optional) - optional callback to be invoked on error

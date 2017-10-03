@@ -58,7 +58,7 @@ ln.availableApps = function(success, error){
  * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
  * If a start location is not also specified, current location will be used for the start.
  *
- * @param {mixed} destination (required) - destination location to use for navigation.
+ * @param {string/number[]} destination (required) - destination location to use for navigation.
  * Either:
  * - a {string} containing the address. e.g. "Buckingham Palace, London"
  * - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
@@ -110,7 +110,7 @@ ln.navigate = function(destination, options) {
     options.app = options.app || common.APP.USER_SELECT;
 
     // If app is user-selection
-    if(options.app == common.APP.USER_SELECT){
+    if(options.app === common.APP.USER_SELECT){
         // Invoke user-selection UI and return (as it will re-invoke this method)
         return common.userSelect(destination, options);
     }
@@ -130,7 +130,7 @@ ln.navigate = function(destination, options) {
     };
 
     if(!destination){
-        throwError("No destination was specified");;
+        throwError("No destination was specified");
     }
 
     if(options.extras && typeof  options.extras !== "object"){
@@ -143,7 +143,7 @@ ln.navigate = function(destination, options) {
 
     // Process options
     destination = common.util.extractCoordsFromLocationString(destination);
-    if(typeof(destination) == "object"){
+    if(typeof(destination) === "object"){
         destination = destination.join(",");
         options.destType = "coords";
     }else{
@@ -153,7 +153,7 @@ ln.navigate = function(destination, options) {
     options.start = common.util.extractCoordsFromLocationString(options.start);
     if(!options.start){
         options.startType = "none";
-    }else if(typeof(options.start) == "object"){
+    }else if(typeof(options.start) === "object"){
         options.start = options.start.join(",");
         options.startType = "coords";
     }else{
@@ -191,7 +191,7 @@ ln.navigate = function(destination, options) {
 ln.supportsDestName = function(app, platform, launchMode){
     common.util.validateApp(app);
     common.util.validatePlatform(platform);
-    if(launchMode && platform == common.PLATFORM.IOS && app == common.APP.APPLE_MAPS){
+    if(launchMode && platform === common.PLATFORM.IOS && app === common.APP.APPLE_MAPS){
         common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.MAPKIT;
     }else{
@@ -212,7 +212,7 @@ common._supportsDestName = common.supportsDestName;
 ln.supportsStartName = function(app, platform, launchMode){
     common.util.validateApp(app);
     common.util.validatePlatform(platform);
-    if(launchMode && platform == common.PLATFORM.IOS && app == common.APP.APPLE_MAPS){
+    if(launchMode && platform === common.PLATFORM.IOS && app === common.APP.APPLE_MAPS){
         common.util.validateLaunchMode(launchMode);
         result = launchMode === ln.LAUNCH_MODE.MAPKIT;
     }else{
