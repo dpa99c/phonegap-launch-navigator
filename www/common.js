@@ -271,7 +271,7 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.MAPS_ME] = [
 
 /**
  * Apps by platform that support specifying a start location
- * @type {obect}
+ * @type {object}
  */
 ln.SUPPORTS_START = {};
 ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
@@ -306,7 +306,7 @@ ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
 
 /**
  * Apps by platform that support specifying a start nickname
- * @type {obect}
+ * @type {object}
  */
 ln.SUPPORTS_START_NAME = {};
 ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
@@ -329,7 +329,7 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
 
 /**
  * Apps by platform that support specifying a destination nickname
- * @type {obect}
+ * @type {object}
  */
 ln.SUPPORTS_DEST_NAME = {};
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
@@ -355,7 +355,7 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
 
 /**
  * Apps by platform that support specifying a launch mode
- * @type {obect}
+ * @type {object}
  */
 ln.SUPPORTS_LAUNCH_MODE = {};
 ln.SUPPORTS_LAUNCH_MODE[ln.PLATFORM.ANDROID] = [
@@ -388,7 +388,7 @@ ln.getAppDisplayName = function(app){
 /**
  * Returns list of supported apps on a given platform.
  * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
- * @return {array} - apps supported on specified platform as a list of `launchnavigator.APP` constants.
+ * @return {string[]} - apps supported on specified platform as a list of `launchnavigator.APP` constants.
  */
 ln.getAppsForPlatform = function(platform){
     ln.util.validatePlatform(platform);
@@ -411,7 +411,7 @@ ln.supportsTransportMode = function(app, platform){
  * Returns the list of transport modes supported by an app on a given platform.
  * @param {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
  * @param {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
- * @return {array} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
+ * @return {string[]} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
  * If app/platform combination doesn't support specification of transport mode, the list will be empty;
  */
 ln.getTransportModes = function(app, platform){
@@ -472,8 +472,10 @@ ln.supportsDestName = function(app, platform){
 
 /**
  *
- * @param {mixed} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
- * @param {object} options (optional) - optional parameters - see launchnavigator.navigate()
+ * @param {string/number[]} destination (required) - destination location to use for navigation - see launchnavigator.navigate()
+ * @param {object} [options={}] - optional parameters - see launchnavigator.navigate()
+ * @param {function} successCallback - function executed in case of success
+ * @param {function} errorCallback - function executed in case of error
  */
 ln.userSelect = function(destination, options, successCallback, errorCallback){
     var userSelectDisplayed, app;
@@ -516,7 +518,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         userSelectDisplayed = false;
         var idx = btnNumber - 1;
         app = buttonMap[idx];
-        if(app != "cancel"){
+        if(app !== "cancel"){
             options.appSelection.callback(app);
             if(options.appSelection.rememberChoice.enabled === true || options.appSelection.rememberChoice.enabled === "true"){
                 rememberUserChoiceAndLaunch();
@@ -611,11 +613,11 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
             buttonMap[buttonList.length-1] = _app;
         }
 
-        if(buttonList.length == 0){
+        if(buttonList.length === 0){
             return options.errorCallback('No apps in selection list are available');
         }
 
-        if(buttonList.length == 1){
+        if(buttonList.length === 1){
             app = buttonMap[0];
             return launchApp();
         }
@@ -638,7 +640,7 @@ ln.appSelection = {
 
 /**
  * Indicates whether a user choice exists for a preferred navigator app.
- * @param [function} cb - function to pass result to: will receive a boolean argument.
+ * @param {function} cb - function to pass result to: will receive a boolean argument.
  */
 ln.appSelection.userChoice.exists = function(cb){
     itemExists("choice", cb);
@@ -646,7 +648,7 @@ ln.appSelection.userChoice.exists = function(cb){
 
 /**
  * Returns current user choice of preferred navigator app.
- * @param [function} cb - function to pass result to: will receive a string argument indicating the app, which is a constant in `launchnavigator.APP`.
+ * @param {function} cb - function to pass result to: will receive a string argument indicating the app, which is a constant in `launchnavigator.APP`.
  * If no current choice exists, value will be null.
  */
 ln.appSelection.userChoice.get = function(cb){
@@ -656,7 +658,7 @@ ln.appSelection.userChoice.get = function(cb){
 /**
  * Sets the current user choice of preferred navigator app.
  * @param {string} app - app to set as preferred choice as a constant in `launchnavigator.APP`.
- * @param [function} cb - function to call once operation is complete.
+ * @param {function} cb - function to call once operation is complete.
  */
 ln.appSelection.userChoice.set = function(app, cb){
     setItem("choice", app, cb);
@@ -664,7 +666,7 @@ ln.appSelection.userChoice.set = function(app, cb){
 
 /**
  * Clears current user choice of preferred navigator app.
- * @param [function} cb - function to call once operation is complete.
+ * @param {function} cb - function to call once operation is complete.
  */
 ln.appSelection.userChoice.clear = function(cb){
     removeItem("choice", cb);
@@ -672,7 +674,7 @@ ln.appSelection.userChoice.clear = function(cb){
 
 /**
  * Indicates whether user has already been prompted whether to remember their choice a preferred navigator app.
- * @param [function} cb - function to pass result to: will receive a boolean argument.
+ * @param {function} cb - function to pass result to: will receive a boolean argument.
  */
 ln.appSelection.userPrompted.get = function(cb){
     itemExists("prompted", cb);
@@ -680,7 +682,7 @@ ln.appSelection.userPrompted.get = function(cb){
 
 /**
  * Sets flag indicating user has already been prompted whether to remember their choice a preferred navigator app.
- * @param [function} cb - function to call once operation is complete.
+ * @param {function} cb - function to call once operation is complete.
  */
 ln.appSelection.userPrompted.set = function(cb){
     setItem("prompted", true, cb);
@@ -688,7 +690,7 @@ ln.appSelection.userPrompted.set = function(cb){
 
 /**
  * Clears flag which indicates if user has already been prompted whether to remember their choice a preferred navigator app.
- * @param [function} cb - function to call once operation is complete.
+ * @param {function} cb - function to call once operation is complete.
  */
 ln.appSelection.userPrompted.clear = function(cb){
     removeItem("prompted", cb);
@@ -735,7 +737,7 @@ ln.util.countKeysInObject = function (o){
 };
 
 ln.util.isValidApp = function(app){
-    if(app == "none") return true; // native chooser
+    if(app === "none") return true; // native chooser
     return ln.util.objectContainsValue(ln.APP, app);
 };
 
@@ -766,7 +768,7 @@ ln.util.validateTransportMode = function(transportMode){
 };
 
 ln.util.extractCoordsFromLocationString = function(location){
-    if(location && typeof(location) == "string" && location.match(ln.COORDS_REGEX)){
+    if(location && typeof(location) === "string" && location.match(ln.COORDS_REGEX)){
         location = location.replace(/\s*/g,'');
         var parts = location.split(",");
         location = [parts[0], parts[1]];
@@ -776,7 +778,7 @@ ln.util.extractCoordsFromLocationString = function(location){
 
 ln.util.isValidLaunchMode = function(launchMode){
     for(var LAUNCH_MODE in ln.LAUNCH_MODE){
-        if(launchMode == ln.LAUNCH_MODE[LAUNCH_MODE]) return true;
+        if(launchMode === ln.LAUNCH_MODE[LAUNCH_MODE]) return true;
     }
     return false;
 };

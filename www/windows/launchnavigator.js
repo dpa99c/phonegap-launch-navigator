@@ -57,7 +57,7 @@ ln.availableApps = function(success, error){
  * Opens navigator app to navigate to given destination, specified by either place name or lat/lon.
  * If a start location is not also specified, current location will be used for the start.
  *
- * @param {mixed} destination (required) - destination location to use for navigation.
+ * @param {string/number[]} destination (required) - destination location to use for navigation.
  * Either:
  * - a {string} containing the address. e.g. "Buckingham Palace, London"
  * - an {array}, where the first element is the latitude and the second element is a longitude, as decimal numbers. e.g. [50.1, -4.0]
@@ -112,9 +112,9 @@ ln.navigate = function(destination, options) {
         url += "~";
         destination = common.util.extractCoordsFromLocationString(destination);
         msg += " to ";
-        if(typeof(destination) == "object"){
+        if(typeof(destination) === "object"){
             url += "pos." + destination[0] + "_" + destination[1];
-            msg += destination[0],destination[1];
+            msg += destination[0] + ',' + destination[1];
             if(options.destinationName){
                 url += "_" + options.destinationName;
                 msg += " (" + options.destinationName + ")";
@@ -146,9 +146,9 @@ ln.navigate = function(destination, options) {
     msg += " from ";
     if(options.start){
         options.start = common.util.extractCoordsFromLocationString(options.start);
-        if(typeof(options.start) == "object"){
+        if(typeof(options.start) === "object"){
             url += "pos." + options.start[0] + "_" + options.start[1];
-            msg += options.start[0],options.start[1];
+            msg += options.start[0] + ',' + options.start[1];
             if(options.startName){
                 url += "_" + options.startName;
                 msg += " (" + options.startName + ")";
