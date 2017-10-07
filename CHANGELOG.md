@@ -1,5 +1,12 @@
 # CHANGELOG
 
+##v4.0.6
+- Adds Cabify support for Android and iOS.
+
+##v4.0.5 
+- Handle edge case where preferred app is no longer available on device. Fixes #153.
+- Namespace the Reachability class to avoid collisions with other libraries. Fixes #152.
+
 ##v4.0.4
 - Fix Ionic Native navigate() options mapping in v4. Fixes #145.
 
