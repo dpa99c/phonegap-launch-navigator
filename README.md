@@ -202,7 +202,7 @@ Coordinates can be specified as a string or array
 
     launchnavigator.navigate([50.279306, -5.163158], {
         start: "50.342847, -4.749904"
-    };
+    });
 
 ## Advanced usage
 
