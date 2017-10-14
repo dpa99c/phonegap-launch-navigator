@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.0.7
+- Namespace kReachabilityChangedNotification to avoid collisions with other libraries. Fixes #162.
+
 ## v4.0.6
 - Adds Cabify support for Android and iOS.
 
