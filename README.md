@@ -172,7 +172,7 @@ This plugin is intended to launch **native** navigation apps and therefore will 
 
     $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-    $ ionic plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
+    $ ionic cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
 
 ## PhoneGap Build
 
