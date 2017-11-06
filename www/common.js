@@ -486,6 +486,8 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
     
     // app selection
     options.appSelection = options.appSelection || {};
+    options.appSelection.dialogPositionX = options.appSelection.dialogPositionX || 550;
+    options.appSelection.dialogPositionY = options.appSelection.dialogPositionY || 500;
     options.appSelection.callback = options.appSelection.callback || emptyFn;
     options.appSelection.rememberChoice = options.appSelection.rememberChoice || {};
     options.appSelection.rememberChoice.enabled = typeof options.appSelection.rememberChoice.enabled !== "undefined" ? options.appSelection.rememberChoice.enabled : "prompt";
@@ -510,7 +512,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
             'androidEnableCancelButton' : true, // default false
             //'winphoneEnableCancelButton' : true, // default false
             'addCancelButtonWithLabel': options.appSelection.cancelButtonText || DEFAULT_appSelectionCancelButtonText,
-            'position': [550, 500] // for iPad pass in the [x, y] position of the popover
+            'position': [options.appSelection.dialogPositionX, options.appSelection.dialogPositionY] // for iPad pass in the [x, y] position of the popover
         }, onChooseApp);
     };
 

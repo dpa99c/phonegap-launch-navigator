@@ -428,6 +428,10 @@ Either:
             - Defaults to "Select app for navigation" if not specified.
         - {string} cancelButtonText - text to display for the cancel button.
             - Defaults to "Cancel" if not specified.
+        - {number} dialogPositionX - [iPad only] x position for the dialog
+            - Defaults to 550 if not specified
+        - {number} dialogPositionY - [iPad only] y position for the dialog
+            - Defaults to 500 if not specified
         - {array} list - list of apps, defined as `launchnavigator.APP` constants, which should be displayed in the picker if the app is available.
         This can be used to restrict which apps are displayed, even if they are installed. By default, all available apps will be displayed.
         - {function} callback - a callback to invoke when the user selects an app in the native picker.
