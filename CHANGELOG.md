@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v4.1.0
+- Add Baidu Maps support for Android and iOS.
+- Fix "bicycling" transport mode parameter for MAPS.ME on iOS.
+
 ## v4.0.7
 - Namespace kReachabilityChangedNotification to avoid collisions with other libraries. Fixes #162.
 
