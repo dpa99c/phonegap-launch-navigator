@@ -52,7 +52,8 @@ typedef NS_ENUM(NSUInteger, LNApp) {
 	LNAppMoovit,         // Moovit
 	LNAppLyft,           // Lyft
     LNAppMapsMe,          // MAPS.ME
-    LNAppCabify          // Cabify
+    LNAppCabify,          // Cabify
+    LNAppBaidu           // Baidu
 };
 
 

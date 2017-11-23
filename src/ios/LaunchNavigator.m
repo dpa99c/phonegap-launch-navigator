@@ -111,7 +111,8 @@ NSDictionary* extras;
                          @(LNAppMoovit): LNLocTypeCoords,
                          @(LNAppLyft): LNLocTypeCoords,
                          @(LNAppMapsMe): LNLocTypeCoords,
-                         @(LNAppCabify): LNLocTypeCoords
+                         @(LNAppCabify): LNLocTypeCoords,
+                         @(LNAppBaidu): LNLocTypeBoth
                          };
     LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
     
@@ -634,7 +635,7 @@ NSDictionary* extras;
         [url appendFormat:@"&type=pedestrian"];
     }else if([directionsMode isEqual: @"transit"]){
         [url appendFormat:@"&type=taxi"];
-    }else if([directionsMode isEqual: @"bicycle"]){
+    }else if([directionsMode isEqual: @"bicycling"]){
         [url appendFormat:@"&type=bicycle"];
     }else{
         [url appendFormat:@"&type=vehicle"];
@@ -689,6 +690,52 @@ NSDictionary* extras;
 
     //url = [NSMutableString stringWithFormat:@"%@", @"cabify://cabify/journey?json={\"vehicle_type\":\"c52ce29f50438491f8d6e55d5259dd40\",\"stops\":[{\"loc\":{\"latitude\":40.3979288915956,\"longitude\":-3.70257262140512 },\"name\":\"Goiko%20Grill\"},{\"loc\":{\"latitude\":40.697,\"longitude\":-3.90257262140512}}]}"];
 
+    [self logDebugURI:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+}
+
+-(void)launchBaidu {
+    NSMutableString* url = [NSMutableString stringWithFormat:@"%@map/direction", [self urlPrefixForMapApp:LNAppBaidu]];
+    
+    NSString* dest;
+    if(![self isEmptyCoordinate:destCoord]){
+        dest = [NSString stringWithFormat:@"%f,%f", destCoord.latitude, destCoord.longitude];
+        if(destName){
+            dest = [NSString stringWithFormat:@"name:%@|latlng:%f,%f", [self urlEncode:destName], destCoord.latitude, destCoord.longitude];
+        }
+    }else{
+        dest = [NSString stringWithFormat:@"%@", [self urlEncode:destAddress]];
+    }
+    [url appendFormat:@"?destination=%@",dest];
+    
+    NSString* start;
+    if(![self isEmptyCoordinate:startCoord]){
+        start = [NSString stringWithFormat:@"%f,%f", startCoord.latitude, startCoord.longitude];
+        if(startName){
+            start = [NSString stringWithFormat:@"name:%@|latlng:%f,%f", [self urlEncode:startName], startCoord.latitude, startCoord.longitude];
+        }
+    }else{
+        start = [NSString stringWithFormat:@"%@", [self urlEncode:startAddress]];
+    }
+    [url appendFormat:@"&origin=%@",start];
+    
+    
+    if([directionsMode isEqual: @"walking"]){
+        [url appendFormat:@"&mode=walking"];
+    }else if([directionsMode isEqual: @"transit"]){
+        [url appendFormat:@"&mode=transit"];
+    }else if([directionsMode isEqual: @"bicycling"]){
+        [url appendFormat:@"&mode=riding"];
+    }else{
+        [url appendFormat:@"&mode=driving"];
+    }
+    
+    if(!extras){
+        extras = [[NSMutableDictionary alloc] init];
+        [extras setValue:@"wgs84" forKey:@"coord_type"];
+    }
+    [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
+    
     [self logDebugURI:url];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
@@ -884,6 +931,8 @@ NSDictionary* extras;
         [self launchMapsMe];
     }else if(app == LNAppCabify){
         [self launchCabify];
+    }else if(app == LNAppBaidu){
+        [self launchBaidu];
     }
     
     [self sendPluginSuccess];
@@ -948,6 +997,8 @@ NSDictionary* extras;
         break;
         case LNAppCabify:
         name = @"cabify";
+        case LNAppBaidu:
+        name = @"baidu";
         break;
         default:
         [NSException raise:NSGenericException format:@"Unexpected app name"];
@@ -989,6 +1040,8 @@ NSDictionary* extras;
         cmmName = LNAppMapsMe;
     }else if([lnName isEqual: @"cabify"]){
         cmmName = LNAppCabify;
+    }else if([lnName isEqual: @"baidu"]){
+        cmmName = LNAppBaidu;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
@@ -1220,6 +1273,10 @@ NSDictionary* extras;
         
         case LNAppCabify:
         return @"cabify://";
+            
+        case LNAppBaidu:
+        return @"baidumap://";
+        
         default:
         return nil;
     }

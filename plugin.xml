@@ -90,6 +90,7 @@
         <string>lyft</string>
         <string>mapsme</string>
         <string>cabify</string>
+        <string>baidumap</string>
       </array>
     </config-file>
 
