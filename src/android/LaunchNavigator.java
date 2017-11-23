@@ -80,6 +80,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String LYFT = "lyft";
     private static final String MAPS_ME = "maps_me";
     private static final String CABIFY = "cabify";
+    private static final String BAIDU = "baidu";
 
 
     private static final Map<String, String> supportedAppPackages;
@@ -96,6 +97,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(LYFT, "me.lyft.android");
         _supportedAppPackages.put(MAPS_ME, "com.mapswithme.maps.pro");
         _supportedAppPackages.put(CABIFY, "com.cabify.rider");
+	    _supportedAppPackages.put(BAIDU, "com.baidu.BaiduMap");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -113,6 +115,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(LYFT, "Lyft");
         _supportedAppNames.put(MAPS_ME, "MAPS.ME");
         _supportedAppNames.put(CABIFY, "Cabify");
+        _supportedAppNames.put(BAIDU, "Baidu Maps");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -275,6 +278,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchMapsMe(args, callbackContext);
         }else if(appName.equals(CABIFY)){
             launchCabify(args, callbackContext);
+        }else if(appName.equals(BAIDU)){
+            launchBaidu(args, callbackContext);
         }else{
             launchApp(args, callbackContext);
         }
@@ -1169,6 +1174,101 @@ public class LaunchNavigator extends CordovaPlugin {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Cabify app is not installed on this device";
+            }
+            handleException(msg, callbackContext);
+        }
+    }
+
+    private void launchBaidu(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String start;
+            String dest;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+            String transportMode = args.getString(7);
+
+
+            String url = "baidumap://map/direction";
+            String logMsg = "Using Baidu Maps to navigate";
+
+            String extras = parseExtrasToUrl(args);
+            if(isNull(extras)){
+                extras = "";
+            }
+
+            if(!extras.contains("coord_type=")){
+                extras += "&coord_type=wgs84";
+            }
+
+            // Destination
+            logMsg += " to";
+            if(dType.equals("name")){
+                dest = getLocationFromName(args, 2);
+                logMsg += dest;
+            }else{
+                dest = getLocationFromPos(args, 2);
+                logMsg += " ["+dest+"]";
+                if(!isNull(destNickname)){
+                    dest = "latlng:" + dest + "|name:" + destNickname;
+                    logMsg += " ("+destNickname+")";
+                }
+            }
+            url += "?destination=" + dest;
+
+            // Start
+            logMsg += " from";
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+            }else{
+                if(sType.equals("name")){
+                    start = getLocationFromName(args, 5);
+                    logMsg += start;
+                }else{
+                    start = getLocationFromPos(args, 5);
+                    logMsg += " ["+start+"]";
+                    if(!isNull(startNickname)){
+                        start = "latlng:" + start + "|name:" + startNickname;
+                        logMsg += " ("+startNickname+")";
+                    }
+                }
+                url += "&origin=" + start;
+            }
+
+            // Transport mode
+            if(transportMode.equals("d")){
+                transportMode = "driving";
+            }else if(transportMode.equals("w")){
+                transportMode = "walking";
+            }else if(transportMode.equals("b")){
+                transportMode = "riding";
+            }else if(transportMode.equals("t")){
+                transportMode = "bus";
+            }else{
+                transportMode = "navigation";
+            }
+
+            url += "&mode="+transportMode;
+            logMsg += " by transportMode=" + transportMode;
+
+            // Extras
+            url += extras;
+            logMsg += " - extras="+extras;
+
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+
+            Intent intent = new Intent();
+            intent.setData(Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Baidu Maps app is not installed on this device";
             }
             handleException(msg, callbackContext);
         }

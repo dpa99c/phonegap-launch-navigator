@@ -123,11 +123,12 @@ Android
 * [Uber](https://play.google.com/store/apps/details?id=com.ubercab)
 * [Yandex Navigator](https://play.google.com/store/apps/details?id=ru.yandex.yandexnavi)
 * [Sygic](https://play.google.com/store/apps/details?id=com.sygic.aura)
-* [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps&hl=en_GB)
-* [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate&hl=en_GB)
+* [HERE Maps](https://play.google.com/store/apps/details?id=com.here.app.maps)
+* [Moovit](https://play.google.com/store/apps/details?id=com.tranzmate)
 * [Lyft](https://play.google.com/store/apps/details?id=me.lyft.android)
-* [MAPS.ME](https://play.google.com/store/apps/details?id=com.mapswithme.maps.pro&hl=en_GB)
+* [MAPS.ME](https://play.google.com/store/apps/details?id=com.mapswithme.maps.pro)
 * [Cabify](https://play.google.com/store/apps/details?id=com.cabify.rider)
+* [Baidu Maps](https://play.google.com/store/apps/details?id=com.baidu.BaiduMap)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -147,6 +148,7 @@ iOS
 * [Lyft](https://itunes.apple.com/us/app/lyft/id529379082?mt=8)
 * [MAPS.ME](https://itunes.apple.com/us/app/maps-me-offline-map-with-navigation-directions/id510623322?mt=8)
 * [Cabify](https://itunes.apple.com/us/app/cabify-enjoy-the-ride/id476087442?mt=8)
+* [Baidu Maps](https://itunes.apple.com/us/app/%E7%99%BE%E5%BA%A6%E5%9C%B0%E5%9B%BE-%E5%85%AC%E4%BA%A4%E5%9C%B0%E9%93%81%E5%87%BA%E8%A1%8C%E5%BF%85%E5%A4%87%E7%9A%84%E6%99%BA%E8%83%BD%E5%AF%BC%E8%88%AA/id452186370?mt=8)
 
 Windows
 
@@ -267,6 +269,7 @@ The following table enumerates which apps support which parameters.
 | Android  | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | Android  | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
+| Android  | Baidu Maps                     |   X  |     X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |   X   |      X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |        X       |   X  |
 | iOS      | Apple Maps - URI scheme        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Apple Maps - MapKit class      |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -283,7 +286,10 @@ The following table enumerates which apps support which parameters.
 | iOS      | Lyft                           |   X  |           |   X   |            |                |   X  |
 | iOS      | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
+| iOS      | Baidu Maps                     |   X  |     X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |   X   |      X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |        X       |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
+
+<a name="baidu_maps_nicknames">[1]</a>: Only supported when Start or Dest is specified as lat/lon (e.g. "50,-4")
 
 Table columns:
 
@@ -304,10 +310,12 @@ Apps that support specifying transport mode.
 | Android  | Google Maps (Turn-by-turn mode)|    X    |    X    |     X     |    X    |
 | Android  | Sygic                          |    X    |    X    |           |         |
 | Android  | MAPS.ME                        |    X    |    X    |     X     |    X    |
+| Android  | Baidu Maps                     |    X    |    X    |     X     |    X    |
 | iOS      | Apple Maps                     |    X    |    X    |           |         |
 | iOS      | Google Maps                    |    X    |    X    |     X     |    X    |
 | iOS      | Sygic                          |    X    |    X    |           |         |
 | iOS      | MAPS.ME                        |    X    |    X    |     X     |    X    |
+| iOS      | Baidu Maps                     |    X    |    X    |     X     |    X    |
 | Windows  | Bing Maps                      |    X    |    X    |           |    X    |
 
 
@@ -349,13 +357,14 @@ Supported apps:
 - `launchnavigator.APP.LYFT` (Android & iOS)
 - `launchnavigator.APP.MAPS_ME` (Android & iOS)
 - `launchnavigator.APP.CABIFY` (Android & iOS)
+- `launchnavigator.APP.BAIDU` (Android & iOS)
 
 ### APP_NAMES
 
 Display names for supported apps, referenced by `launchnavigator.APP`.
 
 e.g. `launchnavigator.APP_NAMES[launchnavigator.APP.GOOGLE_MAPS] == "Google Maps"`
-
+x
 ### TRANSPORT_MODE
 
 Transport modes for navigation:

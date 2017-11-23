@@ -114,7 +114,8 @@ ln.APP = {
     MOOVIT: "moovit",
     LYFT: "lyft",
     MAPS_ME: "maps_me",
-    CABIFY: "cabify"
+    CABIFY: "cabify",
+    BAIDU: "baidu"
 };
 
 /**
@@ -134,7 +135,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.MOOVIT,
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -152,7 +154,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.MOOVIT,
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -189,6 +192,7 @@ ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
+ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Maps";
 
 /**
  * All possible transport modes
@@ -225,6 +229,12 @@ ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.WALKING
 ];
 ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.MAPS_ME] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.BICYCLING,
+    ln.TRANSPORT_MODE.TRANSIT
+];
+ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.BAIDU] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING,
     ln.TRANSPORT_MODE.BICYCLING,
@@ -268,6 +278,12 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.MAPS_ME] = [
     ln.TRANSPORT_MODE.BICYCLING,
     ln.TRANSPORT_MODE.TRANSIT
 ];
+ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.BAIDU] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.BICYCLING,
+    ln.TRANSPORT_MODE.TRANSIT
+];
 
 /**
  * Apps by platform that support specifying a start location
@@ -284,7 +300,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.MOOVIT,
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -298,7 +315,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.MOOVIT,
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -315,7 +333,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -324,7 +343,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 
 /**
@@ -339,7 +359,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.UBER,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -350,7 +371,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.TOMTOM,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
-    ln.APP.CABIFY
+    ln.APP.CABIFY,
+    ln.APP.BAIDU
 ];
 
 /**
