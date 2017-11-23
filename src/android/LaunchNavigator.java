@@ -1245,9 +1245,9 @@ public class LaunchNavigator extends CordovaPlugin {
             }else if(transportMode.equals("b")){
                 transportMode = "riding";
             }else if(transportMode.equals("t")){
-                transportMode = "bus";
+                transportMode = "transit";
             }else{
-                transportMode = "navigation";
+                transportMode = "driving";
             }
 
             url += "&mode="+transportMode;
