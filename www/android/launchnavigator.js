@@ -172,6 +172,7 @@ ln.navigate = function(destination, options) {
 
     destination = common.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) === "object"){
+        if(typeof destination.length === "undefined") throw "destination must be a string or an array";
         dType = "pos";
     }else{
         dType = "name";
@@ -179,6 +180,7 @@ ln.navigate = function(destination, options) {
     if(options.start){
         options.start = common.util.extractCoordsFromLocationString(options.start);
         if(typeof(options.start) === "object"){
+            if(typeof options.start.length === "undefined") throw "start must be a string or an array";
             sType = "pos";
         }else{
             sType = "name";

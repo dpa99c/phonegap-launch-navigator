@@ -113,6 +113,7 @@ ln.navigate = function(destination, options) {
         destination = common.util.extractCoordsFromLocationString(destination);
         msg += " to ";
         if(typeof(destination) === "object"){
+            if(typeof destination.length === "undefined") throw "destination must be a string or an array";
             url += "pos." + destination[0] + "_" + destination[1];
             msg += destination[0] + ',' + destination[1];
             if(options.destinationName){
@@ -147,6 +148,7 @@ ln.navigate = function(destination, options) {
     if(options.start){
         options.start = common.util.extractCoordsFromLocationString(options.start);
         if(typeof(options.start) === "object"){
+            if(typeof options.start.length === "undefined") throw "start must be a string or an array";
             url += "pos." + options.start[0] + "_" + options.start[1];
             msg += options.start[0] + ',' + options.start[1];
             if(options.startName){

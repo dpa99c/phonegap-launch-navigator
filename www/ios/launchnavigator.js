@@ -144,6 +144,7 @@ ln.navigate = function(destination, options) {
     // Process options
     destination = common.util.extractCoordsFromLocationString(destination);
     if(typeof(destination) === "object"){
+        if(typeof destination.length === "undefined") throw "destination must be a string or an array";
         destination = destination.join(",");
         options.destType = "coords";
     }else{
@@ -154,6 +155,7 @@ ln.navigate = function(destination, options) {
     if(!options.start){
         options.startType = "none";
     }else if(typeof(options.start) === "object"){
+        if(typeof options.start.length === "undefined") throw "start must be a string or an array";
         options.start = options.start.join(",");
         options.startType = "coords";
     }else{
