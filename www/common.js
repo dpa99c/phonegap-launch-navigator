@@ -48,11 +48,9 @@ var emptyFn = function(){};
  ********************/
 
 var ensureStore = function(){
-    if(!store){
-        store = localforage.createInstance({
-            name: "launchnavigator"
-        });
-    }
+    store = localforage.createInstance({
+        name: "launchnavigator"
+    });
 };
 
 var setItem = function(key, value, callback){
