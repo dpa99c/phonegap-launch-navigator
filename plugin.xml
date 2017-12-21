@@ -3,7 +3,7 @@
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="uk.co.workingedge.phonegap.plugin.launchnavigator"
-    version="4.1.1">
+    version="4.1.2">
 
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows Phone</description>
@@ -29,7 +29,7 @@
   <!-- android -->
   <platform name="android">
     <dependency id="cordova-plugin-actionsheet" version="2" />
-    <dependency id="cordova-plugin-dialogs" version="1" />
+    <dependency id="cordova-plugin-dialogs" version="*" />
 
     <js-module src="www/android/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />

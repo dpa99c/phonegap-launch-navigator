@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.1.2
+- Unpin version on cordova-plugin-dialogs dependency for Android (as well as iOS). Resolves #176 (and #175).
+
 ## v4.1.1
 - (Re-)open the database for storing user prefs every time before reading/writing. Resolves #173.
 - Add extra checks for input types. Should resolve #172.
