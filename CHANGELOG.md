@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v4.1.1
+- (Re-)open the database for storing user prefs every time before reading/writing. Resolves #173.
+- Add extra checks for input types. Should resolve #172.
+- Unpin version on cordova-plugin-dialogs dependency. Resolves #175.
+
 ## v4.1.0
 - Add Baidu Maps support for Android and iOS.
 - Fix "bicycling" transport mode parameter for MAPS.ME on iOS.
