@@ -312,7 +312,7 @@ NSDictionary* extras;
     }
     
     if(!destAddress){
-        MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:destCoord];
+        MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:destCoord addressDictionary:nil];
         dest_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
         if(destName){
             [dest_mapItem setName:destName];
@@ -323,7 +323,7 @@ NSDictionary* extras;
         [MKMapItem openMapsWithItems:@[dest_mapItem] launchOptions:launchOptions];
     }else{
         if(!startAddress){
-            start_mapItem = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:startCoord]];
+            start_mapItem = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:startCoord addressDictionary:nil]];
             if(startName){
                 [start_mapItem setName:startName];
             }
