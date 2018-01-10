@@ -56,6 +56,11 @@ typedef NS_ENUM(NSUInteger, LNApp) {
     LNAppBaidu           // Baidu
 };
 
+static NSString*const LOG_TAG = @"LaunchNavigator[native]";
+static NSString*const LNLocTypeNone = @"none";
+static NSString*const LNLocTypeBoth = @"both";
+static NSString*const LNLocTypeAddress = @"name";
+static NSString*const LNLocTypeCoords = @"coords";
 
 /**
 Indicates an empty coordinate

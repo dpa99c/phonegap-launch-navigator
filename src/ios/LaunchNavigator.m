@@ -30,14 +30,9 @@
 #import <SystemConfiguration/SCNetworkReachability.h>
 #import "LN_Reachability.h"
 
-NSString*const LOG_TAG = @"LaunchNavigator[native]";
 
 NSArray* appNames;
 
-NSString*const LNLocTypeNone = @"none";
-NSString*const LNLocTypeBoth = @"both";
-NSString*const LNLocTypeAddress = @"name";
-NSString*const LNLocTypeCoords = @"coords";
 
 
 // Valid input location types for apps
