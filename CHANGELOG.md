@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.1.3
+- Declare Objective-C constants as static. See [cordova-diagnostic-plugin#270](https://github.com/dpa99c/cordova-diagnostic-plugin/issues/270).
+
 ## v4.1.2
 - Unpin version on cordova-plugin-dialogs dependency for Android (as well as iOS). Resolves #176 (and #175).
 
