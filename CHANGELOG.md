@@ -4,52 +4,52 @@
 - Declare Objective-C constants as static. See [cordova-diagnostic-plugin#270](https://github.com/dpa99c/cordova-diagnostic-plugin/issues/270).
 
 ## v4.1.2
-- Unpin version on cordova-plugin-dialogs dependency for Android (as well as iOS). Resolves #176 (and #175).
+- Unpin version on cordova-plugin-dialogs dependency for Android (as well as iOS). Resolves [#176](https://github.com/dpa99c/phonegap-launch-navigator/issues/176) (and [#175](https://github.com/dpa99c/phonegap-launch-navigator/issues/175)).
 
 ## v4.1.1
-- (Re-)open the database for storing user prefs every time before reading/writing. Resolves #173.
-- Add extra checks for input types. Should resolve #172.
-- Unpin version on cordova-plugin-dialogs dependency. Resolves #175.
+- (Re-)open the database for storing user prefs every time before reading/writing. Resolves [#173](https://github.com/dpa99c/phonegap-launch-navigator/issues/173).
+- Add extra checks for input types. Should resolve [#172](https://github.com/dpa99c/phonegap-launch-navigator/issues/172).
+- Unpin version on cordova-plugin-dialogs dependency. Resolves [#175](https://github.com/dpa99c/phonegap-launch-navigator/issues/175).
 
 ## v4.1.0
 - Add Baidu Maps support for Android and iOS.
 - Fix "bicycling" transport mode parameter for MAPS.ME on iOS.
 
 ## v4.0.7
-- Namespace kReachabilityChangedNotification to avoid collisions with other libraries. Fixes #162.
+- Namespace kReachabilityChangedNotification to avoid collisions with other libraries. Fixes [#162](https://github.com/dpa99c/phonegap-launch-navigator/issues/162).
 
 ## v4.0.6
 - Adds Cabify support for Android and iOS.
 
 ## v4.0.5 
-- Handle edge case where preferred app is no longer available on device. Fixes #153.
-- Namespace the Reachability class to avoid collisions with other libraries. Fixes #152.
+- Handle edge case where preferred app is no longer available on device. Fixes [#153](https://github.com/dpa99c/phonegap-launch-navigator/issues/153).
+- Namespace the Reachability class to avoid collisions with other libraries. Fixes [#152](https://github.com/dpa99c/phonegap-launch-navigator/issues/152).
 
 ## v4.0.4
-- Fix Ionic Native navigate() options mapping in v4. Fixes #145.
+- Fix Ionic Native navigate() options mapping in v4. Fixes [#145](https://github.com/dpa99c/phonegap-launch-navigator/issues/145).
 
 ## v4.0.3
-- Replace bundled localforage with version that contains polyfill for promises API. Resolves #142.
+- Replace bundled localforage with version that contains polyfill for promises API. Resolves [#142](https://github.com/dpa99c/phonegap-launch-navigator/issues/142).
 
 ## v4.0.2
-- Fix infinite recursion when calling navigate() if only 1 supported app is present. Resolves #141.
+- Fix infinite recursion when calling navigate() if only 1 supported app is present. Resolves [#141](https://github.com/dpa99c/phonegap-launch-navigator/issues/141).
 
 ## v4.0.1
 - Fix references to enableGelocation vs enableGeocoding
 
 ## v4.0.0
-- Add Lyft support to Android and iOS. Resolves #130
+- Add Lyft support to Android and iOS. Resolves [#130](https://github.com/dpa99c/phonegap-launch-navigator/issues/130)
 - Add CHANGELOG
-- Add empty LAUNCH_MODE object to iOS and Windows JS layers for cross-platform compatibility. Resolves #133.
+- Add empty LAUNCH_MODE object to iOS and Windows JS layers for cross-platform compatibility. Resolves [#133](https://github.com/dpa99c/phonegap-launch-navigator/issues/133).
 - Rework Andoid and iOS implementations to: 
-  - Only geocode when necessary, therefore support offline launching of apps if correct input location format supplied. Resolves #93.
+  - Only geocode when necessary, therefore support offline launching of apps if correct input location format supplied. Resolves [#93](https://github.com/dpa99c/phonegap-launch-navigator/issues/93).
   - Support optional disabling of geocoding.
 - Fix Typescript declaration type.
 - Windows: Rename options parameter from "disableAutoGeolocation" to "enableGeolocation" for consistency with Android and iOS.
 - Remove backward compatibility shim for legacy v2 API.
 - Update Typescript types for v4.
 - Support specification of launch mode for Apple Maps on iOS: URI scheme or MapKit class. 
-Default to URI scheme method in order to support address location types without geocoding.  Resolves #106 and #107.
+Default to URI scheme method in order to support address location types without geocoding.  Resolves [#106](https://github.com/dpa99c/phonegap-launch-navigator/issues/106) and [#107](https://github.com/dpa99c/phonegap-launch-navigator/issues/107).
 - Rework app selection options structure for navigate().
 NOTE: this is backwardly incompatible with v3 and below.
 - Add mechanism to optionally offer to remember user choice of app.
@@ -58,22 +58,22 @@ NOTE: this is backwardly incompatible with v3 and below.
 - Rename typing files to use NPM package names instead of Github repo names.
 - Reference type declaration in package.json.
 - Add androidTheme option
-- Document removing Apple Maps caveat. Resolves #116.
+- Document removing Apple Maps caveat. Resolves [#116](https://github.com/dpa99c/phonegap-launch-navigator/issues/116).
 
 ## v3.2.1
 Add support for a callback to which the selected app in the native picker can be passed.
 
 ## v3.2.0
-Bug fix: On Windows, isAppAvailable() should only return true if appName == APP.BING_MAPS. Fixes #86.
+Bug fix: On Windows, isAppAvailable() should only return true if appName == APP.BING_MAPS. Fixes [#86](https://github.com/dpa99c/phonegap-launch-navigator/issues/86).
 
 ## v3.1.2
 - Windows bugfix: cannot continue navigator when you dont pass options.
 - Add callbacks as parameters to userSelect.
 - Add Typescript definition
-- Encode pipe character in Sygic URLs. Resolves #83.
+- Encode pipe character in Sygic URLs. Resolves [#83](https://github.com/dpa99c/phonegap-launch-navigator/issues/83).
 
 ## v3.1.1
-- Bug fix: remove anomalous module declaration from Android JS implementation. Fixes #72.
+- Bug fix: remove anomalous module declaration from Android JS implementation. Fixes [#72](https://github.com/dpa99c/phonegap-launch-navigator/issues/72).
 
 ## v3.1.0
 - Add support for Sygic, HERE Maps and Moovit apps to Android & iOS
@@ -81,17 +81,17 @@ Bug fix: On Windows, isAppAvailable() should only return true if appName == APP.
 - Enable specification of app-specific extra parameters where possible
 
 ## v3.0.4
-- When reversing geocoding on iOS, use original coordinate as result rather than geocoder result. Resolves #61.
+- When reversing geocoding on iOS, use original coordinate as result rather than geocoder result. Resolves [#61](https://github.com/dpa99c/phonegap-launch-navigator/issues/61).
 - Add explicit support for Yandex Navigator on Android
 
 ## v3.0.3
-- Fix issue #58
-- Merge pull request #61
+- Fix issue [#58](https://github.com/dpa99c/phonegap-launch-navigator/issues/58)
+- Merge pull request [#61](https://github.com/dpa99c/phonegap-launch-navigator/issues/61)
 
 ## v3.0.2
 - Add debug logging of geocoding operations
-- Fix issues #13, #59
-- Support alternate API signature: navigate(start, successCallback, errorCallback, options) - resolves #55.
+- Fix issues [#13](https://github.com/dpa99c/phonegap-launch-navigator/issues/13), [#59](https://github.com/dpa99c/phonegap-launch-navigator/issues/59)
+- Support alternate API signature: navigate(start, successCallback, errorCallback, options) - resolves [#55](https://github.com/dpa99c/phonegap-launch-navigator/issues/55).
 
 ## v3.0.1
 Replaced legacy Apache HTTP client with OkHttp client on Android to prevent Gradle build issues
@@ -120,20 +120,20 @@ Change case of Cordova package in imports.
 
 
 ## 2.9.7
-Make plugin ID lower case - fixes #33.
+Make plugin ID lower case - fixes [#33](https://github.com/dpa99c/phonegap-launch-navigator/issues/33).
 
 ## 2.9.6
-Add iOS 9 whitelisting for Google Maps URL scheme. Fixes #32.
+Add iOS 9 whitelisting for Google Maps URL scheme. Fixes [#32](https://github.com/dpa99c/phonegap-launch-navigator/issues/32).
 
 ## 2.9.5
-Add missing iOS dependency on CoreLocation framework: fixes #27.
+Add missing iOS dependency on CoreLocation framework: fixes [#27](https://github.com/dpa99c/phonegap-launch-navigator/issues/27).
 
 ## 2.9.3
 Use reverse geocoding to display address of start/destination in Apple Maps when specified as a latitude+longitude.
 
 
 ## 2.9.2
-Fixes #25 - when "preferGoogleMaps" set to true,If Google Maps is not available, it "will not" fall back to Apple Maps.
+Fixes [#25](https://github.com/dpa99c/phonegap-launch-navigator/issues/25) - when "preferGoogleMaps" set to true,If Google Maps is not available, it "will not" fall back to Apple Maps.
 
 
 ## 2.9.1
