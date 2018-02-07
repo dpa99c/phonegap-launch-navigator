@@ -20,6 +20,11 @@ Before opening an issue, please check a similar issue is not already open (or cl
 
 <!-- Describe how the bug manifests. -->
 
+<!-- Explain how you're sure there is an issue with this plugin rather than your own code:
+ - If this plugin has an example project, have you been able to reproduce the issue within it?
+ - Have you created a clean test Cordova project containing only this plugin to eliminate the potential for interference with other plugins/code?
+ -->
+
 **Expected behavior:**
 
 <!-- Describe what the behavior should be without the bug. -->
