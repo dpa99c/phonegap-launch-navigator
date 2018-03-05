@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.1.5
+- Detect and handle disabled Android apps (i.e. Google Maps). Resolves [#182](https://github.com/dpa99c/phonegap-launch-navigator/issues/182).
+
 ## v4.1.4
 - Add missing app name native iOS constants for Cabify and Baidu.
 
