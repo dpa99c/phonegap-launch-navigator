@@ -90,7 +90,24 @@ NSDictionary* extras;
 }
 
 + (void)initialize{
-    appNames = @[@"apple_maps", @"citymapper", @"google_maps", @"navigon", @"transit_app", @"tomtom", @"uber", @"waze", @"yandex", @"sygic", @"here_maps", @"moovit", @"lyft", @"maps_me"];
+    appNames = @[
+                 @"apple_maps",
+                 @"citymapper",
+                 @"google_maps",
+                 @"navigon",
+                 @"transit_app",
+                 @"waze",
+                 @"yandex",
+                 @"uber",
+                 @"tomtom",
+                 @"sygic",
+                 @"here_maps",
+                 @"moovit",
+                 @"lyft",
+                 @"maps_me",
+                 @"cabify",
+                 @"baidu"
+                 ];
     AppLocationTypes = @{
                          @(LNAppAppleMaps): LNLocTypeBoth,
                          @(LNAppCitymapper): LNLocTypeBoth,
