@@ -1365,7 +1365,8 @@ public class LaunchNavigator extends CordovaPlugin {
     private boolean isPackageInstalled(String packagename, PackageManager packageManager) {
         try {
             packageManager.getPackageInfo(packagename, PackageManager.GET_ACTIVITIES);
-            return true;
+            ApplicationInfo ai = packageManager.getApplicationInfo(packagename, 0);
+            return ai.enabled;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }

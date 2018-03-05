@@ -636,7 +636,7 @@ ln.userSelect = function(destination, options, successCallback, errorCallback){
         }
 
         if(buttonList.length === 0){
-            return options.errorCallback('No apps in selection list are available');
+            return options.errorCallback("No supported navigation apps are available on the device");
         }
 
         if(buttonList.length === 1){
