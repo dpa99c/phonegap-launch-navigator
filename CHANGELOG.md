@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.1.4
+- Add missing app name native iOS constants for Cabify and Baidu.
+
 ## v4.1.3
 - Declare Objective-C constants as static. See [cordova-diagnostic-plugin#270](https://github.com/dpa99c/cordova-diagnostic-plugin/issues/270).
 
