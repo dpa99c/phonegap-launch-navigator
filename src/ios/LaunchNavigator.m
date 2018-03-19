@@ -269,14 +269,14 @@ NSDictionary* extras;
                              ] mutableCopy];
     
     if([self isEmptyCoordinate:destCoord]){
-        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }else{
         [url appendFormat:@"daddr=%@", [self stringForCoord:destCoord]];
     }
     
     if(![jsStartType isEqual: LNLocTypeNone]){
         if([self isEmptyCoordinate:startCoord]){
-            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }else{
             [url appendFormat:@"&saddr=%@", [self stringForCoord:startCoord]];
         }
@@ -351,14 +351,14 @@ NSDictionary* extras;
                              ] mutableCopy];
     
     if([self isEmptyCoordinate:destCoord]){
-        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [url appendFormat:@"daddr=%@", [destAddress stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }else{
         [url appendFormat:@"daddr=%@", [self stringForCoord:destCoord]];
     }
     
     if(![jsStartType isEqual: LNLocTypeNone]){
         if([self isEmptyCoordinate:startCoord]){
-            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            [url appendFormat:@"&saddr=%@", [startAddress stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }else{
             [url appendFormat:@"&saddr=%@", [self stringForCoord:startCoord]];
         }
@@ -484,7 +484,7 @@ NSDictionary* extras;
                destCoord.longitude];
         
         if(destName){
-            url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
         
     } else {
@@ -496,11 +496,11 @@ NSDictionary* extras;
                destCoord.longitude];
         
         if(destName){
-            url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
         
         if(startName){
-            url = [NSMutableString stringWithFormat:@"%@&pickup[nickname]=%@",url,[startName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            url = [NSMutableString stringWithFormat:@"%@&pickup[nickname]=%@",url,[startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
     if(extras){
@@ -515,7 +515,7 @@ NSDictionary* extras;
                             destCoord.latitude,
                             destCoord.longitude];
     if(destName){
-        url = [NSMutableString stringWithFormat:@"%@&name=%@",url,[destName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        url = [NSMutableString stringWithFormat:@"%@&name=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
@@ -552,7 +552,7 @@ NSDictionary* extras;
                       startCoord.latitude, startCoord.longitude];
         
         if (startName) {
-            [startParam appendFormat:@",%@", [startName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            [startParam appendFormat:@",%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
     
@@ -560,7 +560,7 @@ NSDictionary* extras;
                                   destCoord.latitude, destCoord.longitude];
     
     if (destName) {
-        [destParam appendFormat:@",%@", [destName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [destParam appendFormat:@",%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@%@/%@",
@@ -582,7 +582,7 @@ NSDictionary* extras;
      destCoord.latitude, destCoord.longitude];
     
     if (destName) {
-        [url appendFormat:@"&dest_name=%@", [destName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        [url appendFormat:@"&dest_name=%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     
     if (!startIsCurrentLocation) {
@@ -590,7 +590,7 @@ NSDictionary* extras;
          startCoord.latitude, startCoord.longitude];
         
         if (startName) {
-            [url appendFormat:@"&orig_name=%@", [startName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            [url appendFormat:@"&orig_name=%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
     
@@ -664,13 +664,13 @@ NSDictionary* extras;
 
     NSMutableDictionary* dDest = [NSMutableDictionary new];
     NSMutableDictionary* dDestLoc = [NSMutableDictionary new];
-    [dDestLoc setValue:[NSMutableString stringWithFormat:@"%f",destCoord.latitude] forKey:@"latitude"];
-    [dDestLoc setValue:[NSMutableString stringWithFormat:@"%f",destCoord.longitude] forKey:@"longitude"];
+    dDestLoc[@"latitude"] = @((float)destCoord.latitude);
+    dDestLoc[@"longitude"] = @((float)destCoord.longitude);
     [dDest setObject:dDestLoc forKey:@"loc"];
 
 
     if (destName) {
-        [dDest setValue:[self urlEncode:destName] forKey:@"name"];
+        [dDest setValue:destName forKey:@"name"];
     }
 
     NSMutableDictionary* dStart = [NSMutableDictionary new];
@@ -678,13 +678,13 @@ NSDictionary* extras;
     if (startIsCurrentLocation) {
         [dDest setValue:@"current" forKey:@"loc"];
     }else{
-        [dStartLoc setValue:[NSMutableString stringWithFormat:@"%f",startCoord.latitude] forKey:@"latitude"];
-        [dStartLoc setValue:[NSMutableString stringWithFormat:@"%f",startCoord.longitude] forKey:@"longitude"];
+        dStartLoc[@"latitude"] = @((float)startCoord.latitude);
+        dStartLoc[@"longitude"] = @((float)startCoord.longitude);
         [dStart setObject:dStartLoc forKey:@"loc"];
     }
 
     if (startName) {
-        [dStart setValue:[self urlEncode:startName]  forKey:@"name"];
+        [dStart setValue:startName  forKey:@"name"];
     }
 
     NSMutableArray* aStops = [NSMutableArray new];
@@ -696,11 +696,13 @@ NSDictionary* extras;
         }
     }
     [aStops addObject:dDest];
+    
+    if([dJson objectForKey:@"vehicle_type"] == nil){
+        [dJson setValue:@"" forKey:@"vehicle_type"];
+    }
     [dJson setObject:aStops forKey:@"stops"];
-
-    url = [NSMutableString stringWithFormat:@"%@%@", url, [self dictionaryToJsonString:dJson]];
-
-    //url = [NSMutableString stringWithFormat:@"%@", @"cabify://cabify/journey?json={\"vehicle_type\":\"c52ce29f50438491f8d6e55d5259dd40\",\"stops\":[{\"loc\":{\"latitude\":40.3979288915956,\"longitude\":-3.70257262140512 },\"name\":\"Goiko%20Grill\"},{\"loc\":{\"latitude\":40.697,\"longitude\":-3.90257262140512}}]}"];
+    NSString* sJson = [[self dictionaryToJsonString:dJson] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    url = [NSMutableString stringWithFormat:@"%@%@", url, sJson];
 
     [self logDebugURI:url];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
