@@ -722,7 +722,7 @@ NSDictionary* extras;
     }
 
     if (startName) {
-        [url appendFormat:@"&sname=%@", startName];
+        [url appendFormat:@"&sname=%@", [self urlEncode:startName]];
     }
     
     if(![self isEmptyCoordinate:destCoord]){
@@ -730,7 +730,7 @@ NSDictionary* extras;
     }
 
     if (destName) {
-        [url appendFormat:@"&dname=%@", destName];
+        [url appendFormat:@"&dname=%@", [self urlEncode:destName]];
     }
     if([directionsMode isEqual: @"walking"]){
         [url appendFormat:@"&t=2"];
