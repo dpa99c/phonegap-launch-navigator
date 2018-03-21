@@ -113,6 +113,7 @@ ln.APP = {
     LYFT: "lyft",
     MAPS_ME: "maps_me",
     CABIFY: "cabify",
+    GAODE: "gaode",
     BAIDU: "baidu"
 };
 
@@ -153,6 +154,7 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
+    ln.APP.GAODE,
     ln.APP.BAIDU
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
@@ -190,6 +192,7 @@ ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
+ln.APP_NAMES[ln.APP.GAODE] = "Gaode Maps";
 ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Maps";
 
 /**
@@ -276,6 +279,12 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.MAPS_ME] = [
     ln.TRANSPORT_MODE.BICYCLING,
     ln.TRANSPORT_MODE.TRANSIT
 ];
+ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.GAODE] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING,
+    ln.TRANSPORT_MODE.BICYCLING,
+    ln.TRANSPORT_MODE.TRANSIT
+];
 ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.BAIDU] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING,
@@ -314,6 +323,7 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
+    ln.APP.GAODE,
     ln.APP.BAIDU
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
@@ -342,6 +352,7 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
+    ln.APP.GAODE,
     ln.APP.BAIDU
 ];
 
@@ -370,6 +381,7 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
+    ln.APP.GAODE,
     ln.APP.BAIDU
 ];
 
