@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## Unreleased
+- Fix launching of Citymapper (both Android & iOS) by geocoding address input since native address input is no longer working in recent versions of Citymapper. Fixes [#180](https://github.com/dpa99c/phonegap-launch-navigator/issues/180). 
 - Fix Cabify iOS URL Scheme. See [#155](https://github.com/dpa99c/phonegap-launch-navigator/issues/155).
 - Replace deprecated iOS function `stringByAddingPercentEscapesUsingEncoding` with `stringByAddingPercentEncodingWithAllowedCharacters`.
 - Add 99 Taxi support for Android and iOS. Resolves [#183](https://github.com/dpa99c/phonegap-launch-navigator/issues/183).

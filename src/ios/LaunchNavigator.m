@@ -111,7 +111,7 @@ NSDictionary* extras;
                  ];
     AppLocationTypes = @{
                          @(LNAppAppleMaps): LNLocTypeBoth,
-                         @(LNAppCitymapper): LNLocTypeBoth,
+                         @(LNAppCitymapper): LNLocTypeCoords,
                          @(LNAppGoogleMaps): LNLocTypeBoth,
                          @(LNAppNavigon): LNLocTypeCoords,
                          @(LNAppTheTransitApp): LNLocTypeCoords,
@@ -380,9 +380,7 @@ NSDictionary* extras;
 -(void)launchCitymapper {
     NSMutableArray* params = [NSMutableArray arrayWithCapacity:10];
     if (!startIsCurrentLocation) {
-        if(![self isEmptyCoordinate:startCoord]){
-            [params addObject:[NSString stringWithFormat:@"startcoord=%f,%f", startCoord.latitude, startCoord.longitude]];
-        }
+        [params addObject:[NSString stringWithFormat:@"startcoord=%f,%f", startCoord.latitude, startCoord.longitude]];
         if(startName){
             [params addObject:[NSString stringWithFormat:@"startname=%@", [self urlEncode:startName]]];
         }
@@ -391,9 +389,7 @@ NSDictionary* extras;
         }
     }
     
-    if(![self isEmptyCoordinate:destCoord]){
-        [params addObject:[NSString stringWithFormat:@"endcoord=%f,%f", destCoord.latitude, destCoord.longitude]];
-    }
+    [params addObject:[NSString stringWithFormat:@"endcoord=%f,%f", destCoord.latitude, destCoord.longitude]];
     if(destName){
         [params addObject:[NSString stringWithFormat:@"endname=%@", [self urlEncode:destName]]];
     }
@@ -401,8 +397,7 @@ NSDictionary* extras;
         [params addObject:[NSString stringWithFormat:@"endaddress=%@", [self urlEncode:destAddress]]];
     }
     
-    NSMutableString* url = [NSMutableString stringWithFormat:@"%@directions?%@",
-                            [self urlPrefixForMapApp:LNAppCitymapper],
+    NSMutableString* url = [NSMutableString stringWithFormat:@"https://citymapper.com/directions?%@",                            
                             [params componentsJoinedByString:@"&"]];
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];

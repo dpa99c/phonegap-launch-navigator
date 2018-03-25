@@ -441,33 +441,41 @@ public class LaunchNavigator extends CordovaPlugin {
                 startLatLon = getLocationFromPos(args, 5);
             }
 
-            String url = "citymapper://directions?";
+            String url = "https://citymapper.com/directions?";
             String logMsg = "Using Citymapper to navigate to";
             if(!isNull(destAddress)){
-                url += "&endaddress="+destAddress;
+                url += "&endaddress="+Uri.encode(destAddress);
                 logMsg += " '"+destAddress+"'";
             }
-            if(!isNull(destLatLon)){
-                url += "&endcoord="+destLatLon;
-                logMsg += " ["+destLatLon+"]";
+            if(isNull(destLatLon)){
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
+                }
             }
+            url += "&endcoord="+destLatLon;
+            logMsg += " ["+destLatLon+"]";
             if(!isNull(destNickname)){
-                url += "&endname="+destNickname;
+                url += "&endname="+Uri.encode(destNickname);
                 logMsg += " ("+destNickname+")";
             }
 
             if(!sType.equals("none")){
                 logMsg += " from";
                 if(!isNull(startAddress)){
-                    url += "&startaddress="+startAddress;
+                    url += "&startaddress="+Uri.encode(startAddress);
                     logMsg += " '"+startAddress+"'";
                 }
-                if(!isNull(startLatLon)){
-                    url += "&startcoord="+startLatLon;
-                    logMsg += " ["+startLatLon+"]";
+                if(isNull(startLatLon)){
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    if(isNull(startLatLon)){
+                        return;
+                    }
                 }
+                url += "&startcoord="+startLatLon;
+                logMsg += " ["+startLatLon+"]";
                 if(!isNull(startNickname)){
-                    url += "&startname="+startNickname;
+                    url += "&startname="+Uri.encode(startNickname);
                     logMsg += " ("+startNickname+")";
                 }
             }
