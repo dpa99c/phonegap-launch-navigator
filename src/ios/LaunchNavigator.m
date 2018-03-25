@@ -300,7 +300,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchAppleMapsWithMapKit {
@@ -376,7 +376,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchCitymapper {
@@ -405,7 +405,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchTheTransitApp {
@@ -425,7 +425,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchNavigon {
@@ -442,7 +442,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchWaze {
@@ -453,7 +453,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchYandex {
@@ -471,7 +471,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchUber {
@@ -506,7 +506,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchTomTom {
@@ -520,7 +520,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchSygic {
@@ -539,7 +539,7 @@ NSDictionary* extras;
                             separator,
                             directionsMode];
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchHereMaps {
@@ -571,7 +571,7 @@ NSDictionary* extras;
         [url appendFormat:@"?%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchMoovit {
@@ -597,7 +597,7 @@ NSDictionary* extras;
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchLyft {
@@ -619,7 +619,7 @@ NSDictionary* extras;
     }
     
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchMapsMe {
@@ -653,7 +653,7 @@ NSDictionary* extras;
     }
     
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchCabify {
@@ -704,7 +704,7 @@ NSDictionary* extras;
     url = [NSMutableString stringWithFormat:@"%@%@", url, sJson];
 
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchBaidu {
@@ -750,7 +750,7 @@ NSDictionary* extras;
     [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launchGaode {
@@ -798,7 +798,7 @@ NSDictionary* extras;
     //url = (NSMutableString*) @"iosamap://path?sourceApplication=applicationName&sid=BGVIS1&slat=39.92848272&slon=116.39560823&sname=A&did=BGVIS2&dlat=39.98848272&dlon=116.47560823&dname=B&dev=0&t=0";
 
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 -(void)launch99Taxis {
@@ -845,7 +845,7 @@ NSDictionary* extras;
     //url = (NSMutableString*) @"taxis99://call?pickup_latitude=-23.543869&pickup_longitude=-46.642264&pickup_title=Republica&dropoff_latitude=-23.600010&dropoff_longitude=-46.720348&dropoff_title=Morumbi&deep_link_product_id=316&client_id=MAP_123";
 
     [self logDebugURI:url];
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+    [self openScheme:url];
 }
 
 /**************
@@ -1529,4 +1529,29 @@ NSDictionary* extras;
     return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 }
 
+- (void)openScheme:(NSString *)scheme {
+  UIApplication *application = [UIApplication sharedApplication];
+  NSURL *URL = [NSURL URLWithString:scheme];
+
+  if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+    [application openURL:URL options:@{}
+       completionHandler:^(BOOL success) {
+       [self onOpenSchemeResult:scheme schemeResult:success];
+    }];
+  } else {
+    BOOL success = [application openURL:URL];
+    [self onOpenSchemeResult:scheme schemeResult:success];
+  }
+}
+
+- (void)onOpenSchemeResult:(NSString *)scheme schemeResult:(BOOL)success
+{
+    if(success){
+        [self sendPluginSuccess];
+    }else{
+        [self sendPluginError:[NSString stringWithFormat:@"Failed to open app scheme: %@", scheme]];
+    }
+}
+    
 @end
+
