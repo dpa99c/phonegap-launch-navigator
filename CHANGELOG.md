@@ -1,6 +1,7 @@
 # CHANGELOG
 
-## Unreleased
+## v4.2.0
+- Make iOS call success/error callbacks wait for and return the result of calling openURL(), rather than just assuming success immediately.
 - Add Gaode (Amap) support for Android and iOS. Resolves [#185](https://github.com/dpa99c/phonegap-launch-navigator/issues/185).
 - Fix launching of Citymapper (both Android & iOS) by geocoding address input since native address input is no longer working in recent versions of Citymapper. Fixes [#180](https://github.com/dpa99c/phonegap-launch-navigator/issues/180). 
 - Fix Cabify iOS URL Scheme. See [#155](https://github.com/dpa99c/phonegap-launch-navigator/issues/155).
