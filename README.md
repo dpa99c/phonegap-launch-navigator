@@ -77,6 +77,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [Apple Maps launch method](#apple-maps-launch-method)
 - [App-specifics](#app-specifics)
   - [Lyft](#lyft)
+  - [99 Taxi](#99-taxi)
 - [Reporting issues](#reporting-issues)
 - [Credits](#credits)
 - [License](#license)
@@ -129,6 +130,7 @@ Android
 * [MAPS.ME](https://play.google.com/store/apps/details?id=com.mapswithme.maps.pro)
 * [Cabify](https://play.google.com/store/apps/details?id=com.cabify.rider)
 * [Baidu Maps](https://play.google.com/store/apps/details?id=com.baidu.BaiduMap)
+* [99 Taxi](https://play.google.com/store/apps/details?id=com.taxis99&hl=en)
 * _Any installed app that supports the [`geo:` URI scheme](http://developer.android.com/guide/components/intents-common.html#Maps)_
 
 iOS
@@ -149,6 +151,7 @@ iOS
 * [MAPS.ME](https://itunes.apple.com/us/app/maps-me-offline-map-with-navigation-directions/id510623322?mt=8)
 * [Cabify](https://itunes.apple.com/us/app/cabify-enjoy-the-ride/id476087442?mt=8)
 * [Baidu Maps](https://itunes.apple.com/us/app/%E7%99%BE%E5%BA%A6%E5%9C%B0%E5%9B%BE-%E5%85%AC%E4%BA%A4%E5%9C%B0%E9%93%81%E5%87%BA%E8%A1%8C%E5%BF%85%E5%A4%87%E7%9A%84%E6%99%BA%E8%83%BD%E5%AF%BC%E8%88%AA/id452186370?mt=8)
+* [99 Taxi](https://itunes.apple.com/gb/app/99-taxi-and-private-drivers/id553663691?mt=8)
 
 Windows
 
@@ -270,6 +273,7 @@ The following table enumerates which apps support which parameters.
 | Android  | _Geo: URI scheme_              |   X  |     X     |       |            |                |  N/A |
 | Android  | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
 | Android  | Baidu Maps                     |   X  |     X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |   X   |      X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |        X       |   X  |
+| Android  | 99 Taxi                        |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Apple Maps - URI scheme        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Apple Maps - MapKit class      |   X  |     X     |   X   |      X     |        X       |   X  |
 | iOS      | Google Maps                    |   X  |           |   X   |            |        X       |   X  |
@@ -287,6 +291,7 @@ The following table enumerates which apps support which parameters.
 | iOS      | MAPS.ME                        |   X  |           |   X   |            |        X       |   X  |
 | iOS      | Cabify                         |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Baidu Maps                     |   X  |     X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |   X   |      X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |        X       |   X  |
+| iOS      | 99 Taxi                        |   X  |     X     |   X   |      X     |                |   X  |
 | Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 <a name="baidu_maps_nicknames">[1]</a>: Only supported when Start or Dest is specified as lat/lon (e.g. "50,-4")
@@ -358,6 +363,7 @@ Supported apps:
 - `launchnavigator.APP.MAPS_ME` (Android & iOS)
 - `launchnavigator.APP.CABIFY` (Android & iOS)
 - `launchnavigator.APP.BAIDU` (Android & iOS)
+- `launchnavigator.APP.TAXIS_99` (Android & iOS)
 
 ### APP_NAMES
 
@@ -732,6 +738,19 @@ This plugin supports 2 different launch methods for launching the Apple Maps app
 On both Android and iOS, the "ride type" will default to "Lyft" unless otherwise specified in the `extras` list as `id`. 
 
 See the [Lyft documentation](https://developer.lyft.com/v1/docs/deeplinking) for URL scheme details and other supported ride types.
+
+## 99 Taxi
+On both Android and iOS, the extra parameters `client_id` and `deep_link_product_id` are required by 99 Taxi
+
+- `client_id` should follow the pattern `MAP_***` where `***` is the client name given by the 99 Team.
+    - If not specified defaults to `client_id=MAP_123`
+- `deep_link_product_id` identifies the ride category
+    - Currently supported values are:
+        - `316` - POP ride
+        - `326` - TOP ride
+        - `327` - Taxis ride
+    - If not specified defaults to `deep_link_product_id=316`     
+
 
 # Reporting issues
 

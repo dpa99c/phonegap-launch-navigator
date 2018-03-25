@@ -113,7 +113,8 @@ ln.APP = {
     LYFT: "lyft",
     MAPS_ME: "maps_me",
     CABIFY: "cabify",
-    BAIDU: "baidu"
+    BAIDU: "baidu",
+    TAXIS_99: "taxis_99"
 };
 
 /**
@@ -134,7 +135,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -153,7 +155,8 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -191,6 +194,7 @@ ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
 ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Maps";
+ln.APP_NAMES[ln.APP.TAXIS_99] = "99 Taxi";
 
 /**
  * All possible transport modes
@@ -299,7 +303,8 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -314,7 +319,8 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.LYFT,
     ln.APP.MAPS_ME,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
     ln.APP.BING_MAPS
@@ -332,7 +338,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -342,7 +349,8 @@ ln.SUPPORTS_START_NAME[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 
 /**
@@ -358,7 +366,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.USER_SELECT,
@@ -370,7 +379,8 @@ ln.SUPPORTS_DEST_NAME[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.CABIFY,
-    ln.APP.BAIDU
+    ln.APP.BAIDU,
+    ln.APP.TAXIS_99
 ];
 
 /**

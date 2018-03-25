@@ -106,7 +106,8 @@ NSDictionary* extras;
                  @"lyft",
                  @"maps_me",
                  @"cabify",
-                 @"baidu"
+                 @"baidu",
+                 @"taxis_99"
                  ];
     AppLocationTypes = @{
                          @(LNAppAppleMaps): LNLocTypeBoth,
@@ -124,7 +125,8 @@ NSDictionary* extras;
                          @(LNAppLyft): LNLocTypeCoords,
                          @(LNAppMapsMe): LNLocTypeCoords,
                          @(LNAppCabify): LNLocTypeCoords,
-                         @(LNAppBaidu): LNLocTypeBoth
+                         @(LNAppBaidu): LNLocTypeBoth,
+                         @(LNAppTaxis99): LNLocTypeCoords,
                          };
     LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
     
@@ -690,7 +692,7 @@ NSDictionary* extras;
     NSMutableArray* aStops = [NSMutableArray new];
     [aStops addObject:dStart];
     if(extras){
-        dJson = (NSMutableDictionary*) extras;
+        dJson = [extras mutableCopy];
         if([dJson objectForKey:@"stops"] != nil){
             [aStops addObjectsFromArray:[dJson objectForKey:@"stops"]];
         }
@@ -753,6 +755,57 @@ NSDictionary* extras;
     [self logDebugURI:url];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
+
+-(void)launch99Taxis {
+    NSMutableString* url = [NSMutableString stringWithFormat:@"%@call?", [self urlPrefixForMapApp:LNAppTaxis99]];
+    
+    NSMutableDictionary* mExtras;
+    if(extras){
+        mExtras = [extras mutableCopy];
+    }else{
+        mExtras = [[NSMutableDictionary alloc] init];
+    }
+    if([mExtras objectForKey:@"deep_link_product_id"] == nil){
+        [mExtras setValue:@"316" forKey:@"deep_link_product_id"];
+    }
+    if([mExtras objectForKey:@"client_id"] == nil){
+        [mExtras setValue:@"MAP_123" forKey:@"client_id"];
+    }
+
+    
+
+    // Destination
+    if([self isNull:destName]){
+       if(![self isNull:destAddress]){
+           destName = destAddress;
+       }else{
+           destName = @"Dropoff";
+       }
+    }
+    
+    
+    // Start
+    if (![self isNull:startName]) {
+        // use it
+    }else if(![self isNull:startAddress]){
+        startName = startAddress;
+    }else if(startIsCurrentLocation){
+        startName = @"Current location";
+    }else{
+        startName = @"Pickup";
+    }
+    [url appendFormat:@"pickup_latitude=%f&pickup_longitude=%f",startCoord.latitude, startCoord.longitude];
+    [url appendFormat:@"&pickup_title=%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+    [url appendFormat:@"&dropoff_latitude=%f&dropoff_longitude=%f",destCoord.latitude, destCoord.longitude];
+    [url appendFormat:@"&dropoff_title=%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+    [url appendFormat:@"%@", [self extrasToQueryParams:mExtras]];
+    
+    //url = (NSMutableString*) @"taxis99://call?pickup_latitude=-23.543869&pickup_longitude=-46.642264&pickup_title=Republica&dropoff_latitude=-23.600010&dropoff_longitude=-46.720348&dropoff_title=Morumbi&deep_link_product_id=316&client_id=MAP_123";
+
+    [self logDebugURI:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+}
+
 /**************
  * Utilities
  **************/
@@ -947,6 +1000,8 @@ NSDictionary* extras;
         [self launchCabify];
     }else if(app == LNAppBaidu){
         [self launchBaidu];
+    }else if(app == LNAppTaxis99){
+        [self launch99Taxis];
     }
     
     [self sendPluginSuccess];
@@ -1013,6 +1068,8 @@ NSDictionary* extras;
         name = @"cabify";
         case LNAppBaidu:
         name = @"baidu";
+        case LNAppTaxis99:
+        name = @"taxis_99";
         break;
         default:
         [NSException raise:NSGenericException format:@"Unexpected app name"];
@@ -1056,6 +1113,8 @@ NSDictionary* extras;
         cmmName = LNAppCabify;
     }else if([lnName isEqual: @"baidu"]){
         cmmName = LNAppBaidu;
+    }else if([lnName isEqual: @"taxis_99"]){
+        cmmName = LNAppTaxis99;
     }else{
         [NSException raise:NSGenericException format:@"Unexpected app name: %@", lnName];
     }
@@ -1290,6 +1349,9 @@ NSDictionary* extras;
             
         case LNAppBaidu:
         return @"baidumap://";
+
+        case LNAppTaxis99:
+        return @"taxis99://";
         
         default:
         return nil;
@@ -1302,6 +1364,9 @@ NSDictionary* extras;
             
         case LNAppMapsMe:
             return YES;
+
+        case LNAppTaxis99:
+            return YES;        
             
         default:
             return NO;
@@ -1327,7 +1392,7 @@ NSDictionary* extras;
     while ((key = [keyEnum nextObject]))
     {
         id value = [extras objectForKey:key];
-        queryParams = [NSString stringWithFormat:@"%@&%@=%@)", queryParams, key, [self urlEncode:value]];
+        queryParams = [NSString stringWithFormat:@"%@&%@=%@", queryParams, key, [self urlEncode:value]];
     }
     return queryParams;
 }

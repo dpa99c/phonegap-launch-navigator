@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased
+- Fix Cabify iOS URL Scheme. See [#155](https://github.com/dpa99c/phonegap-launch-navigator/issues/155).
+- Replace deprecated iOS function `stringByAddingPercentEscapesUsingEncoding` with `stringByAddingPercentEncodingWithAllowedCharacters`.
+- Add 99 Taxi support for Android and iOS. Resolves [#183](https://github.com/dpa99c/phonegap-launch-navigator/issues/183).
+
 ## v4.1.5
 - Detect and handle disabled Android apps (i.e. Google Maps). Resolves [#182](https://github.com/dpa99c/phonegap-launch-navigator/issues/182).
 
