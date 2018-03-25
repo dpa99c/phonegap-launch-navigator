@@ -82,6 +82,7 @@ public class LaunchNavigator extends CordovaPlugin {
     private static final String CABIFY = "cabify";
     private static final String BAIDU = "baidu";
     private static final String TAXIS_99 = "taxis_99";
+    private static final String GAODE = "gaode";
 
 
     private static final Map<String, String> supportedAppPackages;
@@ -100,6 +101,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppPackages.put(CABIFY, "com.cabify.rider");
         _supportedAppPackages.put(BAIDU, "com.baidu.BaiduMap");
         _supportedAppPackages.put(TAXIS_99, "com.taxis99");
+        _supportedAppPackages.put(GAODE, "com.autonavi.minimap");
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
@@ -119,6 +121,7 @@ public class LaunchNavigator extends CordovaPlugin {
         _supportedAppNames.put(CABIFY, "Cabify");
         _supportedAppNames.put(BAIDU, "Baidu Maps");
         _supportedAppNames.put(TAXIS_99, "99 Taxi");
+        _supportedAppNames.put(GAODE, "Gaode Maps (Amap)");
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
@@ -283,6 +286,8 @@ public class LaunchNavigator extends CordovaPlugin {
             launchCabify(args, callbackContext);
         }else if(appName.equals(BAIDU)){
             launchBaidu(args, callbackContext);
+        }else if(appName.equals(GAODE)){
+            launchGaode(args, callbackContext);
         }else if(appName.equals(TAXIS_99)){
             launch99Taxis(args, callbackContext);
         }else{
@@ -1287,6 +1292,122 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
+    private void launchGaode(JSONArray args, CallbackContext callbackContext) throws Exception{
+        try {
+            String destAddress = null;
+            String destLatLon = null;
+            String startAddress = null;
+            String startLatLon = null;
+            String destNickname = args.getString(3);
+            String startNickname = args.getString(6);
+
+            String dType = args.getString(1);
+            String sType = args.getString(4);
+            String transportMode = args.getString(7);
+
+
+            String url = "amapuri://route/plan/?";
+            String logMsg = "Using Gaode Maps to navigate";
+
+            String extras = parseExtrasToUrl(args);
+            if(isNull(extras)){
+                extras = "";
+            }
+
+            if(!extras.contains("sourceApplication=")){
+                extras += "&sourceApplication="+Uri.encode(getThisAppName());
+            }
+
+            // Destination
+            logMsg += " to";
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(args, 2);
+                logMsg += " '"+destAddress+"'";
+                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
+                if(isNull(destLatLon)){
+                    return;
+                }
+            }else{
+                destLatLon = getLocationFromPos(args, 2);
+            }
+            logMsg += " ["+destLatLon+"]";
+            String[] pos = splitLatLon(destLatLon);
+            url += "dlat="+pos[0]+"&dlon="+pos[1];
+
+            // Dest name
+            if(!isNull(destNickname)){
+                logMsg += " ("+destNickname+")";
+                url += "&dname="+destNickname;
+            }
+
+            // Start
+            logMsg += " from";
+            if(sType.equals("none")){
+                logMsg += " Current Location";
+            }else {
+                if (sType.equals("name")) {
+                    startAddress = getLocationFromName(args, 5);
+                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    logMsg += " '" + startAddress + "'";
+                } else{
+                    startLatLon = getLocationFromPos(args, 5);
+                }
+                if (!isNull(startLatLon)) {
+                    logMsg += " [" + startLatLon + "]";
+                    pos = splitLatLon(startLatLon);
+                    url += "&slat=" + pos[0] + "&slon=" + pos[1];
+
+                    // Start name
+                    if(!isNull(startNickname)){
+                        logMsg += " ("+startNickname+")";
+                        url += "&sname="+startNickname;
+                    }
+                }
+            }
+
+
+            // Transport mode
+            String transportModeName;
+            if(transportMode.equals("d")){
+                transportModeName = "driving";
+                transportMode = "0";
+            }else if(transportMode.equals("w")){
+                transportModeName = "walking";
+                transportMode = "2";
+            }else if(transportMode.equals("b")){
+                transportModeName = "bicycle";
+                transportMode = "3";
+            }else if(transportMode.equals("t")){
+                transportModeName = "transit";
+                transportMode = "1";
+            }else{
+                transportModeName = "driving";
+                transportMode = "0";
+            }
+            url += "&t="+transportMode;
+            logMsg += " by transportMode=" + transportModeName;
+
+            // Extras
+            url += extras;
+            logMsg += " - extras="+extras;
+
+
+            logDebug(logMsg);
+            logDebug("URI: " + url);
+
+            Intent intent = new Intent();
+            intent.setData(Uri.parse(url));
+            this.cordova.getActivity().startActivity(intent);
+            callbackContext.success();
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Gaode Maps app is not installed on this device";
+            }
+            handleException(msg, callbackContext);
+        }
+    }
+
     private void launch99Taxis(JSONArray args, CallbackContext callbackContext) throws Exception{
         try {
             String destAddress = null;
@@ -1621,6 +1742,10 @@ public class LaunchNavigator extends CordovaPlugin {
             }
         }
         return name;
+    }
+
+    private String getThisAppName(){
+        return this.context.getApplicationInfo().loadLabel(this.context.getPackageManager()).toString();
     }
 
     private boolean isNetworkAvailable() {

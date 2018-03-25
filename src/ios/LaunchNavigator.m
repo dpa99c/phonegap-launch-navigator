@@ -107,7 +107,8 @@ NSDictionary* extras;
                  @"maps_me",
                  @"cabify",
                  @"baidu",
-                 @"taxis_99"
+                 @"taxis_99",
+                 @"gaode"
                  ];
     AppLocationTypes = @{
                          @(LNAppAppleMaps): LNLocTypeBoth,
@@ -127,6 +128,7 @@ NSDictionary* extras;
                          @(LNAppCabify): LNLocTypeCoords,
                          @(LNAppBaidu): LNLocTypeBoth,
                          @(LNAppTaxis99): LNLocTypeCoords,
+                         @(LNAppGaode): LNLocTypeCoords
                          };
     LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
     
@@ -751,6 +753,54 @@ NSDictionary* extras;
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
 
+-(void)launchGaode {
+    NSMutableString* url = [NSMutableString stringWithFormat:@"%@path?", [self urlPrefixForMapApp:LNAppGaode]];
+
+    NSMutableDictionary* mExtras;
+    if(extras){
+        mExtras = [extras mutableCopy];
+    }else{
+        mExtras = [[NSMutableDictionary alloc] init];
+    }
+    if([mExtras objectForKey:@"applicationName"] == nil){
+        [mExtras setValue:[self getThisAppName] forKey:@"applicationName"];
+    }
+
+    // Destination
+    [url appendFormat:@"dlat=%f&dlon=%f",destCoord.latitude, destCoord.longitude];
+    if(![self isNull:destName]){
+       [url appendFormat:@"&dname=%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+    }
+    
+    // Start
+    NSString* start;
+    if(![self isEmptyCoordinate:startCoord]){
+        [url appendFormat:@"&slat=%f&slon=%f",startCoord.latitude, startCoord.longitude];
+        if(![self isNull:startName]){
+            start = [NSString stringWithFormat:@"&sname=%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+        }
+    }
+
+    // Transport mode
+    if([directionsMode isEqual: @"walking"]){
+        [url appendFormat:@"&t=2"];
+    }else if([directionsMode isEqual: @"transit"]){
+        [url appendFormat:@"&t=1"];
+    }else if([directionsMode isEqual: @"bicycling"]){
+        [url appendFormat:@"&t=3"];
+    }else{
+        [url appendFormat:@"&t=0"];
+    }
+    
+    // Extras
+    [url appendFormat:@"%@", [self extrasToQueryParams:mExtras]];
+    
+    //url = (NSMutableString*) @"iosamap://path?sourceApplication=applicationName&sid=BGVIS1&slat=39.92848272&slon=116.39560823&sname=A&did=BGVIS2&dlat=39.98848272&dlon=116.47560823&dname=B&dev=0&t=0";
+
+    [self logDebugURI:url];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+}
+
 -(void)launch99Taxis {
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@call?", [self urlPrefixForMapApp:LNAppTaxis99]];
     
@@ -767,8 +817,6 @@ NSDictionary* extras;
         [mExtras setValue:@"MAP_123" forKey:@"client_id"];
     }
 
-    
-
     // Destination
     if([self isNull:destName]){
        if(![self isNull:destAddress]){
@@ -777,7 +825,6 @@ NSDictionary* extras;
            destName = @"Dropoff";
        }
     }
-    
     
     // Start
     if (![self isNull:startName]) {
@@ -995,6 +1042,8 @@ NSDictionary* extras;
         [self launchCabify];
     }else if(app == LNAppBaidu){
         [self launchBaidu];
+    }else if(app == LNAppGaode){
+        [self launchGaode];
     }else if(app == LNAppTaxis99){
         [self launch99Taxis];
     }
@@ -1063,6 +1112,8 @@ NSDictionary* extras;
         name = @"cabify";
         case LNAppBaidu:
         name = @"baidu";
+        case LNAppGaode:
+        name = @"gaode";
         case LNAppTaxis99:
         name = @"taxis_99";
         break;
@@ -1108,6 +1159,8 @@ NSDictionary* extras;
         cmmName = LNAppCabify;
     }else if([lnName isEqual: @"baidu"]){
         cmmName = LNAppBaidu;
+    }else if([lnName isEqual: @"gaode"]){
+        cmmName = LNAppGaode;
     }else if([lnName isEqual: @"taxis_99"]){
         cmmName = LNAppTaxis99;
     }else{
@@ -1345,6 +1398,9 @@ NSDictionary* extras;
         case LNAppBaidu:
         return @"baidumap://";
 
+        case LNAppGaode:
+        return @"iosamap://";
+
         case LNAppTaxis99:
         return @"taxis99://";
         
@@ -1466,6 +1522,11 @@ NSDictionary* extras;
 
 - (NSString*) dictionaryToJsonString:(NSDictionary*)dictionary{
     return [self arrayToJsonString:(NSArray*) dictionary];
+}
+
+- (NSString*) getThisAppName
+{
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
 }
 
 @end
