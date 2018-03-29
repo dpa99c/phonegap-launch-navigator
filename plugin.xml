@@ -43,7 +43,7 @@
 
     <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
 
-    <config-file target="AndroidManifest.xml" parent="/*">
+    <config-file target="app/src/main/AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     </config-file>
 
