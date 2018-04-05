@@ -761,6 +761,21 @@ On both Android and iOS, the extra parameters `client_id` and `deep_link_product
         - `327` - Taxis ride
     - If not specified defaults to `deep_link_product_id=316`     
 
+On Android, 99 Taxi is currently the only app where `options.start` is a **required** parameter when calling `navigate()`
+- If `navigate()` is called without a start location and the selected app is 99 Taxi, the error callback will be invoked and the 99 Taxi app will not be launched
+- In order for this plugin to automatically provide start location to 99 Taxi (if it's not already specified), the native Android implementation needs to be enhanced to:
+    - check/request runtime permission to use location
+    - add the necessary permission entries to the `AndroidManifest.xml`
+    - check/request high accuracy location is enabled (no point in requesting a low-accuracy city-level position if you want a pickup at your exact current address)
+    - request a high accuracy position to determine the user's current location
+    - handle errors cases such as:
+        - User denies location permission
+        - User denies high accuracy mode permission
+        - Location cannot be retrieved
+- Currently, I don't have time to do all of the above just for the case of 99 Taxi
+    - However I'm willing to accept a PR request which implements the necessary native Android features.
+- Otherwise/until then, you'll need to manually specify the start location for 99 Taxi
+    - If the current user location is required, you can use `cordova-plugin-geolocation` to find this.
 
 # Reporting issues
 
