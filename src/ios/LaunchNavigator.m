@@ -1533,15 +1533,21 @@ NSDictionary* extras;
   UIApplication *application = [UIApplication sharedApplication];
   NSURL *URL = [NSURL URLWithString:scheme];
 
-  if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
-    [application openURL:URL options:@{}
-       completionHandler:^(BOOL success) {
-       [self onOpenSchemeResult:scheme schemeResult:success];
-    }];
-  } else {
-    BOOL success = [application openURL:URL];
-    [self onOpenSchemeResult:scheme schemeResult:success];
-  }
+    #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
+      if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+        [application openURL:URL options:@{}
+           completionHandler:^(BOOL success) {
+           [self onOpenSchemeResult:scheme schemeResult:success];
+        }];
+      } else {
+        BOOL success = [application openURL:URL];
+        [self onOpenSchemeResult:scheme schemeResult:success];
+      }
+    #else
+        BOOL success = [application openURL:URL];
+        [self onOpenSchemeResult:scheme schemeResult:success];
+    #endif
+    
 }
 
 - (void)onOpenSchemeResult:(NSString *)scheme schemeResult:(BOOL)success
