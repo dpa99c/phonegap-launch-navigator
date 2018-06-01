@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.2.1
+- Enable override of default OKHTTP version to prevent Gradle version collisions. Fixes [#193](https://github.com/dpa99c/phonegap-launch-navigator/issues/193).
+
 ## v4.2.0
 - Make iOS call success/error callbacks wait for and return the result of calling openURL(), rather than just assuming success immediately.
 - Add Gaode (Amap) support for Android and iOS. Resolves [#185](https://github.com/dpa99c/phonegap-launch-navigator/issues/185).
