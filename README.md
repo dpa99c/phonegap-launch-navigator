@@ -31,6 +31,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 - [Installing](#installing)
   - [Using the CLI](#using-the-cli)
   - [PhoneGap Build](#phonegap-build)
+  - [OKHTTP Library](#okhttp-library)
 - [Usage examples](#usage-examples)
   - [Simple usage](#simple-usage)
     - [Navigate to a destination address from current location.](#navigate-to-a-destination-address-from-current-location)
