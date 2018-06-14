@@ -1,8 +1,8 @@
 /*
- * LaunchNavigator Plugin for Phonegap
+ * LaunchNavigator library for Android
  *
- * Copyright (c) 2014 Dave Alden  (http://github.com/dpa99c)
- * Copyright (c) 2014 Working Edge Ltd. (http://www.workingedge.co.uk)
+ * Copyright (c) 2018 Dave Alden  (http://github.com/dpa99c)
+ * Copyright (c) 2018 Working Edge Ltd. (http://www.workingedge.co.uk)
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,17 +26,13 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-package uk.co.workingedge.phonegap.plugin;
+package uk.co.workingedge;
 
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CallbackContext;
-
-import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -45,10 +41,7 @@ import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,33 +53,35 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class LaunchNavigator extends CordovaPlugin {
-
-    private static final String LOG_TAG = "LaunchNavigator";
-    private static final String NO_APP_FOUND = "No Activity found to handle Intent";
-    private static final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
-    private static final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
+public class LaunchNavigator {
+    /**********************
+     * Public properties
+     **********************/
+    public static final String LOG_TAG = "LaunchNavigator";
+    public final String NO_APP_FOUND = "No Activity found to handle Intent";
+    public final String MAPS_PROTOCOL = "http://maps.google.com/maps?";
+    public final String TURN_BY_TURN_PROTOCOL = "google.navigation:";
 
     // Explicitly supported apps
-    private static final String GEO = "geo"; // Use native app choose for geo: intent
-    private static final String GOOGLE_MAPS = "google_maps";
-    private static final String CITYMAPPER = "citymapper";
-    private static final String UBER = "uber";
-    private static final String WAZE = "waze";
-    private static final String YANDEX = "yandex";
-    private static final String SYGIC = "sygic";
-    private static final String HERE_MAPS = "here_maps";
-    private static final String MOOVIT = "moovit";
-    private static final String LYFT = "lyft";
-    private static final String MAPS_ME = "maps_me";
-    private static final String CABIFY = "cabify";
-    private static final String BAIDU = "baidu";
-    private static final String TAXIS_99 = "taxis_99";
-    private static final String GAODE = "gaode";
+    public final String GEO = "geo"; // Use native app choose for geo: intent
+    public final String GOOGLE_MAPS = "google_maps";
+    public final String CITYMAPPER = "citymapper";
+    public final String UBER = "uber";
+    public final String WAZE = "waze";
+    public final String YANDEX = "yandex";
+    public final String SYGIC = "sygic";
+    public final String HERE_MAPS = "here_maps";
+    public final String MOOVIT = "moovit";
+    public final String LYFT = "lyft";
+    public final String MAPS_ME = "maps_me";
+    public final String CABIFY = "cabify";
+    public final String BAIDU = "baidu";
+    public final String TAXIS_99 = "taxis_99";
+    public final String GAODE = "gaode";
 
 
-    private static final Map<String, String> supportedAppPackages;
-    static {
+    public final Map<String, String> supportedAppPackages;
+    {
         Map<String, String> _supportedAppPackages = new HashMap<String, String>();
         _supportedAppPackages.put(GOOGLE_MAPS, "com.google.android.apps.maps");
         _supportedAppPackages.put(CITYMAPPER, "com.citymapper.app.release");
@@ -105,8 +100,8 @@ public class LaunchNavigator extends CordovaPlugin {
         supportedAppPackages = Collections.unmodifiableMap(_supportedAppPackages);
     }
 
-    private static final Map<String, String> supportedAppNames;
-    static {
+    public final Map<String, String> supportedAppNames;
+    {
         Map<String, String> _supportedAppNames = new HashMap<String, String>();
         _supportedAppNames.put(GOOGLE_MAPS, "Google Maps");
         _supportedAppNames.put(CITYMAPPER, "Citymapper");
@@ -125,90 +120,57 @@ public class LaunchNavigator extends CordovaPlugin {
         supportedAppNames = Collections.unmodifiableMap(_supportedAppNames);
     }
 
-    private static final String GEO_URI = "geo:";
+    public final String GEO_URI = "geo:";
+
+    /**********************
+     * Internal properties
+     **********************/
+    boolean geocodingEnabled = true;
 
     PackageManager packageManager;
     Context context;
-
+    Activity activity;
     OkHttpClient httpClient = new OkHttpClient();
+    ILogger logger;
 
-    boolean enableDebug = false;
-    boolean enableGeocoding = true;
 
     // Map of app name to package name
     Map<String, String> availableApps;
 
 
-    @Override
-    protected void pluginInitialize() {
-        Log.i(LOG_TAG, "pluginInitialize()");
-        discoverAvailableApps();
+    /*******************
+     * Constructors
+     *******************/
+
+    public LaunchNavigator(Activity activity, Context context, ILogger logger) {
+        setLogger(logger);
+        initialize(activity, context);
     }
 
-    @Override
-    public boolean execute(String action, JSONArray args,
-                           CallbackContext callbackContext) throws JSONException {
-        try {
-            logDebug("Plugin action="+action);
-            if ("navigate".equals(action)) {
-                /**
-                 * args[]
-                 * args[0] - app
-                 * args[1] - dType
-                 * args[2] - dest
-                 * args[3] - destNickname
-                 * args[4] - sType
-                 * args[5] - start
-                 * args[6] - startNickname
-                 * args[7] - transportMode
-                 * args[8] - launchMode
-                 * args[9] - enableDebug
-                 * args[10] - extras
-                 * args[11] - enableGeolocation
-                 */
-                if(args.get(11) != null){
-                    enableGeocoding = args.getBoolean(11);
-                }
-                enableDebug = args.getBoolean(9);
-                if(enableDebug){
-                    String navigateArgs = "Called navigate() with args"
-                            + ": app="+ args.getString(0)
-                            + "; dType="+ args.getString(1)
-                            + "; dest="+ args.getString(2)
-                            + "; destNickname="+ args.getString(3)
-                            + "; sType="+ args.getString(4)
-                            + "; start="+ args.getString(5)
-                            + "; startNickname="+ args.getString(6)
-                            + "; transportMode="+ args.getString(7)
-                            + "; launchMode="+ args.getString(8)
-                            + "; extras="+ args.getString(10)
-                            + "; enableGeocoding="+ args.getString(11);
-                    logDebug(navigateArgs);
-                }
-                this.navigate(args, callbackContext);
-            } else if ("discoverSupportedApps".equals(action)) {
-                // This is called by plugin JS on initialisation
-                this.discoverSupportedApps(args, callbackContext);
-            } else if ("availableApps".equals(action)) {
-                this.availableApps(args, callbackContext);
-            } else if ("isAppAvailable".equals(action)) {
-                this.isAppAvailable(args, callbackContext);
-            }else {
-                String msg = "Invalid action";
-                logError(msg);
-                callbackContext.error(msg);
-                return false;
-            }
-        }catch(Exception e){
-            handleException(e.getMessage(), callbackContext);
-        }
-        return true;
+    public LaunchNavigator(Activity activity, Context context, ILogger logger, boolean geocodingEnabled) {
+        this.geocodingEnabled = geocodingEnabled;
+        setLogger(logger);
+        initialize(activity, context);
     }
 
-    /*
-     * Plugin API
-     */
-    private void discoverSupportedApps(JSONArray args, CallbackContext callbackContext) throws JSONException{
+
+    /*******************
+     * Public API
+     *******************/
+
+    public void setLogger(ILogger logger){
+        this.logger = logger;
+    }
+
+    public ILogger getLogger(){
+        return this.logger;
+    }
+    
+    public void setGeocoding(boolean geocodingEnabled){
+        this.geocodingEnabled = geocodingEnabled;
+    }
+
+    public JSONObject getSupportedApps() throws JSONException{
         JSONObject apps = new JSONObject();
 
         // Dynamically populate from discovered available apps that support geo: protocol
@@ -220,11 +182,10 @@ public class LaunchNavigator extends CordovaPlugin {
                 apps.put(appName, packageName);
             }
         }
-
-        callbackContext.success(apps);
+        return apps;
     }
 
-    private void availableApps(JSONArray args, CallbackContext callbackContext) throws Exception{
+    public JSONObject getAvailableApps() throws Exception{
         JSONObject apps = new JSONObject();
 
         // Add explicitly supported apps first
@@ -242,67 +203,113 @@ public class LaunchNavigator extends CordovaPlugin {
                 apps.put(_packageName, true);
             }
         }
-        callbackContext.success(apps);
+        return apps;
     }
 
-    private void isAppAvailable(JSONArray args, CallbackContext callbackContext) throws Exception{
-        String appName = args.getString(0);
+    public boolean isAppAvailable(String appName){
         if(supportedAppPackages.containsKey(appName)){
             appName = supportedAppPackages.get(appName);
         }
 
-        if(availableApps.containsValue(appName)){
-            callbackContext.success(1);
-        }else{
-            callbackContext.success(0);
-        }
+        return availableApps.containsValue(appName);
     }
 
-    private void navigate(JSONArray args, CallbackContext callbackContext) throws Exception{
-        String appName = args.getString(0);
-        String launchMode = args.getString(8);
+    public String navigate(Map<String, String> params) throws Exception{
+        String navigateArgs = "Called navigate() with params"
+                + ": app="+ params.get("app")
+                + "; dType="+ params.get("dType")
+                + "; dest="+ params.get("dest")
+                + "; destNickname="+ params.get("destNickname")
+                + "; sType="+ params.get("sType")
+                + "; start="+ params.get("start")
+                + "; startNickname="+ params.get("startNickname")
+                + "; transportMode="+ params.get("transportMode")
+                + "; launchMode="+ params.get("launchMode")
+                + "; extras="+ params.get("extras");
+        logger.debug(navigateArgs);
+
+        String appName = params.get("app");
+        String launchMode = params.get("launchMode");
+
+        String error;
 
         if(appName.equals(GOOGLE_MAPS) && !launchMode.equals("geo")){
-            launchGoogleMaps(args, callbackContext);
+            error = launchGoogleMaps(params);
         }else if(appName.equals(CITYMAPPER)){
-            launchCitymapper(args, callbackContext);
+            error = launchCitymapper(params);
         }else if(appName.equals(UBER)){
-            launchUber(args, callbackContext);
+            error = launchUber(params);
         }else if(appName.equals(WAZE)){
-            launchWaze(args, callbackContext);
+            error = launchWaze(params);
         }else if(appName.equals(YANDEX)){
-            launchYandex(args, callbackContext);
+            error = launchYandex(params);
         }else if(appName.equals(SYGIC)){
-            launchSygic(args, callbackContext);
+            error = launchSygic(params);
         }else if(appName.equals(HERE_MAPS)){
-            launchHereMaps(args, callbackContext);
+            error = launchHereMaps(params);
         }else if(appName.equals(MOOVIT)){
-            launchMoovit(args, callbackContext);
+            error = launchMoovit(params);
         }else if(appName.equals(LYFT)){
-            launchLyft(args, callbackContext);
+            error = launchLyft(params);
         }else if(appName.equals(MAPS_ME)){
-            launchMapsMe(args, callbackContext);
+            error = launchMapsMe(params);
         }else if(appName.equals(CABIFY)){
-            launchCabify(args, callbackContext);
+            error = launchCabify(params);
         }else if(appName.equals(BAIDU)){
-            launchBaidu(args, callbackContext);
+            error = launchBaidu(params);
         }else if(appName.equals(GAODE)){
-            launchGaode(args, callbackContext);
+            error = launchGaode(params);
         }else if(appName.equals(TAXIS_99)){
-            launch99Taxis(args, callbackContext);
+            error = launch99Taxis(params);
         }else{
-            launchApp(args, callbackContext);
+            error = launchApp(params);
         }
+        return error;
     }
 
 
-    /*
-     * Launch apps
-     */
-    private void launchApp(JSONArray args, CallbackContext callbackContext) throws Exception{
-        String appName = args.getString(0);
-        String dType = args.getString(1);
-        String dNickName = args.getString(3);
+    /*******************
+     * Internal methods
+     *******************/
+
+    private void initialize(Activity activity, Context context) {
+        this.context = context;
+        this.activity = activity;
+        this.packageManager = activity.getPackageManager();
+        discoverAvailableApps();
+    }
+
+    private void discoverAvailableApps(){
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(GEO_URI));
+        List<ResolveInfo> resolveInfoList = packageManager.queryIntentActivities(intent, 0);
+        availableApps = new HashMap<String, String>();
+        for (ResolveInfo resolveInfo : resolveInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            String appName = getAppName(packageName);
+            if(!supportedAppPackages.containsValue(packageName)) { // if it's not already an explicitly supported app
+                logger.debug("Found available app supporting geo protocol: " + appName + " (" + packageName + ")");
+                availableApps.put(appName, packageName);
+            }
+        }
+
+        // Check if explicitly supported apps are installed
+        for (Map.Entry<String, String> entry : supportedAppPackages.entrySet()) {
+            String _appName = entry.getKey();
+            String _packageName = entry.getValue();
+            if(isPackageInstalled(_packageName, packageManager)){
+                availableApps.put(supportedAppNames.get(_appName), _packageName);
+                logger.debug(_appName+" is available");
+            }else{
+                logger.debug(_appName + " is not available");
+            }
+        }
+    }
+
+    private String launchApp(Map<String, String> params) throws Exception{
+        String appName = params.get("app");
+        String dType = params.get("dType");
+        String dNickName = params.get("destNickname");
 
         String logMsg = "Using " + getAppDisplayName(appName)+" to navigate to ";
         String destLatLon = null;
@@ -310,10 +317,11 @@ public class LaunchNavigator extends CordovaPlugin {
         String dest;
 
         if(dType.equals("name")){
-            destName = getLocationFromName(args, 2);
-            destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-            if(destLatLon == null){
-                return;
+            destName = getLocationFromName(params, "dest");
+            try{
+                destLatLon = geocodeAddressToLatLon(params.get("dest"));
+            }catch(Exception e){
+                return "Unable to geocode destination address to coordinates: " + e.getMessage();
             }
             logMsg += destName;
             if(!isNull(destLatLon)){
@@ -321,7 +329,7 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
         }else{
-            destLatLon = getLocationFromPos(args, 2);
+            destLatLon = getLocationFromPos(params, "dest");
             logMsg += "["+destLatLon+"]";
         }
 
@@ -337,14 +345,14 @@ public class LaunchNavigator extends CordovaPlugin {
             logMsg += "("+dNickName+")";
         }
 
-        String extras = parseExtrasToUrl(args);
+        String extras = parseExtrasToUrl(params);
         if(!isNull(extras)){
             uri += extras;
             logMsg += " - extras="+extras;
         }
 
-        logDebug(logMsg);
-        logDebug("URI: " + uri);
+        logger.debug(logMsg);
+        logger.debug("URI: " + uri);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
         if(!appName.equals(GEO)){
@@ -353,30 +361,30 @@ public class LaunchNavigator extends CordovaPlugin {
             }
             intent.setPackage(appName);
         }
-        this.cordova.getActivity().startActivity(intent);
-        callbackContext.success();
+        activity.startActivity(intent);
+        return null;
     }
 
-    private void launchGoogleMaps(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchGoogleMaps(Map<String, String> params) throws Exception{
         try {
             String destination;
             String start = null;
 
-            String dType = args.getString(1);
+            String dType = params.get("dType");
             if(dType.equals("pos")){
-                destination = getLocationFromPos(args, 2);
+                destination = getLocationFromPos(params, "dest");
             }else{
-                destination = getLocationFromName(args, 2);
+                destination = getLocationFromName(params, "dest");
             }
 
-            String sType = args.getString(4);
+            String sType = params.get("sType");
             if(sType.equals("pos")){
-                start = getLocationFromPos(args, 5);
+                start = getLocationFromPos(params, "start");
             }else if(sType.equals("name")){
-                start = getLocationFromName(args, 5);
+                start = getLocationFromName(params, "start");
             }
-            String transportMode = args.getString(7);
-            String launchMode = args.getString(8);
+            String transportMode = params.get("transportMode");
+            String launchMode = params.get("launchMode");
 
             String logMsg = "Using Google Maps to navigate to "+destination;
             String url;
@@ -399,51 +407,51 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " in maps mode";
             }
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setClassName(supportedAppPackages.get(GOOGLE_MAPS), "com.google.android.maps.MapsActivity");
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Google Maps app is not installed on this device";
             }
-            logError("Exception occurred: ".concat(msg));
-            callbackContext.error(msg);
+            logger.error("Exception occurred: ".concat(msg));
+            return msg;
         }
     }
 
-    private void launchCitymapper(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchCitymapper(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
 
             if(sType.equals("name")){
-                startAddress = getLocationFromName(args, 5);
+                startAddress = getLocationFromName(params, "start");
             }else if(sType.equals("pos")){
-                startLatLon = getLocationFromPos(args, 5);
+                startLatLon = getLocationFromPos(params, "start");
             }
 
             String url = "https://citymapper.com/directions?";
@@ -453,9 +461,10 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " '"+destAddress+"'";
             }
             if(isNull(destLatLon)){
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }
             url += "&endcoord="+destLatLon;
@@ -472,9 +481,10 @@ public class LaunchNavigator extends CordovaPlugin {
                     logMsg += " '"+startAddress+"'";
                 }
                 if(isNull(startLatLon)){
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }
                 url += "&startcoord="+startLatLon;
@@ -485,48 +495,48 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
             }
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Citymapper app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchUber(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchUber(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
 
             if(sType.equals("name")){
-                startAddress = getLocationFromName(args, 5);
+                startAddress = getLocationFromName(params, "start");
             }else if(sType.equals("pos")){
-                startLatLon = getLocationFromPos(args, 5);
+                startLatLon = getLocationFromPos(params, "start");
             }
 
             String url = "uber://?action=setPickup";
@@ -565,37 +575,37 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " current location";
             }
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Uber app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchWaze(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchWaze(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
 
-            String dType = args.getString(1);
+            String dType = params.get("dType");
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
 
             String url = "waze://?";
@@ -610,54 +620,56 @@ public class LaunchNavigator extends CordovaPlugin {
 
             logMsg += " from current location";
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Waze app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchYandex(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchYandex(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                destAddress = getLocationFromName(params, "dest");
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
 
             if(sType.equals("name")){
-                startAddress = getLocationFromName(args, 5);
-                startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                if(isNull(startLatLon)){
-                    return;
+                startAddress = getLocationFromName(params, "start");
+                try{
+                    startLatLon = geocodeAddressToLatLon(params.get("start"));
+                }catch(Exception e){
+                    return "Unable to geocode start address to coordinates: " + e.getMessage();
                 }
             }else if(sType.equals("pos")){
-                startLatLon = getLocationFromPos(args, 5);
+                startLatLon = getLocationFromPos(params, "start");
             }
 
             Intent intent = new Intent(supportedAppPackages.get(YANDEX)+".action.BUILD_ROUTE_ON_MAP");
@@ -687,7 +699,7 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " current location";
             }
 
-            String jsonStringExtras = args.getString(10);
+            String jsonStringExtras = params.get("extras");
             JSONObject oExtras = null;
             if(!isNull(jsonStringExtras)){
                 oExtras =  new JSONObject(jsonStringExtras);
@@ -701,25 +713,25 @@ public class LaunchNavigator extends CordovaPlugin {
                     intent.putExtra(key, value);
                 }
             }
-            logDebug(logMsg);
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            logger.debug(logMsg);
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Yandex app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchSygic(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchSygic(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
 
-            String dType = args.getString(1);
-            String transportMode = args.getString(7);
+            String dType = params.get("dType");
+            String transportMode = params.get("transportMode");
             String url = supportedAppPackages.get(SYGIC)+"://coordinate|";
             String logMsg = "Using Sygic to navigate to";
 
@@ -730,14 +742,15 @@ public class LaunchNavigator extends CordovaPlugin {
             }
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
 
             logMsg += " ["+destLatLon+"]";
@@ -747,37 +760,37 @@ public class LaunchNavigator extends CordovaPlugin {
 
             logMsg += " by " + transportMode;
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Sygic app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchHereMaps(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchHereMaps(Map<String, String> params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             String url = "https://share.here.com/r/";
             String logMsg = "Using HERE Maps to navigate";
@@ -789,14 +802,15 @@ public class LaunchNavigator extends CordovaPlugin {
 
             }else{
                 if(sType.equals("name")){
-                    startAddress = getLocationFromName(args, 5);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
 
                 url += startLatLon;
@@ -811,14 +825,15 @@ public class LaunchNavigator extends CordovaPlugin {
             url += "/";
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
             url += destLatLon;
@@ -828,37 +843,37 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " ("+destNickname+")";
             }
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += "?" + extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "HERE Maps app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchMoovit(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchMoovit(Map<String, String> params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             String url = "moovit://directions";
             String logMsg = "Using Moovit to navigate";
@@ -866,14 +881,15 @@ public class LaunchNavigator extends CordovaPlugin {
 
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
 
@@ -890,14 +906,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " Current Location";
             }else{
                 if(sType.equals("name")){
-                    startAddress = getLocationFromName(args, 5);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
 
                 String[] startPos = splitLatLon(startLatLon);
@@ -910,40 +927,40 @@ public class LaunchNavigator extends CordovaPlugin {
                 }
             }
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Moovit app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchLyft(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchLyft(Map<String, String> params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             String url = "lyft://ridetype?";
             String logMsg = "Using Lyft to navigate";
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
@@ -955,14 +972,15 @@ public class LaunchNavigator extends CordovaPlugin {
 
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
 
@@ -974,14 +992,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " Current Location";
             }else{
                 if(sType.equals("name")){
-                    startAddress = getLocationFromName(args, 5);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
 
                 String[] startPos = splitLatLon(startLatLon);
@@ -990,30 +1009,30 @@ public class LaunchNavigator extends CordovaPlugin {
 
             }
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Lyft app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchMapsMe(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchMapsMe(Map<String, String> params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
-            String transportMode = args.getString(7);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
+            String transportMode = params.get("transportMode");
 
             Intent intent = new Intent(supportedAppPackages.get(MAPS_ME).concat(".action.BUILD_ROUTE"));
             intent.setPackage(supportedAppPackages.get(MAPS_ME));
@@ -1022,14 +1041,15 @@ public class LaunchNavigator extends CordovaPlugin {
 
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
 
@@ -1042,14 +1062,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " Current Location";
             }else{
                 if(sType.equals("name")){
-                    startAddress = getLocationFromName(args, 5);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
 
                 String[] startPos = splitLatLon(startLatLon);
@@ -1075,30 +1096,30 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " by transportMode=" + transportMode;
             }
 
-            logDebug(logMsg);
+            logger.debug(logMsg);
 
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "MAPS.ME app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchCabify(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchCabify(Map<String, String> params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
             String url = "cabify://cabify/journey?json=";
             String logMsg = "Using Cabify to navigate";
@@ -1109,14 +1130,15 @@ public class LaunchNavigator extends CordovaPlugin {
             logMsg += " to";
 
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
             String[] destPos = splitLatLon(destLatLon);
@@ -1140,14 +1162,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 oStart.put("loc", "current");
             }else{
                 if(sType.equals("name")){
-                    startAddress = getLocationFromName(args, 5);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
-                    if(isNull(startLatLon)){
-                        return;
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
                 }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
                 logMsg += " ["+startLatLon+"]";
                 String[] startPos = splitLatLon(startLatLon);
@@ -1163,7 +1186,7 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " ("+startNickname+")";
             }
 
-            String extras = args.getString(10);
+            String extras = params.get("extras");
             if(!isNull(extras)){
                 oJson =  new JSONObject(extras);
                 logMsg += " - extras="+extras;
@@ -1183,36 +1206,36 @@ public class LaunchNavigator extends CordovaPlugin {
 
             url += oJson.toString();
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Cabify app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchBaidu(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchBaidu(Map<String, String> params) throws Exception{
         try {
             String start;
             String dest;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
-            String transportMode = args.getString(7);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
+            String transportMode = params.get("transportMode");
 
 
             String url = "baidumap://map/direction";
             String logMsg = "Using Baidu Maps to navigate";
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(isNull(extras)){
                 extras = "";
             }
@@ -1224,10 +1247,10 @@ public class LaunchNavigator extends CordovaPlugin {
             // Destination
             logMsg += " to";
             if(dType.equals("name")){
-                dest = getLocationFromName(args, 2);
+                dest = getLocationFromName(params, "dest");
                 logMsg += dest;
             }else{
-                dest = getLocationFromPos(args, 2);
+                dest = getLocationFromPos(params, "dest");
                 logMsg += " ["+dest+"]";
                 if(!isNull(destNickname)){
                     dest = "latlng:" + dest + "|name:" + destNickname;
@@ -1242,10 +1265,10 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " Current Location";
             }else{
                 if(sType.equals("name")){
-                    start = getLocationFromName(args, 5);
+                    start = getLocationFromName(params, "start");
                     logMsg += start;
                 }else{
-                    start = getLocationFromPos(args, 5);
+                    start = getLocationFromPos(params, "start");
                     logMsg += " ["+start+"]";
                     if(!isNull(startNickname)){
                         start = "latlng:" + start + "|name:" + startNickname;
@@ -1276,40 +1299,40 @@ public class LaunchNavigator extends CordovaPlugin {
             logMsg += " - extras="+extras;
 
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Baidu Maps app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launchGaode(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launchGaode(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
-            String transportMode = args.getString(7);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
+            String transportMode = params.get("transportMode");
 
 
             String url = "amapuri://route/plan/?";
             String logMsg = "Using Gaode Maps to navigate";
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(isNull(extras)){
                 extras = "";
             }
@@ -1321,14 +1344,15 @@ public class LaunchNavigator extends CordovaPlugin {
             // Destination
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
             String[] pos = splitLatLon(destLatLon);
@@ -1346,11 +1370,15 @@ public class LaunchNavigator extends CordovaPlugin {
                 logMsg += " Current Location";
             }else {
                 if (sType.equals("name")) {
-                    startAddress = getLocationFromName(args, 5);
-                    startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                    startAddress = getLocationFromName(params, "start");
                     logMsg += " '" + startAddress + "'";
+                    try{
+                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    }catch(Exception e){
+                        startLatLon = null;
+                    }
                 } else{
-                    startLatLon = getLocationFromPos(args, 5);
+                    startLatLon = getLocationFromPos(params, "start");
                 }
                 if (!isNull(startLatLon)) {
                     logMsg += " [" + startLatLon + "]";
@@ -1392,39 +1420,39 @@ public class LaunchNavigator extends CordovaPlugin {
             logMsg += " - extras="+extras;
 
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Gaode Maps app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
-    private void launch99Taxis(JSONArray args, CallbackContext callbackContext) throws Exception{
+    private String launch99Taxis(Map<String, String> params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = args.getString(3);
-            String startNickname = args.getString(6);
+            String destNickname = params.get("destNickname");
+            String startNickname = params.get("startNickname");
 
-            String dType = args.getString(1);
-            String sType = args.getString(4);
+            String dType = params.get("dType");
+            String sType = params.get("sType");
 
 
             String url = "taxis99://call?";
             String logMsg = "Using 99 Taxi to navigate";
 
-            String extras = parseExtrasToUrl(args);
+            String extras = parseExtrasToUrl(params);
             if(isNull(extras)){
                 extras = "";
             }
@@ -1440,14 +1468,15 @@ public class LaunchNavigator extends CordovaPlugin {
             // Destination
             logMsg += " to";
             if(dType.equals("name")){
-                destAddress = getLocationFromName(args, 2);
+                destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
-                destLatLon = geocodeAddressToLatLon(args.getString(2), callbackContext);
-                if(isNull(destLatLon)){
-                    return;
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
             }else{
-                destLatLon = getLocationFromPos(args, 2);
+                destLatLon = getLocationFromPos(params, "dest");
             }
             logMsg += " ["+destLatLon+"]";
             String[] pos = splitLatLon(destLatLon);
@@ -1467,17 +1496,17 @@ public class LaunchNavigator extends CordovaPlugin {
             // Start
             logMsg += " from";
             if(sType.equals("name")){
-                startAddress = getLocationFromName(args, 5);
-                startLatLon = geocodeAddressToLatLon(args.getString(5), callbackContext);
+                startAddress = getLocationFromName(params, "start");
                 logMsg += " '"+startAddress+"'";
-                if(isNull(startLatLon)){
-                    return;
+                try{
+                    startLatLon = geocodeAddressToLatLon(params.get("start"));
+                }catch(Exception e){
+                    return "Unable to geocode start address to coordinates: " + e.getMessage();
                 }
             }else if(sType.equals("pos")){
-                startLatLon = getLocationFromPos(args, 5);
+                startLatLon = getLocationFromPos(params, "start");
             }else{
-                handleError("start location is a required parameter for 99 Taxi and must be specified", callbackContext);
-                return;
+                return "start location is a required parameter for 99 Taxi and must be specified";
             }
             logMsg += " ["+startLatLon+"]";
             pos = splitLatLon(startLatLon);
@@ -1499,19 +1528,19 @@ public class LaunchNavigator extends CordovaPlugin {
             url += extras;
             logMsg += " - extras="+extras;
 
-            logDebug(logMsg);
-            logDebug("URI: " + url);
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            this.cordova.getActivity().startActivity(intent);
-            callbackContext.success();
+            activity.startActivity(intent);
+            return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "99 Taxis app is not installed on this device";
             }
-            handleException(msg, callbackContext);
+            return msg;
         }
     }
 
@@ -1519,9 +1548,9 @@ public class LaunchNavigator extends CordovaPlugin {
      * Utilities
      */
 
-    private String parseExtrasToUrl(JSONArray args) throws JSONException{
+    private String parseExtrasToUrl(Map<String, String> params) throws JSONException{
         String extras = null;
-        String jsonStringExtras = args.getString(10);
+        String jsonStringExtras = params.get("extras");
         JSONObject oExtras = null;
         if(!isNull(jsonStringExtras)){
             oExtras =  new JSONObject(jsonStringExtras);
@@ -1539,9 +1568,9 @@ public class LaunchNavigator extends CordovaPlugin {
         return extras;
     }
 
-    private String getLocationFromPos(JSONArray args, int index) throws Exception{
+    private String getLocationFromPos(Map<String, String> params, String key) throws Exception{
         String location;
-        JSONArray pos = args.getJSONArray(index);
+        JSONArray pos = new JSONArray(params.get(key));
         String lat = pos.getString(0);
         String lon = pos.getString(1);
         if (isNull(lat) || lat.length() == 0 || isNull(lon) || lon.length() == 0) {
@@ -1551,8 +1580,8 @@ public class LaunchNavigator extends CordovaPlugin {
         return location;
     }
 
-    private String getLocationFromName(JSONArray args, int index) throws Exception{
-        String name = args.getString(index);
+    private String getLocationFromName(Map<String, String> params, String key) throws Exception{
+        String name = params.get(key);
         if (isNull(name) || name.length() == 0) {
             throw new Exception("Expected non-empty string argument for place name.");
         }
@@ -1574,34 +1603,7 @@ public class LaunchNavigator extends CordovaPlugin {
         return applicationName;
     }
 
-    private void discoverAvailableApps(){
-        context = this.cordova.getActivity().getApplicationContext();
-        packageManager = context.getPackageManager();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(GEO_URI));
-        List<ResolveInfo> resolveInfoList = packageManager.queryIntentActivities(intent, 0);
-        availableApps = new HashMap<String, String>();
-        for (ResolveInfo resolveInfo : resolveInfoList) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            String appName = getAppName(packageName);
-            if(!supportedAppPackages.containsValue(packageName)) { // if it's not already an explicitly supported app
-                logDebug("Found available app supporting geo protocol: " + appName + " (" + packageName + ")");
-                availableApps.put(appName, packageName);
-            }
-        }
-
-        // Check if explicitly supported apps are installed
-        for (Map.Entry<String, String> entry : supportedAppPackages.entrySet()) {
-            String _appName = entry.getKey();
-            String _packageName = entry.getValue();
-            if(isPackageInstalled(_packageName, packageManager)){
-                availableApps.put(supportedAppNames.get(_appName), _packageName);
-                logDebug(_appName+" is available");
-            }else{
-                logDebug(_appName + " is not available");
-            }
-        }
-    }
+    
 
     private boolean isPackageInstalled(String packagename, PackageManager packageManager) {
         try {
@@ -1613,64 +1615,50 @@ public class LaunchNavigator extends CordovaPlugin {
         }
     }
 
-    private String geocodeAddressToLatLon(String address, CallbackContext callbackContext) throws Exception {
-        String result = null;
+    private String geocodeAddressToLatLon(String address) throws Exception {
+        String result;
         String errMsg = "Unable to geocode coords from address '"+address;
-        try {
 
-            if(!enableGeocoding){
-                handleError("Geocoding disabled: "+errMsg, callbackContext);
-                return result;
-            }
-
-            if(!isNetworkAvailable()){
-                handleError("No internet connection: "+errMsg, callbackContext);
-                return result;
-            }
-
-            address = address.replaceAll(" ", "%20");
-
-            JSONObject oResponse = doGeocode("address=" + address);
-
-            double longitude = oResponse
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng");
-
-            double latitude = oResponse
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat");
-
-            result = latitude+","+longitude;
-            logDebug("Geocoded '"+address+"' to '"+result+"'");
-            return result;
-        }catch(Exception e){
-            handleException(errMsg+": "+e.getMessage(), callbackContext);
-            return result;
+        if(!geocodingEnabled){
+            throw new Exception("Geocoding disabled: "+errMsg);
         }
+
+        if(!isNetworkAvailable()){
+            throw new Exception("No internet connection: "+errMsg);
+        }
+
+        address = address.replaceAll(" ", "%20");
+
+        JSONObject oResponse = doGeocode("address=" + address);
+
+        double longitude = oResponse
+                .getJSONObject("geometry").getJSONObject("location")
+                .getDouble("lng");
+
+        double latitude = oResponse
+                .getJSONObject("geometry").getJSONObject("location")
+                .getDouble("lat");
+
+        result = latitude+","+longitude;
+        logger.debug("Geocoded '"+address+"' to '"+result+"'");
+        return result;
     }
 
-    private String reverseGeocodeLatLonToAddress(String latLon, CallbackContext callbackContext) throws Exception {
-        String result = null;
+    private String reverseGeocodeLatLonToAddress(String latLon) throws Exception {
+        String result;
         String errMsg = "Unable to reverse geocode address from coords '"+latLon;
-        try {
-            if(!enableGeocoding){
-                handleError("Geocoding disabled: "+errMsg, callbackContext);
-                return result;
-            }
-
-            if(!isNetworkAvailable()){
-                handleError("No internet connection: "+errMsg, callbackContext);
-                return result;
-            }
-
-            JSONObject oResponse = doGeocode("latlng=" + latLon);
-            result = oResponse.getString("formatted_address");
-            logDebug("Reverse geocoded '"+latLon+"' to '"+result+"'");
-            return result;
-        }catch(Exception e){
-            handleException(errMsg+": "+e.getMessage(), callbackContext);
-            return result;
+        if(!geocodingEnabled){
+            throw new Exception("No internet connection: "+errMsg);
         }
+
+        if(!isNetworkAvailable()){
+            throw new Exception("No internet connection: "+errMsg);
+        }
+
+        JSONObject oResponse = doGeocode("latlng=" + latLon);
+        result = oResponse.getString("formatted_address");
+        logger.debug("Reverse geocoded '"+latLon+"' to '"+result+"'");
+        return result;
     }
 
     private JSONObject doGeocode(String query) throws Exception{
@@ -1689,44 +1677,6 @@ public class LaunchNavigator extends CordovaPlugin {
         return arg == null || arg.equals("null");
     }
 
-    private void logDebug(String msg) {
-        if(enableDebug){
-            Log.d(LOG_TAG, msg);
-            executeGlobalJavascript("console.log(\""+LOG_TAG+"[native]: "+escapeDoubleQuotes(msg)+"\")");
-        }
-    }
-
-    private void logError(String msg){
-        Log.e(LOG_TAG, msg);
-        if(enableDebug){
-            executeGlobalJavascript("console.error(\""+LOG_TAG+"[native]: "+escapeDoubleQuotes(msg)+"\")");
-        }
-    }
-
-    private void handleError(String msg, CallbackContext callbackContext){
-        logError(msg);
-        callbackContext.error(msg);
-    }
-
-    private void handleException(String msg, CallbackContext callbackContext){
-        msg = "Exception occurred: ".concat(msg);
-        handleError(msg, callbackContext);
-    }
-
-    private String escapeDoubleQuotes(String string){
-        String escapedString = string.replace("\"", "\\\"");
-        escapedString = escapedString.replace("%22", "\\%22");
-        return escapedString;
-    }
-
-    private void executeGlobalJavascript(final String jsString){
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                webView.loadUrl("javascript:" + jsString);
-            }
-        });
-    }
 
     private String getAppDisplayName(String packageName){
         String name = "[Not found]";
@@ -1745,7 +1695,7 @@ public class LaunchNavigator extends CordovaPlugin {
     }
 
     private String getThisAppName(){
-        return this.context.getApplicationInfo().loadLabel(this.context.getPackageManager()).toString();
+        return context.getApplicationInfo().loadLabel(packageManager).toString();
     }
 
     private boolean isNetworkAvailable() {
@@ -1754,5 +1704,4 @@ public class LaunchNavigator extends CordovaPlugin {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 }

@@ -37,11 +37,17 @@
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="LaunchNavigator">
-        <param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigator"/>
+        <param name="android-package" value="uk.co.workingedge.phonegap.plugin.LaunchNavigatorPlugin"/>
       </feature>
     </config-file>
 
-    <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+    <!-- Cordova wrapper -->
+    <source-file src="src/android/LaunchNavigatorPlugin.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+    <source-file src="src/android/CordovaLogger.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
+
+    <!-- LaunchNavigator lib -->
+    <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge" />
+    <source-file src="src/android/ILogger.java" target-dir="src/uk/co/workingedge" />
 
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
