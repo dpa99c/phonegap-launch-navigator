@@ -83,12 +83,11 @@ typedef void(^LocationErrorBlock)(NSError*);
 @property (nonatomic, strong) LocationSuccessBlock locationSuccess;
 @property (nonatomic, strong) LocationErrorBlock locationError;
 @property (retain, nonatomic) CLLocationManager* locationManager;
-@property (nonatomic, retain) WE_Logger* logger;
 
 /*******************
 * Public API
 *******************/
-- (void)init:(WE_Logger*) logger;
+- (id)init:(WE_Logger*) logger;
 - (void)setLogger:(WE_Logger*) logger;
 - (WE_Logger*)getLogger;
 - (void) navigate:(NSDictionary*)params

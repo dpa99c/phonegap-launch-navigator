@@ -32,16 +32,15 @@
 
 @implementation LN_LaunchNavigator
 @synthesize navigateSuccess;
-@synthesize navigateError;
-@synthesize locationSuccess;
 @synthesize navigateFail;
+@synthesize locationSuccess;
+@synthesize locationError;
 @synthesize locationManager;
-@synthesize logger;
 
 /**********************
 * Internal properties
 **********************/
-
+static WE_Logger* logger;
 static NSArray* appNames;
 
 // Valid input location types for apps
@@ -74,60 +73,64 @@ static NSDictionary* extras;
 * Public API
 *******************/
 
-- (void)init:(WE_Logger*) logger{
-    self.logger = logger;
-    self.locationManager = [[CLLocationManager alloc] init];
-    self.locationManager.delegate = self;
+- (id)init:(WE_Logger*) _logger{
+    if(self = [super init]){
+        
+        logger = _logger;
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
 
-    appNames = @[
-                 @"apple_maps",
-                 @"citymapper",
-                 @"google_maps",
-                 @"navigon",
-                 @"transit_app",
-                 @"waze",
-                 @"yandex",
-                 @"uber",
-                 @"tomtom",
-                 @"sygic",
-                 @"here_maps",
-                 @"moovit",
-                 @"lyft",
-                 @"maps_me",
-                 @"cabify",
-                 @"baidu",
-                 @"taxis_99",
-                 @"gaode"
-                 ];
-    appLocationTypes = @{
-                         @(LNAppAppleMaps): LNLocTypeBoth,
-                         @(LNAppCitymapper): LNLocTypeCoords,
-                         @(LNAppGoogleMaps): LNLocTypeBoth,
-                         @(LNAppNavigon): LNLocTypeCoords,
-                         @(LNAppTheTransitApp): LNLocTypeCoords,
-                         @(LNAppWaze): LNLocTypeCoords,
-                         @(LNAppYandex): LNLocTypeCoords,
-                         @(LNAppUber): LNLocTypeCoords,
-                         @(LNAppTomTom): LNLocTypeCoords,
-                         @(LNAppSygic): LNLocTypeCoords,
-                         @(LNAppHereMaps): LNLocTypeCoords,
-                         @(LNAppMoovit): LNLocTypeCoords,
-                         @(LNAppLyft): LNLocTypeCoords,
-                         @(LNAppMapsMe): LNLocTypeCoords,
-                         @(LNAppCabify): LNLocTypeCoords,
-                         @(LNAppBaidu): LNLocTypeBoth,
-                         @(LNAppTaxis99): LNLocTypeCoords,
-                         @(LNAppGaode): LNLocTypeCoords
-                         };
-    LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
-}
-
-- (void)setLogger:(WE_Logger*) logger{
-    self.logger = logger;
+        appNames = @[
+                     @"apple_maps",
+                     @"citymapper",
+                     @"google_maps",
+                     @"navigon",
+                     @"transit_app",
+                     @"waze",
+                     @"yandex",
+                     @"uber",
+                     @"tomtom",
+                     @"sygic",
+                     @"here_maps",
+                     @"moovit",
+                     @"lyft",
+                     @"maps_me",
+                     @"cabify",
+                     @"baidu",
+                     @"taxis_99",
+                     @"gaode"
+                     ];
+        appLocationTypes = @{
+                             @(LNAppAppleMaps): LNLocTypeBoth,
+                             @(LNAppCitymapper): LNLocTypeCoords,
+                             @(LNAppGoogleMaps): LNLocTypeBoth,
+                             @(LNAppNavigon): LNLocTypeCoords,
+                             @(LNAppTheTransitApp): LNLocTypeCoords,
+                             @(LNAppWaze): LNLocTypeCoords,
+                             @(LNAppYandex): LNLocTypeCoords,
+                             @(LNAppUber): LNLocTypeCoords,
+                             @(LNAppTomTom): LNLocTypeCoords,
+                             @(LNAppSygic): LNLocTypeCoords,
+                             @(LNAppHereMaps): LNLocTypeCoords,
+                             @(LNAppMoovit): LNLocTypeCoords,
+                             @(LNAppLyft): LNLocTypeCoords,
+                             @(LNAppMapsMe): LNLocTypeCoords,
+                             @(LNAppCabify): LNLocTypeCoords,
+                             @(LNAppBaidu): LNLocTypeBoth,
+                             @(LNAppTaxis99): LNLocTypeCoords,
+                             @(LNAppGaode): LNLocTypeCoords
+                             };
+        LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
+    }
+    return self;
 }
 
 - (WE_Logger*)getLogger{
-    return self.logger;
+    return logger;
+}
+
+- (void)getLogger:(WE_Logger*)_logger{
+    logger = _logger;
 }
 
 - (NSArray*) getAppNames
@@ -184,7 +187,7 @@ static NSDictionary* extras;
     app = [self mapApp_NameToLN:params[@"appName"]];
     BOOL isAvailable = [self isMapAppInstalled:app];
     if(!isAvailable){
-        fail([NSString stringWithFormat:@"%@ is not installed on the device", params[@"appName"]);
+        fail([NSString stringWithFormat:@"%@ is not installed on the device", params[@"appName"]]);
         return;
     }
     
@@ -209,7 +212,7 @@ static NSDictionary* extras;
                     logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, _start];
                     [self launchApp];
                 } error:^(NSError* error){
-                    fail([NSString stringWithFormat:@"Start location was not specified and could not be automatically determined but is required by %@: %@", params[@"appName"], error.description]]);
+                    fail([NSString stringWithFormat:@"Start location was not specified and could not be automatically determined but is required by %@: %@", params[@"appName"], error.description]);
                 }];
             }else{
                 [self launchApp];
@@ -272,21 +275,22 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
 -(void)launchAppleMapsWithMapKit {
     NSDictionary* launchOptions;
-    if (navigateParams[@"transportMode"]) {
+    NSString* transportMode;
+    if (![self isNull:navigateParams[@"transportMode"]]) {
         if([navigateParams[@"transportMode"] isEqual: @"walking"]){
-            navigateParams[@"transportMode"] = MKLaunchOptionsDirectionsModeWalking;
+            transportMode = MKLaunchOptionsDirectionsModeWalking;
         }else if([navigateParams[@"transportMode"] isEqual: @"transit"]){
-            navigateParams[@"transportMode"] = MKLaunchOptionsDirectionsModeTransit;
+            transportMode = MKLaunchOptionsDirectionsModeTransit;
         }else{
-            navigateParams[@"transportMode"] = MKLaunchOptionsDirectionsModeDriving;
+            transportMode = MKLaunchOptionsDirectionsModeDriving;
         }
-        launchOptions = @{MKLaunchOptionsDirectionsModeKey: navigateParams[@"transportMode"]};
+        launchOptions = @{MKLaunchOptionsDirectionsModeKey: transportMode};
     } else {
         launchOptions = @{MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving};
     }
@@ -348,7 +352,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -377,7 +381,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -397,7 +401,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -414,7 +418,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -425,7 +429,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -443,7 +447,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -478,7 +482,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -492,15 +496,16 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
 -(void)launchSygic {
+    NSString* transportMode;
     if([navigateParams[@"transportMode"] isEqual: @"walking"]){
-        navigateParams[@"transportMode"] = @"walk";
+        transportMode = @"walk";
     }else{
-        navigateParams[@"transportMode"] = @"drive";
+        transportMode = @"drive";
     }
     NSString* separator = @"%7C";
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@coordinate%@%f%@%f%@%@",
@@ -510,8 +515,8 @@ static NSDictionary* extras;
                             separator,
                             destCoord.latitude,
                             separator,
-                            navigateParams[@"transportMode"]];
-    [self.logger debugURI:url];
+                            transportMode];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -543,7 +548,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"?%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -569,7 +574,7 @@ static NSDictionary* extras;
     if(extras){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -591,7 +596,7 @@ static NSDictionary* extras;
          startCoord.latitude, startCoord.longitude];
     }
     
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -625,7 +630,7 @@ static NSDictionary* extras;
         [url appendFormat:@"&type=vehicle"];
     }
     
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -676,7 +681,7 @@ static NSDictionary* extras;
     NSString* sJson = [[self dictionaryToJsonString:dJson] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     url = [NSMutableString stringWithFormat:@"%@%@", url, sJson];
 
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -722,7 +727,7 @@ static NSDictionary* extras;
     }
     [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -770,7 +775,7 @@ static NSDictionary* extras;
     
     //url = (NSMutableString*) @"iosamap://path?sourceApplication=applicationName&sid=BGVIS1&slat=39.92848272&slon=116.39560823&sname=A&did=BGVIS2&dlat=39.98848272&dlon=116.47560823&dname=B&dev=0&t=0";
 
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -817,7 +822,7 @@ static NSDictionary* extras;
     
     //url = (NSMutableString*) @"taxis99://call?pickup_latitude=-23.543869&pickup_longitude=-46.642264&pickup_title=Republica&dropoff_latitude=-23.600010&dropoff_longitude=-46.720348&dropoff_title=Morumbi&deep_link_product_id=316&client_id=MAP_123";
 
-    [self.logger debugURI:url];
+    [self logDebugURI:url];
     [self openScheme:url];
 }
 
@@ -829,11 +834,11 @@ static NSDictionary* extras;
     
     logMsg = [NSString stringWithFormat:@"%@ to %@", logMsg, navigateParams[@"dest"]];
     
-    if(![self isNull:jsDestName]){
-        destName = jsDestName;
+    if(![self isNull:navigateParams[@"destName"]]){
+        destName = navigateParams[@"destName"];
     }
     
-    if([jsDestType isEqual: LNLocTypeCoords]){
+    if([navigateParams[@"destType"] isEqual: LNLocTypeCoords]){
         destCoord = [self stringToCoords:navigateParams[@"dest"]];
         
         
@@ -858,10 +863,10 @@ static NSDictionary* extras;
                     }
                      ];
                 }else{
-                    self.navigateFail(NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires destination as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
+                    self.navigateFail([NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires destination as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
                 }
             }else{
-                self.navigateFail(NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires destination as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
+                self.navigateFail([NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires destination as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
             }
         }else{
             completeBlock();
@@ -887,10 +892,10 @@ static NSDictionary* extras;
                         completeBlock();
                     }];
                 }else{
-                    self.navigateFail(NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires destination as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
+                    self.navigateFail([NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires destination as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
                 }
             }else{
-                self.navigateFail(NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires destination as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
+                self.navigateFail([NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires destination as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
             }
         }else{
             completeBlock();
@@ -903,13 +908,13 @@ static NSDictionary* extras;
         startName = navigateParams[@"startName"];
     }
     if([navigateParams[@"startType"] isEqual: LNLocTypeCoords]){
-        startCoord = [self stringToCoords:jsStart];
-        logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, jsStart];
+        startCoord = [self stringToCoords:navigateParams[@"start"]];
+        logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, navigateParams[@"start"]];
         
         if([appLocationTypes objectForKey:@(app)] == LNLocTypeAddress){
             if([self isGeocodingEnabled]){
                 if([self isNetworkAvailable]){
-                    [self reverseGeocode:jsStart success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+                    [self reverseGeocode:navigateParams[@"start"] success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
                         start_placemark = startPlacemark;
                         start_mapItem = startItem;
                         startAddress = [self getAddressFromPlacemark:start_placemark];
@@ -923,26 +928,26 @@ static NSDictionary* extras;
                         }
                         completeBlock();
                     } fail:^(NSString* failMsg) {
-                        [self sendPluginError:failMsg];
+                        self.navigateFail([NSString stringWithFormat:@"Failed to reverse geocode: %@", failMsg]);
                     }];
                 }else{
-                    self.navigateFail(NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires start as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
+                    self.navigateFail([NSString stringWithFormat:@"Failed to reverse geocode: no internet connection. %@ requires start as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
                 }
             }else{
-                self.navigateFail(NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires start as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
+                self.navigateFail([NSString stringWithFormat:@"Failed to reverse geocode: geocoding disabled. %@ requires start as address but plugin was passed a lat,lon", navigateParams[@"appName"]]);
             }
         }else{
             completeBlock();
         }
         
     }else{ //[navigateParams[@"startType"] isEqual: LNLocTypeAddress]
-        startAddress = jsStart;
-        logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, jsStart];
+        startAddress = navigateParams[@"start"];
+        logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, startAddress];
         
         if([appLocationTypes objectForKey:@(app)] == LNLocTypeCoords || (app == LNAppAppleMaps && useMapKit)){
             if([self isGeocodingEnabled]){
                 if([self isNetworkAvailable]){
-                    [self geocode:jsStart success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
+                    [self geocode:startAddress success:^(MKMapItem* startItem, MKPlacemark* startPlacemark) {
                         start_placemark = startPlacemark;
                         start_mapItem = startItem;
                         startCoord = start_placemark.coordinate;
@@ -957,10 +962,10 @@ static NSDictionary* extras;
                         completeBlock();
                     }];
                 }else{
-                    self.navigateFail(NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires start as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
+                    self.navigateFail([NSString stringWithFormat:@"Failed to geocode: no internet connection. %@ requires start as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
                 }
             }else{
-                self.navigateFail(NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires start as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
+                self.navigateFail([NSString stringWithFormat:@"Failed to geocode: geocoding disabled. %@ requires start as lat,lon but plugin was passed an address", navigateParams[@"appName"]]);
             }
         }else{
             completeBlock();
@@ -974,13 +979,13 @@ static NSDictionary* extras;
     if(![self isNull:navigateParams[@"extras"]]){
         extras = [self jsonStringToDictionary:navigateParams[@"extras"]];
         if (extras == nil){
-            [self.logger error:@"Failed to parse extras parameter as valid JSON"];
+            [logger error:@"Failed to parse extras parameter as valid JSON"];
         }else{
             logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, navigateParams[@"extras"]];
         }
     }
     
-    [self.logger debug:logMsg];
+    [logger debug:logMsg];
     
     // Launch
     if(app == LNAppAppleMaps){
@@ -1137,13 +1142,13 @@ static NSDictionary* extras;
          success:(void (^)(MKMapItem* resultItem, MKPlacemark* placemark))successBlock
 {
     CLGeocoder* geocoder = [[CLGeocoder alloc] init];
-    [self.logger debug:[NSString stringWithFormat:@"Attempting to geocode address: %@", address]];
+    [logger debug:[NSString stringWithFormat:@"Attempting to geocode address: %@", address]];
     [geocoder geocodeAddressString:address completionHandler:^(NSArray* placemarks, NSError* error) {
         
         // Convert the CLPlacemark to an MKPlacemark
         // Note: There's no error checking for a failed geocode
         CLPlacemark* geocodedPlacemark = [placemarks objectAtIndex:0];
-        [self.logger debug:[NSString stringWithFormat:@"Geocoded address '%@' to coord '%@'", address, [self coordsToString:geocodedPlacemark.location.coordinate]]];
+        [logger debug:[NSString stringWithFormat:@"Geocoded address '%@' to coord '%@'", address, [self coordsToString:geocodedPlacemark.location.coordinate]]];
         
         MKPlacemark* placemark = [[MKPlacemark alloc]
                                   initWithCoordinate:geocodedPlacemark.location.coordinate
@@ -1171,13 +1176,13 @@ static NSDictionary* extras;
     MKMapItem* mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
     
     // Try to retrieve address via reverse geocoding
-    [self.logger debug:[NSString stringWithFormat:@"Attempting to reverse geocode coords: %@", coords]];
+    [logger debug:[NSString stringWithFormat:@"Attempting to reverse geocode coords: %@", coords]];
     CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
     [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
         if (error == nil && [placemarks count] > 0) {
             CLPlacemark* geocodedPlacemark = [placemarks lastObject];
             NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
-            [self.logger debug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:coordinate], address]];
+            [logger debug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:coordinate], address]];
             [mapItem setName:address];
             
             MKPlacemark* placemark = [[MKPlacemark alloc]
@@ -1247,7 +1252,7 @@ static NSDictionary* extras;
 
 - (void)logDebugURI: (NSString*)msg
 {
-    [self.logger debug:[NSString stringWithFormat:@"Launching URI: %@", msg]];
+    [logger debug:[NSString stringWithFormat:@"Launching URI: %@", msg]];
 }
 
 - (bool)isNull: (NSString*)str
@@ -1399,17 +1404,17 @@ static NSDictionary* extras;
     self.locationSuccess = onSuccess;
     self.locationError = onError;
     
-    _locationManager = [[CLLocationManager alloc] init];
-    [_locationManager setDelegate:self];
-    [_locationManager setDistanceFilter:kCLDistanceFilterNone];
-    [_locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+    self.locationManager = [[CLLocationManager alloc] init];
+    [self.locationManager setDelegate:self];
+    [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
+    [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
     #if defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
-        if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-            [_locationManager requestWhenInUseAuthorization];
+        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            [self.locationManager requestWhenInUseAuthorization];
         }
     #endif
     awaitingLocation = YES;
-    [_locationManager startUpdatingLocation];
+    [self.locationManager startUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
@@ -1417,13 +1422,13 @@ static NSDictionary* extras;
         awaitingLocation = NO;
         self.locationSuccess([locations objectAtIndex:0]);
     }
-    [_locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingLocation];
 }
 
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
     self.locationError(error);
-    [_locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingLocation];
 }
 
 - (NSArray*) jsonStringToArray:(NSString*)jsonStr

@@ -36,8 +36,8 @@
 
 
 - (void)pluginInitialize {
-    self.logger = [[WE_CordovaLogger alloc] init:self.commandDelegate logTag:@"LaunchNavigatorPlugin"];
-    self.launchNavigator = [[LN_LaunchNavigator alloc] init:[[WE_CordovaLogger alloc] init:self.commandDelegate logTag:@"LN_LaunchNavigator"]];
+    self.logger = [[WE_CordovaLogger alloc] initWithDelegate:self.commandDelegate logTag:@"LaunchNavigatorPlugin"];
+    self.launchNavigator = [[LN_LaunchNavigator alloc] init:[[WE_CordovaLogger alloc] initWithDelegate:self.commandDelegate logTag:@"LN_LaunchNavigator"]];
     [super pluginInitialize];
 }
 
@@ -62,9 +62,9 @@
         [params setValue:[command.arguments objectAtIndex:10] forKey:@"extras"];
         [params setObject:[NSNumber numberWithBool:[[command argumentAtIndex:11] boolValue]] forKey:@"enableGeocoding"];
 
-        self.debugEnabled = [[command argumentAtIndex:9] boolValue]];
+        self.debugEnabled = [[command argumentAtIndex:9] boolValue];
         [self.logger setEnabled:self.debugEnabled];
-        [[self.launchNavigator getLogger] setEnabled:self.debugEnabled]];
+        [[self.launchNavigator getLogger] setEnabled:self.debugEnabled];
 
         [self.logger debug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; launchMode=%@; extras=%@", params[@"dest"], params[@"destType"], params[@"destName"], params[@"start"], params[@"startType"], params[@"startName"], params[@"appName"], params[@"transportMode"], params[@"launchMode"], params[@"extras"]]];
 
@@ -74,7 +74,7 @@
                 [self sendPluginSuccess];
             }
             fail:^(NSString* errorMsg) {
-                [self sendPluginError:failMsg];
+                [self sendPluginError:errorMsg];
             }
         ];
     }@catch (NSException* exception) {
@@ -131,4 +131,4 @@
 - (void) handleException:(NSException*)exception{
     [self sendPluginError:exception.reason];
 }
-
+@end

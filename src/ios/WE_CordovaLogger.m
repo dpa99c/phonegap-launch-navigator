@@ -12,29 +12,31 @@
 /*******************
 * Public API
 *******************/
-- (void)init:(CDVCommandDelegate*)commandDelegate logTag:(NSString*)logTag{
-    [super init];
-    self.commandDelegate = commandDelegate;
-    self.logTag = logTag;
+- (id)initWithDelegate:(id <CDVCommandDelegate>)commandDelegate logTag:(NSString*)logTag{
+    if(self = [super init]){
+        self.commandDelegate = commandDelegate;
+        self.logTag = logTag;
+    }
+    return self;
 }
 
--(void)error(NSString* msg){
+-(void)error:(NSString*) msg{
     [self log:msg jsLogLevel:@"error" nsLogLevel:@"error"];
 }
 
--(void)warn(NSString* msg){
+-(void)warn:(NSString*) msg{
     [self log:msg jsLogLevel:@"warn" nsLogLevel:@"warn"];
 }
 
--(void)info(NSString* msg){
+-(void)info:(NSString*) msg{
     [self log:msg jsLogLevel:@"info" nsLogLevel:@"info"];
 }
 
--(void)debug(NSString* msg){
+-(void)debug:(NSString*) msg{
     [self log:msg jsLogLevel:@"log" nsLogLevel:@"debug"];
 }
 
--(void)verbose(NSString* msg){
+-(void)verbose:(NSString*) msg{
     [self log:msg jsLogLevel:@"debug" nsLogLevel:@"verbose"];
 }
 

@@ -2,7 +2,7 @@
 
 @property (nonatomic) BOOL enabled;
 
--(void)init;
+-(id)init;
 -(void)setEnabled:(BOOL)enabled;
 -(BOOL)getEnabled;
 -(void)error:(NSString*)msg;

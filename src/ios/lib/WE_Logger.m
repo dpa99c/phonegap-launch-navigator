@@ -3,19 +3,24 @@
 @implementation WE_Logger
 @synthesize enabled;
 
+static BOOL enabled = FALSE;
+
 /*******************
 * Public API
 *******************/
--(void)init{
-    self.enabled = FALSE;
+-(id)init{
+    if(self = [super init]){
+        
+    }
+    return self;
 }
 
--(void)setEnabled:(BOOL)enabled{
-    self.enabled = enabled;
+-(void)setEnabled:(BOOL)_enabled{
+    enabled = _enabled;
 }
 
 -(BOOL)getEnabled{
-    return self.enabled;
+    return enabled;
 }
 
 -(void)error:(NSString*)msg{
