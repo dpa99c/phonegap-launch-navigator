@@ -3,7 +3,7 @@
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="uk.co.workingedge.phonegap.plugin.launchnavigator"
-    version="4.2.1">
+    version="5.0.0-dev">
 
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows Phone</description>
@@ -46,8 +46,8 @@
     <source-file src="src/android/CordovaLogger.java" target-dir="src/uk/co/workingedge/phonegap/plugin" />
 
     <!-- LaunchNavigator lib -->
-    <source-file src="src/android/LaunchNavigator.java" target-dir="src/uk/co/workingedge" />
-    <source-file src="src/android/ILogger.java" target-dir="src/uk/co/workingedge" />
+    <source-file src="src/android/lib/LaunchNavigator.java" target-dir="src/uk/co/workingedge" />
+    <source-file src="src/android/lib/ILogger.java" target-dir="src/uk/co/workingedge" />
 
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -68,14 +68,23 @@
 
     <config-file target="config.xml" parent="/*">
       <feature name="LaunchNavigator">
-        <param name="ios-package" value="LaunchNavigator"/>
+        <param name="ios-package" value="LaunchNavigatorPlugin"/>
       </feature>
     </config-file>
+    
+    <!-- Cordova wrapper -->
+    <header-file src="src/ios/LaunchNavigatorPlugin.h" />
+    <source-file src="src/ios/LaunchNavigatorPlugin.m" />
+    <header-file src="src/ios/WE_CordovaLogger.h" />
+    <source-file src="src/ios/WE_CordovaLogger.m" />
 
-    <header-file src="src/ios/LaunchNavigator.h" />
-    <source-file src="src/ios/LaunchNavigator.m" />
-    <header-file src="src/ios/LN_Reachability.h" />
-    <source-file src="src/ios/LN_Reachability.m" />
+    <!-- LaunchNavigator lib -->
+    <header-file src="src/ios/lib/LN_LaunchNavigator.h" />
+    <source-file src="src/ios/lib/LN_LaunchNavigator.m" />
+    <header-file src="src/ios/lib/LN_Reachability.h" />
+    <source-file src="src/ios/lib/LN_Reachability.m" />
+    <header-file src="src/ios/lib/WE_Logger.h" />
+    <source-file src="src/ios/lib/WE_Logger.m" />
 
     <framework src="MapKit.framework" />
     <framework src="CoreLocation.framework" />

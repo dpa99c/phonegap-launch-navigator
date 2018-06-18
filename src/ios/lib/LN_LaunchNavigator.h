@@ -1,8 +1,8 @@
 /*
- * LaunchNavigator Plugin for Phonegap
+ * LN_LaunchNavigator Library
  *
- * Copyright (c) 2014 Dave Alden  (http://github.com/dpa99c)
- * Copyright (c) 2014 Working Edge Ltd. (http://www.workingedge.co.uk)
+ * Copyright (c) 2018 Dave Alden  (http://github.com/dpa99c)
+ * Copyright (c) 2018 Working Edge Ltd. (http://www.workingedge.co.uk)
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,14 +26,10 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  */
-#ifdef CORDOVA_FRAMEWORK
-#import <Cordova/CDVPlugin.h>
-#else
-#import "Cordova/CDVPlugin.h"
-#endif
 
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "WE_Logger.h"
 
  // This enumeration identifies the mapping apps
  // that this launcher knows how to support.
@@ -58,7 +54,7 @@ typedef NS_ENUM(NSUInteger, LNApp) {
 	LNAppGaode           // Gaode (Amap)
 };
 
-static NSString*const LOG_TAG = @"LaunchNavigator[native]";
+static NSString*const LOG_TAG = @"LN_LaunchNavigator[native]";
 static NSString*const LNLocTypeNone = @"none";
 static NSString*const LNLocTypeBoth = @"both";
 static NSString*const LNLocTypeAddress = @"name";
@@ -75,23 +71,31 @@ Indicates an empty latitude or longitude component
 static const CLLocationDegrees LNEmptyLocation = 0.000000;
 
 
-@interface LaunchNavigator :CDVPlugin <CLLocationManagerDelegate> {
-    BOOL debugEnabled;
-    CDVInvokedUrlCommand* cordova_command;    
-}
-@property (nonatomic) BOOL debugEnabled;
-@property (nonatomic,retain) CDVInvokedUrlCommand* cordova_command;
+@interface LN_LaunchNavigator : NSObject <CLLocationManagerDelegate> {}
+
+typedef void (^NavigateSuccessBlock)(void);
+typedef void (^NavigateFailBlock)(NSString* errorMsg);
+typedef void(^LocationSuccessBlock)(CLLocation*);
+typedef void(^LocationErrorBlock)(NSError*);
+
+@property (nonatomic, strong) NavigateSuccessBlock navigateSuccess;
+@property (nonatomic, strong) NavigateFailBlock navigateFail;
+@property (nonatomic, strong) LocationSuccessBlock locationSuccess;
+@property (nonatomic, strong) LocationErrorBlock locationError;
 @property (retain, nonatomic) CLLocationManager* locationManager;
+@property (nonatomic, retain) WE_Logger* logger;
 
-typedef void(^locationSuccess)(CLLocation*);
-typedef void(^locationError)(NSError*);
-
-@property (nonatomic, strong) locationSuccess _locationSuccess;
-@property (nonatomic, strong) locationError _locationError;
-
-- (void) navigate:(CDVInvokedUrlCommand*)command;
-- (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
-- (void) availableApps:(CDVInvokedUrlCommand*)command;
+/*******************
+* Public API
+*******************/
+- (void)init:(WE_Logger*) logger;
+- (void)setLogger:(WE_Logger*) logger;
+- (WE_Logger*)getLogger;
+- (void) navigate:(NSDictionary*)params
+          success:(NavigateSuccessBlock)success
+             fail:(NavigateFailBlock)fail;
+- (BOOL) isAppAvailable:(NSString*)appName;
+- (NSDictionary*) availableApps;
 
 
 @end
