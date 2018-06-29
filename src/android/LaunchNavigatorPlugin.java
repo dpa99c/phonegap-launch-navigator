@@ -54,8 +54,12 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
 
     @Override
     protected void pluginInitialize() {
-        logger = new CordovaLogger(cordova, webView, LOG_TAG);
-        launchNavigator = new LaunchNavigator(cordova.getActivity(), cordova.getActivity().getApplicationContext(), new CordovaLogger(cordova, webView, LaunchNavigator.LOG_TAG));
+        try {
+            logger = new CordovaLogger(cordova, webView, LOG_TAG);
+            launchNavigator = new LaunchNavigator(cordova.getActivity().getApplicationContext(), new CordovaLogger(cordova, webView, LaunchNavigator.LOG_TAG));
+        }catch (Exception e){
+            Log.e(LOG_TAG, e.getMessage());
+        }
     }
 
     @Override
@@ -85,8 +89,9 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                 if(args.get(11) != null){
                     launchNavigator.setGeocoding(args.getBoolean(11));
                 }
-                
-                Map<String, String> params = new HashMap<String, String>();
+
+
+                JSONObject params = new JSONObject();
                 params.put("app", args.getString(0));
                 params.put("dType", args.getString(1));
                 params.put("dest", args.getString(2));
@@ -106,7 +111,7 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                 }
             } else if ("discoverSupportedApps".equals(action)) {
                 // This is called by plugin JS on initialisation
-                JSONObject apps = launchNavigator.getSupportedApps();
+                JSONObject apps = launchNavigator.getGeoApps();
                 callbackContext.success(apps);
             } else if ("availableApps".equals(action)) {
                 JSONObject apps = launchNavigator.getAvailableApps();

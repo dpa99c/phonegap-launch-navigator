@@ -129,7 +129,6 @@ public class LaunchNavigator {
 
     PackageManager packageManager;
     Context context;
-    Activity activity;
     OkHttpClient httpClient = new OkHttpClient();
     ILogger logger;
 
@@ -137,20 +136,33 @@ public class LaunchNavigator {
     // Map of app name to package name
     Map<String, String> availableApps;
 
+    private final String[] navigateParams = {
+            "app",
+            "dType",
+            "dest",
+            "destNickname",
+            "sType",
+            "start",
+            "startNickname",
+            "transportMode",
+            "launchMode",
+            "extras"
+    };
+
 
     /*******************
      * Constructors
      *******************/
 
-    public LaunchNavigator(Activity activity, Context context, ILogger logger) {
+    public LaunchNavigator(Context context, ILogger logger) throws Exception {
         setLogger(logger);
-        initialize(activity, context);
+        initialize(context);
     }
 
-    public LaunchNavigator(Activity activity, Context context, ILogger logger, boolean geocodingEnabled) {
+    public LaunchNavigator(Context context, ILogger logger, boolean geocodingEnabled) throws Exception {
         this.geocodingEnabled = geocodingEnabled;
         setLogger(logger);
-        initialize(activity, context);
+        initialize(context);
     }
 
 
@@ -170,7 +182,7 @@ public class LaunchNavigator {
         this.geocodingEnabled = geocodingEnabled;
     }
 
-    public JSONObject getSupportedApps() throws JSONException{
+    public JSONObject getGeoApps() throws JSONException{
         JSONObject apps = new JSONObject();
 
         // Dynamically populate from discovered available apps that support geo: protocol
@@ -214,22 +226,17 @@ public class LaunchNavigator {
         return availableApps.containsValue(appName);
     }
 
-    public String navigate(Map<String, String> params) throws Exception{
-        String navigateArgs = "Called navigate() with params"
-                + ": app="+ params.get("app")
-                + "; dType="+ params.get("dType")
-                + "; dest="+ params.get("dest")
-                + "; destNickname="+ params.get("destNickname")
-                + "; sType="+ params.get("sType")
-                + "; start="+ params.get("start")
-                + "; startNickname="+ params.get("startNickname")
-                + "; transportMode="+ params.get("transportMode")
-                + "; launchMode="+ params.get("launchMode")
-                + "; extras="+ params.get("extras");
+    public String navigate(JSONObject params) throws Exception{
+        params = ensureNavigateKeys(params);
+
+        String navigateArgs = "Called navigate() with params";
+        for(String param : navigateParams){
+            navigateArgs += "; "+param+"="+params.getString(param);
+        }
         logger.debug(navigateArgs);
 
-        String appName = params.get("app");
-        String launchMode = params.get("launchMode");
+        String appName = params.getString("app");
+        String launchMode = params.getString("launchMode");
 
         String error;
 
@@ -272,10 +279,13 @@ public class LaunchNavigator {
      * Internal methods
      *******************/
 
-    private void initialize(Activity activity, Context context) {
+    private void initialize(Context context) throws Exception {
+        if(context == null){
+            throw new Exception(LOG_TAG+": null context passed to initialize()");
+        }
         this.context = context;
-        this.activity = activity;
-        this.packageManager = activity.getPackageManager();
+
+        this.packageManager = context.getPackageManager();
         discoverAvailableApps();
     }
 
@@ -306,10 +316,10 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchApp(Map<String, String> params) throws Exception{
-        String appName = params.get("app");
-        String dType = params.get("dType");
-        String dNickName = params.get("destNickname");
+    private String launchApp(JSONObject params) throws Exception{
+        String appName = params.getString("app");
+        String dType = params.getString("dType");
+        String dNickName = params.getString("destNickname");
 
         String logMsg = "Using " + getAppDisplayName(appName)+" to navigate to ";
         String destLatLon = null;
@@ -319,7 +329,7 @@ public class LaunchNavigator {
         if(dType.equals("name")){
             destName = getLocationFromName(params, "dest");
             try{
-                destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                destLatLon = geocodeAddressToLatLon(params.getString("dest"));
             }catch(Exception e){
                 return "Unable to geocode destination address to coordinates: " + e.getMessage();
             }
@@ -361,30 +371,30 @@ public class LaunchNavigator {
             }
             intent.setPackage(appName);
         }
-        activity.startActivity(intent);
+        context.startActivity(intent);
         return null;
     }
 
-    private String launchGoogleMaps(Map<String, String> params) throws Exception{
+    private String launchGoogleMaps(JSONObject params) throws Exception{
         try {
             String destination;
             String start = null;
 
-            String dType = params.get("dType");
+            String dType = params.getString("dType");
             if(dType.equals("pos")){
                 destination = getLocationFromPos(params, "dest");
             }else{
                 destination = getLocationFromName(params, "dest");
             }
 
-            String sType = params.get("sType");
+            String sType = params.getString("sType");
             if(sType.equals("pos")){
                 start = getLocationFromPos(params, "start");
             }else if(sType.equals("name")){
                 start = getLocationFromName(params, "start");
             }
-            String transportMode = params.get("transportMode");
-            String launchMode = params.get("launchMode");
+            String transportMode = params.getString("transportMode");
+            String launchMode = params.getString("launchMode");
 
             String logMsg = "Using Google Maps to navigate to "+destination;
             String url;
@@ -418,7 +428,7 @@ public class LaunchNavigator {
 
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             intent.setClassName(supportedAppPackages.get(GOOGLE_MAPS), "com.google.android.maps.MapsActivity");
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -430,17 +440,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchCitymapper(Map<String, String> params) throws Exception{
+    private String launchCitymapper(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(params, "dest");
@@ -462,7 +472,7 @@ public class LaunchNavigator {
             }
             if(isNull(destLatLon)){
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -482,7 +492,7 @@ public class LaunchNavigator {
                 }
                 if(isNull(startLatLon)){
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -504,7 +514,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -515,17 +525,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchUber(Map<String, String> params) throws Exception{
+    private String launchUber(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(params, "dest");
@@ -584,7 +594,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -595,12 +605,12 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchWaze(Map<String, String> params) throws Exception{
+    private String launchWaze(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
 
-            String dType = params.get("dType");
+            String dType = params.getString("dType");
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(params, "dest");
@@ -629,7 +639,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -640,20 +650,20 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchYandex(Map<String, String> params) throws Exception{
+    private String launchYandex(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             if(dType.equals("name")){
                 destAddress = getLocationFromName(params, "dest");
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -664,7 +674,7 @@ public class LaunchNavigator {
             if(sType.equals("name")){
                 startAddress = getLocationFromName(params, "start");
                 try{
-                    startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    startLatLon = geocodeAddressToLatLon(params.getString("start"));
                 }catch(Exception e){
                     return "Unable to geocode start address to coordinates: " + e.getMessage();
                 }
@@ -699,7 +709,7 @@ public class LaunchNavigator {
                 logMsg += " current location";
             }
 
-            String jsonStringExtras = params.get("extras");
+            String jsonStringExtras = params.getString("extras");
             JSONObject oExtras = null;
             if(!isNull(jsonStringExtras)){
                 oExtras =  new JSONObject(jsonStringExtras);
@@ -714,7 +724,7 @@ public class LaunchNavigator {
                 }
             }
             logger.debug(logMsg);
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -725,13 +735,13 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchSygic(Map<String, String> params) throws Exception{
+    private String launchSygic(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
 
-            String dType = params.get("dType");
-            String transportMode = params.get("transportMode");
+            String dType = params.getString("dType");
+            String transportMode = params.getString("transportMode");
             String url = supportedAppPackages.get(SYGIC)+"://coordinate|";
             String logMsg = "Using Sygic to navigate to";
 
@@ -745,7 +755,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -769,7 +779,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -780,17 +790,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchHereMaps(Map<String, String> params) throws Exception{
+    private String launchHereMaps(JSONObject params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             String url = "https://share.here.com/r/";
             String logMsg = "Using HERE Maps to navigate";
@@ -805,7 +815,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -828,7 +838,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -852,7 +862,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -863,17 +873,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchMoovit(Map<String, String> params) throws Exception{
+    private String launchMoovit(JSONObject params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             String url = "moovit://directions";
             String logMsg = "Using Moovit to navigate";
@@ -884,7 +894,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -909,7 +919,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -936,7 +946,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -947,15 +957,15 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchLyft(Map<String, String> params) throws Exception{
+    private String launchLyft(JSONObject params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             String url = "lyft://ridetype?";
             String logMsg = "Using Lyft to navigate";
@@ -975,7 +985,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -995,7 +1005,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -1012,7 +1022,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1023,16 +1033,16 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchMapsMe(Map<String, String> params) throws Exception{
+    private String launchMapsMe(JSONObject params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
-            String transportMode = params.get("transportMode");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
+            String transportMode = params.getString("transportMode");
 
             Intent intent = new Intent(supportedAppPackages.get(MAPS_ME).concat(".action.BUILD_ROUTE"));
             intent.setPackage(supportedAppPackages.get(MAPS_ME));
@@ -1044,7 +1054,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -1065,7 +1075,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -1098,7 +1108,7 @@ public class LaunchNavigator {
 
             logger.debug(logMsg);
 
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1109,17 +1119,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchCabify(Map<String, String> params) throws Exception{
+    private String launchCabify(JSONObject params) throws Exception{
         try {
             String destAddress;
             String destLatLon = null;
             String startAddress;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
             String url = "cabify://cabify/journey?json=";
             String logMsg = "Using Cabify to navigate";
@@ -1133,7 +1143,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -1165,7 +1175,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '"+startAddress+"'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         return "Unable to geocode start address to coordinates: " + e.getMessage();
                     }
@@ -1186,7 +1196,7 @@ public class LaunchNavigator {
                 logMsg += " ("+startNickname+")";
             }
 
-            String extras = params.get("extras");
+            String extras = params.getString("extras");
             if(!isNull(extras)){
                 oJson =  new JSONObject(extras);
                 logMsg += " - extras="+extras;
@@ -1209,7 +1219,7 @@ public class LaunchNavigator {
             logger.debug(logMsg);
             logger.debug("URI: " + url);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1220,16 +1230,16 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchBaidu(Map<String, String> params) throws Exception{
+    private String launchBaidu(JSONObject params) throws Exception{
         try {
             String start;
             String dest;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
-            String transportMode = params.get("transportMode");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
+            String transportMode = params.getString("transportMode");
 
 
             String url = "baidumap://map/direction";
@@ -1304,7 +1314,7 @@ public class LaunchNavigator {
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1315,18 +1325,18 @@ public class LaunchNavigator {
         }
     }
 
-    private String launchGaode(Map<String, String> params) throws Exception{
+    private String launchGaode(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
-            String transportMode = params.get("transportMode");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
+            String transportMode = params.getString("transportMode");
 
 
             String url = "amapuri://route/plan/?";
@@ -1347,7 +1357,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -1373,7 +1383,7 @@ public class LaunchNavigator {
                     startAddress = getLocationFromName(params, "start");
                     logMsg += " '" + startAddress + "'";
                     try{
-                        startLatLon = geocodeAddressToLatLon(params.get("start"));
+                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
                     }catch(Exception e){
                         startLatLon = null;
                     }
@@ -1425,7 +1435,7 @@ public class LaunchNavigator {
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1436,17 +1446,17 @@ public class LaunchNavigator {
         }
     }
 
-    private String launch99Taxis(Map<String, String> params) throws Exception{
+    private String launch99Taxis(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
             String startAddress = null;
             String startLatLon = null;
-            String destNickname = params.get("destNickname");
-            String startNickname = params.get("startNickname");
+            String destNickname = params.getString("destNickname");
+            String startNickname = params.getString("startNickname");
 
-            String dType = params.get("dType");
-            String sType = params.get("sType");
+            String dType = params.getString("dType");
+            String sType = params.getString("sType");
 
 
             String url = "taxis99://call?";
@@ -1471,7 +1481,7 @@ public class LaunchNavigator {
                 destAddress = getLocationFromName(params, "dest");
                 logMsg += " '"+destAddress+"'";
                 try{
-                    destLatLon = geocodeAddressToLatLon(params.get("dest"));
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
                 }catch(Exception e){
                     return "Unable to geocode destination address to coordinates: " + e.getMessage();
                 }
@@ -1499,7 +1509,7 @@ public class LaunchNavigator {
                 startAddress = getLocationFromName(params, "start");
                 logMsg += " '"+startAddress+"'";
                 try{
-                    startLatLon = geocodeAddressToLatLon(params.get("start"));
+                    startLatLon = geocodeAddressToLatLon(params.getString("start"));
                 }catch(Exception e){
                     return "Unable to geocode start address to coordinates: " + e.getMessage();
                 }
@@ -1533,7 +1543,7 @@ public class LaunchNavigator {
 
             Intent intent = new Intent();
             intent.setData(Uri.parse(url));
-            activity.startActivity(intent);
+            context.startActivity(intent);
             return null;
         }catch( JSONException e ) {
             String msg = e.getMessage();
@@ -1548,9 +1558,9 @@ public class LaunchNavigator {
      * Utilities
      */
 
-    private String parseExtrasToUrl(Map<String, String> params) throws JSONException{
+    private String parseExtrasToUrl(JSONObject params) throws JSONException{
         String extras = null;
-        String jsonStringExtras = params.get("extras");
+        String jsonStringExtras = params.getString("extras");
         JSONObject oExtras = null;
         if(!isNull(jsonStringExtras)){
             oExtras =  new JSONObject(jsonStringExtras);
@@ -1568,9 +1578,9 @@ public class LaunchNavigator {
         return extras;
     }
 
-    private String getLocationFromPos(Map<String, String> params, String key) throws Exception{
+    private String getLocationFromPos(JSONObject params, String key) throws Exception{
         String location;
-        JSONArray pos = new JSONArray(params.get(key));
+        JSONArray pos = new JSONArray(params.getString(key));
         String lat = pos.getString(0);
         String lon = pos.getString(1);
         if (isNull(lat) || lat.length() == 0 || isNull(lon) || lon.length() == 0) {
@@ -1580,8 +1590,8 @@ public class LaunchNavigator {
         return location;
     }
 
-    private String getLocationFromName(Map<String, String> params, String key) throws Exception{
-        String name = params.get(key);
+    private String getLocationFromName(JSONObject params, String key) throws Exception{
+        String name = params.getString(key);
         if (isNull(name) || name.length() == 0) {
             throw new Exception("Expected non-empty string argument for place name.");
         }
@@ -1677,6 +1687,14 @@ public class LaunchNavigator {
         return arg == null || arg.equals("null");
     }
 
+    private JSONObject ensureNavigateKeys(JSONObject params) throws Exception{
+        for(String param : navigateParams){
+            if(!params.has(param)){
+                params.put(param, "null");
+            }
+        }
+        return params;
+    }
 
     private String getAppDisplayName(String packageName){
         String name = "[Not found]";
