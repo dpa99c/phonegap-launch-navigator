@@ -1,7 +1,18 @@
 Launch Navigator Cordova/Phonegap Plugin [![Latest Stable Version](https://img.shields.io/npm/v/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) [![Total Downloads](https://img.shields.io/npm/dt/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://npm-stat.com/charts.html?package=uk.co.workingedge.phonegap.plugin.launchnavigator)
 =================================
 
-This Cordova/Phonegap plugin can be used to navigate to a destination by launching native navigation apps on Android, iOS and Windows.
+Cordova/Phonegap plugin for launching today's most popular navigation/ride apps to navigate to a destination.
+
+Platforms: Android, iOS and Windows.
+
+Key features:
+
+- Single, clean API to abstract away the gory details of each 3rd party app's custom URI scheme
+- Detects which supported apps are installed/available on the user's device
+- API to detect which features are supported by which apps on which platforms
+- Out-of-the-box UI for app selection which remembers user choice
+- Growing list of [supported apps](#supported-navigation-apps)
+
 
 The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
