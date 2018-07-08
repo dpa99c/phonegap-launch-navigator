@@ -40,11 +40,11 @@
 @property (nonatomic, retain) LN_LaunchNavigator* launchNavigator;
 @property (nonatomic, retain) WE_CordovaLogger* logger;
 @property (nonatomic, retain) CDVInvokedUrlCommand* cordova_command;
-@property (nonatomic) BOOL debugEnabled;
 
 /**************
  * Plugin API
  **************/
+- (void) enableDebug:(CDVInvokedUrlCommand*)command;
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
 - (void) availableApps:(CDVInvokedUrlCommand*)command;

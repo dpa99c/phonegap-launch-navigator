@@ -29,7 +29,6 @@
 #import "LaunchNavigatorPlugin.h"
 
 @implementation LaunchNavigatorPlugin
-@synthesize debugEnabled;
 @synthesize logger;
 @synthesize launchNavigator;
 @synthesize cordova_command;
@@ -44,6 +43,17 @@
 /**************
  * Plugin API
  **************/
+ - (void) enableDebug:(CDVInvokedUrlCommand*)command;{
+     @try {
+         bool debugEnabled = [[command argumentAtIndex:0] boolValue];
+         [self.logger setEnabled:debugEnabled];
+         [[self.launchNavigator getLogger] setEnabled:debugEnabled];
+         [self sendPluginSuccessWithCommand:command];
+     }@catch (NSException* exception) {
+         [self handleExceptionWithCommand:exception command:command];
+     }
+ }
+
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 {
     @try {
@@ -59,17 +69,12 @@
         [params setValue:[command.arguments objectAtIndex:6] forKey:@"appName"];
         [params setValue:[command.arguments objectAtIndex:7] forKey:@"transportMode"];
         [params setValue:[command.arguments objectAtIndex:8] forKey:@"launchMode"];
-        [params setValue:[command.arguments objectAtIndex:10] forKey:@"extras"];
-        [params setObject:[NSNumber numberWithBool:[[command argumentAtIndex:11] boolValue]] forKey:@"enableGeocoding"];
-
-        self.debugEnabled = [[command argumentAtIndex:9] boolValue];
-        [self.logger setEnabled:self.debugEnabled];
-        [[self.launchNavigator getLogger] setEnabled:self.debugEnabled];
+        [params setValue:[command.arguments objectAtIndex:9] forKey:@"extras"];
+        [params setObject:[NSNumber numberWithBool:[[command argumentAtIndex:10] boolValue]] forKey:@"enableGeocoding"];
 
         [self.logger debug:[NSString stringWithFormat:@"Called navigate() with args: destination=%@; destType=%@; destName=%@; start=%@; startType=%@; startName=%@; appName=%@; transportMode=%@; launchMode=%@; extras=%@", params[@"dest"], params[@"destType"], params[@"destName"], params[@"start"], params[@"startType"], params[@"startName"], params[@"appName"], params[@"transportMode"], params[@"launchMode"], params[@"extras"]]];
 
-        //TODO call launchNavigator.navigate
-        [launchNavigator navigate:params 
+        [launchNavigator navigate:params
             success:^(void) {
                 [self sendPluginSuccess];
             }

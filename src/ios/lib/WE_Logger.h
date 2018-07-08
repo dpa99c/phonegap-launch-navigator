@@ -1,3 +1,5 @@
+#import <Foundation/Foundation.h>
+
 @interface WE_Logger : NSObject
 
 @property (nonatomic) BOOL enabled;

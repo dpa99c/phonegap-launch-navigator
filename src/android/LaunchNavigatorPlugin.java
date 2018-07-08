@@ -68,7 +68,11 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
         try {
             logger.debug("Plugin action="+action);
 
-            if ("navigate".equals(action)) {
+            if ("enableDebug".equals(action)) {
+                boolean debugEnabled = args.getBoolean(0);
+                setDebug(debugEnabled);
+                callbackContext.success();
+            } else if ("navigate".equals(action)) {
                 /**
                  * args[]
                  * args[0] - app
@@ -80,16 +84,13 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                  * args[6] - startNickname
                  * args[7] - transportMode
                  * args[8] - launchMode
-                 * args[9] - enableDebug
-                 * args[10] - extras
-                 * args[11] - enableGeolocation
+                 * args[9] - extras
+                 * args[10] - enableGeolocation
                  */
-                boolean debugEnabled = args.getBoolean(9);
-                setDebug(debugEnabled);
+
                 if(args.get(11) != null){
                     launchNavigator.setGeocoding(args.getBoolean(11));
                 }
-
 
                 JSONObject params = new JSONObject();
                 params.put("app", args.getString(0));

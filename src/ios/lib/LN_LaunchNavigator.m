@@ -42,6 +42,7 @@
 **********************/
 static WE_Logger* logger;
 static NSArray* appNames;
+static NSArray* navigateParamNames;
 
 // Valid input location types for apps
 static NSDictionary* appLocationTypes;
@@ -79,47 +80,61 @@ static NSDictionary* extras;
         logger = _logger;
         self.locationManager = [[CLLocationManager alloc] init];
         self.locationManager.delegate = self;
+      
+        navigateParamNames = @[
+          @"appName",
+          @"destType",
+          @"dest",
+          @"destNickname",
+          @"startType",
+          @"start",
+          @"startNickname",
+          @"transportMode",
+          @"launchMode",
+          @"extras"
+        ];
 
         appNames = @[
-                     @"apple_maps",
-                     @"citymapper",
-                     @"google_maps",
-                     @"navigon",
-                     @"transit_app",
-                     @"waze",
-                     @"yandex",
-                     @"uber",
-                     @"tomtom",
-                     @"sygic",
-                     @"here_maps",
-                     @"moovit",
-                     @"lyft",
-                     @"maps_me",
-                     @"cabify",
-                     @"baidu",
-                     @"taxis_99",
-                     @"gaode"
-                     ];
+         @"apple_maps",
+         @"citymapper",
+         @"google_maps",
+         @"navigon",
+         @"transit_app",
+         @"waze",
+         @"yandex",
+         @"uber",
+         @"tomtom",
+         @"sygic",
+         @"here_maps",
+         @"moovit",
+         @"lyft",
+         @"maps_me",
+         @"cabify",
+         @"baidu",
+         @"taxis_99",
+         @"gaode"
+         ];
+      
         appLocationTypes = @{
-                             @(LNAppAppleMaps): LNLocTypeBoth,
-                             @(LNAppCitymapper): LNLocTypeCoords,
-                             @(LNAppGoogleMaps): LNLocTypeBoth,
-                             @(LNAppNavigon): LNLocTypeCoords,
-                             @(LNAppTheTransitApp): LNLocTypeCoords,
-                             @(LNAppWaze): LNLocTypeCoords,
-                             @(LNAppYandex): LNLocTypeCoords,
-                             @(LNAppUber): LNLocTypeCoords,
-                             @(LNAppTomTom): LNLocTypeCoords,
-                             @(LNAppSygic): LNLocTypeCoords,
-                             @(LNAppHereMaps): LNLocTypeCoords,
-                             @(LNAppMoovit): LNLocTypeCoords,
-                             @(LNAppLyft): LNLocTypeCoords,
-                             @(LNAppMapsMe): LNLocTypeCoords,
-                             @(LNAppCabify): LNLocTypeCoords,
-                             @(LNAppBaidu): LNLocTypeBoth,
-                             @(LNAppTaxis99): LNLocTypeCoords,
-                             @(LNAppGaode): LNLocTypeCoords
-                             };
+         @(LNAppAppleMaps): LNLocTypeBoth,
+         @(LNAppCitymapper): LNLocTypeCoords,
+         @(LNAppGoogleMaps): LNLocTypeBoth,
+         @(LNAppNavigon): LNLocTypeCoords,
+         @(LNAppTheTransitApp): LNLocTypeCoords,
+         @(LNAppWaze): LNLocTypeCoords,
+         @(LNAppYandex): LNLocTypeCoords,
+         @(LNAppUber): LNLocTypeCoords,
+         @(LNAppTomTom): LNLocTypeCoords,
+         @(LNAppSygic): LNLocTypeCoords,
+         @(LNAppHereMaps): LNLocTypeCoords,
+         @(LNAppMoovit): LNLocTypeCoords,
+         @(LNAppLyft): LNLocTypeCoords,
+         @(LNAppMapsMe): LNLocTypeCoords,
+         @(LNAppCabify): LNLocTypeCoords,
+         @(LNAppBaidu): LNLocTypeBoth,
+         @(LNAppTaxis99): LNLocTypeCoords,
+         @(LNAppGaode): LNLocTypeCoords
+         };
         LNEmptyCoord = CLLocationCoordinate2DMake(LNEmptyLocation, LNEmptyLocation);
     }
     return self;
@@ -129,7 +144,7 @@ static NSDictionary* extras;
     return logger;
 }
 
-- (void)getLogger:(WE_Logger*)_logger{
+- (void)setLogger:(WE_Logger*)_logger{
     logger = _logger;
 }
 
@@ -164,66 +179,70 @@ static NSDictionary* extras;
           success:(NavigateSuccessBlock)success
              fail:(NavigateFailBlock)fail
 {
-    // Set state
-    navigateParams = params;
-    self.navigateSuccess = success;
-    self.navigateFail = fail;
+  // Set state
+  navigateParams = params;
+  self.navigateSuccess = success;
+  self.navigateFail = fail;
+  [self ensureNavigateParamNames];
 
-    startIsCurrentLocation = FALSE;
-    destAddress = nil;
-    destCoord = LNEmptyCoord;
-    startAddress = nil;
-    startCoord = LNEmptyCoord;
-    destName = nil;
-    startName = params[@"startName"];
-    extras = nil;
+  startIsCurrentLocation = FALSE;
+  destAddress = nil;
+  destCoord = LNEmptyCoord;
+  startAddress = nil;
+  startCoord = LNEmptyCoord;
+  destName = params[@"destName"];;
+  startName = params[@"startName"];
+  extras = params[@"extras"];
+  
+  if([params objectForKey:@"enableGeocoding"]){
+    enableGeocoding = [params objectForKey:@"enableGeocoding"];
+  }
     
-    if([params[@"launchMode"] isEqual: @"mapkit"]){
-        useMapKit = TRUE;
-    }else{
-        useMapKit = FALSE;
-    }
-    
-    app = [self mapApp_NameToLN:params[@"appName"]];
-    BOOL isAvailable = [self isMapAppInstalled:app];
-    if(!isAvailable){
-        fail([NSString stringWithFormat:@"%@ is not installed on the device", params[@"appName"]]);
-        return;
-    }
-    
-    if (![params[@"dest"] isKindOfClass:[NSString class]]) {
-        fail(@"Missing destination argument");
-        return;
-    }
-    
-    logMsg = [NSString stringWithFormat:@"Using %@ to navigate", params[@"appName"]];
-    [self getDest:^{
-        if([params[@"startType"] isEqual: LNLocTypeNone]){
-            start_mapItem = [MKMapItem mapItemForCurrentLocation];
-            startIsCurrentLocation = TRUE;
-            logMsg = [NSString stringWithFormat:@"%@ from current location", logMsg];
-            if([self isNull:startName]){
-                startName = @"Current location";
-            }
-            if([self requiresStartLocation:app]){
-                [self getCurrentLocation:^(CLLocation* currentLoc){
-                    NSString* _start = [NSString stringWithFormat:@"%f,%f",currentLoc.coordinate.latitude,currentLoc.coordinate.longitude];
-                    startCoord = [self stringToCoords:_start];
-                    logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, _start];
-                    [self launchApp];
-                } error:^(NSError* error){
-                    fail([NSString stringWithFormat:@"Start location was not specified and could not be automatically determined but is required by %@: %@", params[@"appName"], error.description]);
-                }];
-            }else{
-                [self launchApp];
-            }
-        }else{
-            [self getStart:^{
-                [self launchApp];
-            }];
-        }
-    }];
-    
+  if([params[@"launchMode"] isEqual: @"mapkit"]){
+      useMapKit = TRUE;
+  }else{
+      useMapKit = FALSE;
+  }
+  
+  app = [self mapApp_NameToLN:params[@"appName"]];
+  BOOL isAvailable = [self isMapAppInstalled:app];
+  if(!isAvailable){
+      fail([NSString stringWithFormat:@"%@ is not installed on the device", params[@"appName"]]);
+      return;
+  }
+  
+  if (![params[@"dest"] isKindOfClass:[NSString class]]) {
+      fail(@"Missing destination argument");
+      return;
+  }
+  
+  logMsg = [NSString stringWithFormat:@"Using %@ to navigate", params[@"appName"]];
+  [self getDest:^{
+      if([params[@"startType"] isEqual: LNLocTypeNone]){
+          start_mapItem = [MKMapItem mapItemForCurrentLocation];
+          startIsCurrentLocation = TRUE;
+          logMsg = [NSString stringWithFormat:@"%@ from current location", logMsg];
+          if([self isNull:startName]){
+              startName = @"Current location";
+          }
+          if([self requiresStartLocation:app]){
+              [self getCurrentLocation:^(CLLocation* currentLoc){
+                  NSString* _start = [NSString stringWithFormat:@"%f,%f",currentLoc.coordinate.latitude,currentLoc.coordinate.longitude];
+                  startCoord = [self stringToCoords:_start];
+                  logMsg = [NSString stringWithFormat:@"%@ from %@", logMsg, _start];
+                  [self launchApp];
+              } error:^(NSError* error){
+                  fail([NSString stringWithFormat:@"Start location was not specified and could not be automatically determined but is required by %@: %@", params[@"appName"], error.description]);
+              }];
+          }else{
+              [self launchApp];
+          }
+      }else{
+          [self getStart:^{
+              [self launchApp];
+          }];
+      }
+  }];
 }
 
 
@@ -1260,6 +1279,10 @@ static NSDictionary* extras;
     return str == nil || str == (id)[NSNull null] || str.length == 0 || [str isEqual: @"<null>"];
 }
 
+-(void)setGeocodingEnabled:(bool)enabled{
+  enableGeocoding = enabled;
+}
+
 - (bool)isGeocodingEnabled
 {
     return enableGeocoding;
@@ -1283,6 +1306,15 @@ static NSDictionary* extras;
     }
     
     return [[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:urlPrefix]];
+}
+
+-(void) ensureNavigateParamNames{
+  for(id object in navigateParamNames){
+    NSString* key = object;
+    if(![navigateParams objectForKey:key]){
+      [navigateParams setValue:nil forKey:key];
+    }
+  }
 }
 
 - (NSString*)urlPrefixForMapApp:(LNApp)mapApp {
