@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 5.0.0
+- Major rework of native code to separate Cordova plugin layer from launch navigator functionality.
+- Remove obsolete Windows Phone 8 platform.
+- Add explicit `enableDebug()` API function to enable debug output.
+
 ## v4.2.1
 - Enable override of default OKHTTP version to prevent Gradle version collisions. Fixes [#193](https://github.com/dpa99c/phonegap-launch-navigator/issues/193).
 
