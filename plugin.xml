@@ -6,7 +6,7 @@
     version="5.0.0-dev">
 
   <name>Launch Navigator</name>
-  <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows Phone</description>
+  <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows</description>
   <author>Dave Alden</author>
 
   <engines>
@@ -122,13 +122,6 @@
   <!-- windows -->
   <platform name="windows">
     <js-module src="www/windows/launchnavigator.js" name="LaunchNavigator">
-      <merges target="launchnavigator" />
-    </js-module>     
-  </platform>
-
-  <!-- wp8 -->
-  <platform name="wp8">
-    <js-module src="www/wp8/launchnavigator.js" name="LaunchNavigator">
       <merges target="launchnavigator" />
     </js-module>     
   </platform>
