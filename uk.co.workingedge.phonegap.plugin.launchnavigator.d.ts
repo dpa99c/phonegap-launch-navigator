@@ -1,18 +1,11 @@
-﻿// Type definitions for uk.co.workingedge.phonegap.plugin.launchnavigator@4
+﻿// Type definitions for uk.co.workingedge.phonegap.plugin.launchnavigator@5
 // Project: https://github.com/dpa99c/phonegap-launch-navigator
 // Definitions by: Dave Alden <https://github.com/dpa99c>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+// Usage: import { LaunchNavigator, LaunchNavigatorOptions, PromptsOptions, RememberChoiceOptions, AppSelectionOptions, UserChoice, UserPrompted, AppSelection } from 'react-native-launch-navigator';
 
+export as namespace launchnavigator;
 
-interface Window {
-    /**
-     * Indicates whether the current device is a tablet or a phone.
-     * @return {boolean} true if the device is a tablet; false if the device is a phone.
-     */
-    LaunchNavigator(): LaunchNavigator;
-}
-
-interface PromptsOptions {
+export interface PromptsOptions {
 
     /**
      * a function to pass the user's decision whether to remember their choice of app.
@@ -47,7 +40,7 @@ interface PromptsOptions {
     noButtonText?: string;
 }
 
-interface RememberChoiceOptions {
+export interface RememberChoiceOptions {
 
     /**
      * whether to remember user choice of app for next time, instead of asking again for user choice.
@@ -75,7 +68,7 @@ interface RememberChoiceOptions {
     prompt?: PromptsOptions
 }
 
-interface AppSelectionOptions {
+export interface AppSelectionOptions {
     /**
      * text to display in the native picker which enables user to select which navigation app to launch.
      * Defaults to "Select app for navigation" if not specified.
@@ -115,7 +108,7 @@ interface AppSelectionOptions {
 
 }
 
-interface LaunchNavigatorOptions {
+export interface LaunchNavigatorOptions {
 
     /**
      * A callback to invoke when the navigation app is successfully launched.
@@ -197,7 +190,7 @@ interface LaunchNavigatorOptions {
     appSelection?: AppSelectionOptions;
 }
 
-interface UserChoice{
+export interface UserChoice{
 
     /**
      * Indicates whether a user choice exists for a preferred navigator app.
@@ -225,7 +218,7 @@ interface UserChoice{
     clear: (callback: () => void) => void;
 }
 
-interface UserPrompted{
+export interface UserPrompted{
     /**
      * Indicates whether user has already been prompted whether to remember their choice a preferred navigator app.
      * @param callback - function to pass result to: will receive a boolean argument.
@@ -245,12 +238,12 @@ interface UserPrompted{
     clear: ( callback: () => void) => void;
 }
 
-interface AppSelection{
+export interface AppSelection{
     userChoice: UserChoice;
     userPrompted: UserPrompted;
 }
 
-interface LaunchNavigator {
+export interface LaunchNavigator {
 
     /**
      * Supported platforms
