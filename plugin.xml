@@ -8,9 +8,10 @@
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows Phone</description>
   <author>Dave Alden</author>
-
   <engines>
-    <engine name="cordova" version=">=4.0.0" />
+    <engine name="cordova" version=">=7.1.0"/>
+    <engine name="cordova-android" version=">=6.3.0"/>
+    <engine name="cordova-ios" version=">=4.3.0"/>
   </engines>
   <repo>https://github.com/dpa99c/phonegap-launch-navigator.git</repo>
   <issue>https://github.com/dpa99c/phonegap-launch-navigator/issues</issue>
