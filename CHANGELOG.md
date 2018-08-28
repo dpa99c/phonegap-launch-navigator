@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v4.2.2
+- Add minimum version restriction on Cordova CLI and platforms to prevent anomalous issues being reported due to outdated Cordova environment.
+
 ## v4.2.1
 - Enable override of default OKHTTP version to prevent Gradle version collisions. Fixes [#193](https://github.com/dpa99c/phonegap-launch-navigator/issues/193).
 
