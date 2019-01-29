@@ -149,6 +149,8 @@ public class LaunchNavigator {
             "extras"
     };
 
+    String googleApiKey = null;
+
 
     /*******************
      * Constructors
@@ -170,6 +172,10 @@ public class LaunchNavigator {
      * Public API
      *******************/
 
+    public void setGoogleApiKey(String googleApiKey){
+        this.googleApiKey = googleApiKey;
+    }
+
     public void setLogger(ILogger logger){
         this.logger = logger;
     }
@@ -177,7 +183,7 @@ public class LaunchNavigator {
     public ILogger getLogger(){
         return this.logger;
     }
-    
+
     public void setGeocoding(boolean geocodingEnabled){
         this.geocodingEnabled = geocodingEnabled;
     }
@@ -1613,7 +1619,7 @@ public class LaunchNavigator {
         return applicationName;
     }
 
-    
+
 
     private boolean isPackageInstalled(String packagename, PackageManager packageManager) {
         try {
@@ -1658,7 +1664,7 @@ public class LaunchNavigator {
         String result;
         String errMsg = "Unable to reverse geocode address from coords '"+latLon;
         if(!geocodingEnabled){
-            throw new Exception("No internet connection: "+errMsg);
+            throw new Exception("Geocoding is disabled: "+errMsg);
         }
 
         if(!isNetworkAvailable()){
@@ -1672,7 +1678,10 @@ public class LaunchNavigator {
     }
 
     private JSONObject doGeocode(String query) throws Exception{
-        String url = "http://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false";
+        if(this.googleApiKey == null){
+            throw new Exception("Google API key has not been specified");
+        }
+        String url = "https://maps.google.com/maps/api/geocode/json?" + query + "&sensor=false&key="+this.googleApiKey;
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -1680,6 +1689,9 @@ public class LaunchNavigator {
         Response response = httpClient.newCall(request).execute();
         String responseBody = response.body().string();
         JSONObject oResponse = new JSONObject(responseBody);
+        if(oResponse.has("error_message")){
+            throw new Exception(oResponse.getString("error_message"));
+        }
         return ((JSONArray)oResponse.get("results")).getJSONObject(0);
     }
 

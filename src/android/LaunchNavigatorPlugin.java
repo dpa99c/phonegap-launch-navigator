@@ -28,6 +28,7 @@
  */
 package uk.co.workingedge.phonegap.plugin;
 
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import org.apache.cordova.CordovaInterface;
@@ -48,6 +49,7 @@ import uk.co.workingedge.LaunchNavigator;
 public class LaunchNavigatorPlugin extends CordovaPlugin {
 
     private static final String LOG_TAG = "LaunchNavigatorPlugin";
+    private static final String MANIFEST_API_KEY = "launchnavigator.GOOGLE_API_KEY";
 
     private LaunchNavigator launchNavigator;
     private CordovaLogger logger;
@@ -57,6 +59,8 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
         try {
             logger = new CordovaLogger(cordova, webView, LOG_TAG);
             launchNavigator = new LaunchNavigator(cordova.getActivity().getApplicationContext(), new CordovaLogger(cordova, webView, LaunchNavigator.LOG_TAG));
+            String googleApiKey = cordova.getActivity().getPackageManager().getApplicationInfo(cordova.getActivity().getPackageName(), PackageManager.GET_META_DATA).metaData.getString(MANIFEST_API_KEY);
+            launchNavigator.setGoogleApiKey(googleApiKey);
         }catch (Exception e){
             Log.e(LOG_TAG, e.getMessage());
         }
@@ -88,8 +92,8 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                  * args[10] - enableGeolocation
                  */
 
-                if(args.get(11) != null){
-                    launchNavigator.setGeocoding(args.getBoolean(11));
+                if(args.get(10) != null){
+                    launchNavigator.setGeocoding(args.getBoolean(10));
                 }
 
                 JSONObject params = new JSONObject();
@@ -102,7 +106,7 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                 params.put("startNickname", args.getString(6));
                 params.put("transportMode", args.getString(7));
                 params.put("launchMode", args.getString(8));
-                params.put("extras", args.getString(10));
+                params.put("extras", args.getString(9));
 
                 String error = launchNavigator.navigate(params);
                 if(error == null){

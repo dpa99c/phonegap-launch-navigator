@@ -42,6 +42,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 - [Installing](#installing)
   - [Using the CLI](#using-the-cli)
   - [PhoneGap Build](#phonegap-build)
+  - [Google API key for Android](#google-api-key-for-android)
   - [OKHTTP Library](#okhttp-library)
 - [Usage examples](#usage-examples)
   - [Simple usage](#simple-usage)
@@ -117,6 +118,7 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
   - geocoding is disabled by passing `enableGeocoding: false` in the options object
   - there is no internet connection to perform the remote geocode operation
   - geocoding fails (e.g. an address cannot be found for the given lat/long coords)
+- Note that for geocoding to work on Android, a Google API key must be specified in order to use the Google Geocoder API service (see installation instructions below).
   
 ## Remember user's choice of navigation app
 
@@ -193,22 +195,29 @@ This plugin is intended to launch **native** navigation apps and therefore will 
 
 ## Using the CLI
 
-    $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-    $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
-    $ ionic cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator
+    $ cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}"
+    $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}"
+    $ ionic cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}"
 
 ## PhoneGap Build
 
 Add the following xml to your config.xml to use the latest version of this plugin from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
 
-    <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" />
+    <plugin name="uk.co.workingedge.phonegap.plugin.launchnavigator" source="npm" >
+        <variable name="GOOGLE_API_KEY_FOR_ANDROID" value="{your_api_key}" />
+    </plugin>
+
+## Google API key for Android
+- On Android, this plugin uses [Google's Geocoding API](https://developers.google.com/maps/documentation/geocoding/intro) to geocode input addresses to lat/lon coordinates in order to support navigation apps which only allow input locations to be specified as lat/lon coordinates.
+- Google now requires that an API key be specified in order to use the Geocoding API, so you'll need to obtain an API key and specify it via the `GOOGLE_API_KEY_FOR_ANDROID` plugin variable during plugin installation.
+- For more information on how to obtain an API key, see the [Google documentation](https://developers.google.com/maps/documentation/geocoding/get-api-key).
 
 ## OKHTTP Library
-- This plugin uses the [OKHTTP library]() on Android to access Google's remove Geocoding service
+- This plugin uses the [OKHTTP library](https://square.github.io/okhttp/) on Android to access Google's remote Geocoding API service
 - The library is included at Android build time via Gradle
 - If another plugin in your Cordova project specifies a different version of the OKHTTP library than this plugin, this can cause a Gradle version collision leading to build failure. [See #193](https://github.com/dpa99c/phonegap-launch-navigator/issues/193).
 - You can override the default version of the library specified by this plugin by specifying the `OKHTTP_VERSION` plugin variable during plugin installation:
-    - `cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable OKHTTP_VERSION=1.2.3`
+    - `cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}" --variable OKHTTP_VERSION=1.2.3`
 - You can find the version of the library currently specified by this plugin [in the plugin.xml](https://github.com/dpa99c/phonegap-launch-navigator/blob/master/plugin.xml#L50)
 
 # Usage examples

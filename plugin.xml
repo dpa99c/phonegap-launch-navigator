@@ -28,6 +28,13 @@
 
   <!-- android -->
   <platform name="android">
+    <preference name="GOOGLE_API_KEY_FOR_ANDROID" />
+    <config-file target="AndroidManifest.xml" parent="/manifest/application">
+      <meta-data
+              android:name="launchnavigator.GOOGLE_API_KEY"
+              android:value="$GOOGLE_API_KEY_FOR_ANDROID" />
+    </config-file>
+
     <dependency id="cordova-plugin-actionsheet" version="2" />
     <dependency id="cordova-plugin-dialogs" version="*" />
 
