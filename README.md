@@ -13,8 +13,7 @@ Key features:
 - Out-of-the-box UI for app selection which remembers user choice
 - Growing list of [supported apps](#supported-navigation-apps)
 
-
-The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
+Launch Navigator is also available as a [React Native module](https://github.com/dpa99c/react-native-launch-navigator).
 
 <p align="center">
   <img src="http://i.imgur.com/v96FhpZ.gif" />
@@ -188,6 +187,8 @@ open an issue containing a link or details of how the app should be invoked.
 I don't have time to research launch mechanisms for every suggested app, so I will close such issues immediately.
 
 # Installing
+
+The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
 **IMPORTANT:** Note that the plugin will **NOT** work in a browser-emulated Cordova environment, for example by running `cordova serve` or using the [Ripple emulator](https://github.com/ripple-emulator/ripple).
 This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
@@ -529,7 +530,9 @@ Enables debug log output from the plugin to the JS and native consoles. By defau
 
 Determines if the given app is installed and available on the current device.
 
-    launchnavigator.isAppAvailable(appName, success, error);
+    launchnavigator.isAppAvailable(appName, function(isAvailable){
+        console.log(appName + " is available: " + isAvaialble);
+    }, error);
 
 #### Parameters
 - {string} appName - name of the app to check availability for. Define as a constant using `ln.APP`.
@@ -541,7 +544,11 @@ Determines if the given app is installed and available on the current device.
 
 Returns a list indicating which apps are installed and available on the current device.
 
-    launchnavigator.availableApps(success, error);
+    launchnavigator.availableApps(function(apps){
+        apps.forEach(function(app){
+            console.log(app + " is available");
+        });
+    }, error);
 
 #### Parameters
 - {function} success - callback to invoke on successful determination of availability. Will be passed a key/value object where the key is the app name and the value is a boolean indicating whether the app is available.
@@ -553,7 +560,7 @@ Returns a list indicating which apps are installed and available on the current 
 
 Returns the display name of the specified app.
 
-    launchnavigator.getAppDisplayName(app);
+    let displayName = launchnavigator.getAppDisplayName(app);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`. whether the app is available.
@@ -565,18 +572,18 @@ Returns the display name of the specified app.
 
 Returns list of supported apps on a given platform.
 
-    launchnavigator.getAppsForPlatform(platform);
+    let apps = launchnavigator.getAppsForPlatform(platform);
 
 #### Parameters
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
-- returns {string} -  {array} - apps supported on specified platform as a list of `launchnavigator.APP` constants.
+- returns {array} of {string} - apps supported on specified platform as a list of `launchnavigator.APP` constants.
 
 
 ### supportsTransportMode()
 
 Indicates if an app on a given platform supports specification of transport mode.
 
-    launchnavigator.supportsTransportMode(app, platform, launchMode);
+    let transportModeIsSupported = launchnavigator.supportsTransportMode(app, platform, launchMode);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
@@ -590,13 +597,13 @@ Indicates if an app on a given platform supports specification of transport mode
 
 Returns the list of transport modes supported by an app on a given platform.
 
-    launchnavigator.getTransportModes(app, platform, launchMode);
+    let modes = launchnavigator.getTransportModes(app, platform, launchMode);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
 - {string} platform - specified as a constant in `launchnavigator.PLATFORM`. e.g. `launchnavigator.PLATFORM.IOS`.
 - {string} launchMode (optional) - Only applies to Google Maps on Android. Specified as a constant in `launchnavigator.LAUNCH_MODE`. e.g. `launchnavigator.LAUNCH_MODE.MAPS`.
-- returns {boolean} - {array} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
+- returns {array} of {string} - list of transports modes as constants in `launchnavigator.TRANSPORT_MODE`.
 If app/platform combination doesn't support specification of transport mode, the list will be empty;
 
 
@@ -605,7 +612,7 @@ If app/platform combination doesn't support specification of transport mode, the
 
 Indicates if an app on a given platform supports specification of a custom nickname for destination location.
 
-    launchnavigator.supportsDestName(app, platform, launchMode);
+    let destNameIsSupported = launchnavigator.supportsDestName(app, platform, launchMode);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
@@ -618,7 +625,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 
 Indicates if an app on a given platform supports specification of start location.
 
-    launchnavigator.supportsStart(app, platform, launchMode);
+    let startIsSupported =  launchnavigator.supportsStart(app, platform, launchMode);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
@@ -631,7 +638,7 @@ Indicates if an app on a given platform supports specification of start location
 
 Indicates if an app on a given platform supports specification of a custom nickname for start location.
 
-    launchnavigator.supportsStartName(app, platform);
+    let startNameIsSupported = launchnavigator.supportsStartName(app, platform);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.
@@ -646,7 +653,7 @@ Indicates if an app on a given platform supports specification of a custom nickn
 Indicates if an app on a given platform supports specification of launch mode.
 - Currently only Google Maps on Android and Apple Maps on iOS does.
 
-    launchnavigator.supportsLaunchMode(app, platform);
+    let launchModeIsSupported = launchnavigator.supportsLaunchMode(app, platform);
 
 #### Parameters
 - {string} app - specified as a constant in `launchnavigator.APP`. e.g. `launchnavigator.APP.GOOGLE_MAPS`.

@@ -28,5 +28,14 @@
         "navigation",
         "navigator"
     ],
-    "types": "./uk.co.workingedge.phonegap.plugin.launchnavigator.d.ts"
+    "types": "./uk.co.workingedge.phonegap.plugin.launchnavigator.d.ts",
+    "engines": {
+        "cordovaDependencies": {
+            "4.0.0": {
+                "cordova-ios": ">=4.3.0",
+                "cordova-android": ">=6.3.0",
+                "cordova": ">=7.1.0"
+            }
+        }
+    }
 }
