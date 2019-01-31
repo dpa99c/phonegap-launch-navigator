@@ -291,7 +291,7 @@ static NSDictionary* extras;
         }
     }
     
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -314,7 +314,7 @@ static NSDictionary* extras;
         launchOptions = @{MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving};
     }
     
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         NSEnumerator* keyEnum = [extras keyEnumerator];
         id key;
         while ((key = [keyEnum nextObject]))
@@ -368,7 +368,8 @@ static NSDictionary* extras;
         [url appendFormat:@"&directionsmode=%@", navigateParams[@"transportMode"]];
     }
     
-    if(extras){
+    
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -397,7 +398,7 @@ static NSDictionary* extras;
     
     NSMutableString* url = [NSMutableString stringWithFormat:@"https://citymapper.com/directions?%@",                            
                             [params componentsJoinedByString:@"&"]];
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -417,7 +418,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@directions?%@",
                             [self urlPrefixForMapApp:LNAppTheTransitApp],
                             [params componentsJoinedByString:@"&"]];
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -434,7 +435,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@coordinate/%@/%f/%f",
                             [self urlPrefixForMapApp:LNAppNavigon],
                             [self urlEncode:name], destCoord.longitude, destCoord.latitude];
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -445,7 +446,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@?ll=%f,%f&navigate=yes",
                             [self urlPrefixForMapApp:LNAppWaze],
                             destCoord.latitude, destCoord.longitude];
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -463,7 +464,7 @@ static NSDictionary* extras;
                [self urlPrefixForMapApp:LNAppYandex],
                destCoord.latitude, destCoord.longitude, startCoord.latitude, startCoord.longitude];
     }
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -498,7 +499,7 @@ static NSDictionary* extras;
             url = [NSMutableString stringWithFormat:@"%@&pickup[nickname]=%@",url,[startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -512,7 +513,7 @@ static NSDictionary* extras;
     if(destName){
         url = [NSMutableString stringWithFormat:@"%@&name=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -564,7 +565,7 @@ static NSDictionary* extras;
                             startParam,
                             destParam];
     
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"?%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -590,7 +591,7 @@ static NSDictionary* extras;
         }
     }
     
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
     [self logDebugURI:url];
@@ -600,10 +601,10 @@ static NSDictionary* extras;
 -(void)launchLyft {
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@ridetype?", [self urlPrefixForMapApp:LNAppLyft]];
     
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         [url appendFormat:@"%@", [self extrasToQueryParams:extras]];
     }
-    if(!extras || ![extras objectForKey:@"id"]){
+    if([self isEmptyDictionary:extras] || ![extras objectForKey:@"id"]){
         [url appendFormat:@"%@", @"id=lyft"];
     }
     
@@ -685,7 +686,7 @@ static NSDictionary* extras;
 
     NSMutableArray* aStops = [NSMutableArray new];
     [aStops addObject:dStart];
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         dJson = [extras mutableCopy];
         if([dJson objectForKey:@"stops"] != nil){
             [aStops addObjectsFromArray:[dJson objectForKey:@"stops"]];
@@ -754,7 +755,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@path?", [self urlPrefixForMapApp:LNAppGaode]];
 
     NSMutableDictionary* mExtras;
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         mExtras = [extras mutableCopy];
     }else{
         mExtras = [[NSMutableDictionary alloc] init];
@@ -802,7 +803,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@call?", [self urlPrefixForMapApp:LNAppTaxis99]];
     
     NSMutableDictionary* mExtras;
-    if(extras){
+    if(![self isEmptyDictionary:extras]){
         mExtras = [extras mutableCopy];
     }else{
         mExtras = [[NSMutableDictionary alloc] init];
@@ -1277,6 +1278,11 @@ static NSDictionary* extras;
 - (bool)isNull: (NSString*)str
 {
     return str == nil || str == (id)[NSNull null] || str.length == 0 || [str isEqual: @"<null>"];
+}
+
+- (bool)isEmptyDictionary: (NSDictionary*)dict
+{
+    return dict == nil || dict == (id)[NSNull null] || [dict count] == 0;
 }
 
 -(void)setGeocodingEnabled:(bool)enabled{
