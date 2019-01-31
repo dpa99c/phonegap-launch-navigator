@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 5.0.1
+- Fix check for empty extras parameter on iOS. Fixes [#212](https://github.com/dpa99c/phonegap-launch-navigator/issues/212).
+
 ## 5.0.0
 - Major rework of native code to separate Cordova plugin layer from native launch navigator functionality.
 - Remove obsolete Windows Phone 8 platform.
