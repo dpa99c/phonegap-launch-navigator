@@ -63,7 +63,7 @@ static NSString*const LNLocTypeCoords = @"coords";
 /**
 Indicates an empty coordinate
 */
-CLLocationCoordinate2D LNEmptyCoord;
+static CLLocationCoordinate2D LNEmptyCoord;
 
 /**
 Indicates an empty latitude or longitude component
