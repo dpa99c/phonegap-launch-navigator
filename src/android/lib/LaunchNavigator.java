@@ -627,12 +627,13 @@ public class LaunchNavigator {
             String url = "waze://?";
             String logMsg = "Using Waze to navigate to";
             if(!isNull(destLatLon)){
-                url += "ll="+destLatLon+"&navigate=yes";
+                url += "ll="+destLatLon;
                 logMsg += " ["+destLatLon+"]";
             }else{
                 url += "q="+destAddress;
                 logMsg += " '"+destAddress+"'";
             }
+            url += "&navigate=yes";
 
             logMsg += " from current location";
 
