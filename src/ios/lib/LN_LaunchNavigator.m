@@ -211,7 +211,7 @@ static NSDictionary* extras;
       return;
   }
   
-  if (![params[@"dest"] isKindOfClass:[NSString class]]) {
+  if(![params[@"dest"] isKindOfClass:[NSString class]]) {
       fail(@"Missing destination argument");
       return;
   }
@@ -281,7 +281,7 @@ static NSDictionary* extras;
         }
     }
     
-    if (navigateParams[@"transportMode"]) {
+    if(navigateParams[@"transportMode"]) {
         if([navigateParams[@"transportMode"] isEqual: @"walking"]){
             [url appendFormat:@"&dirflg=w"];
         }else if([navigateParams[@"transportMode"] isEqual: @"transit"]){
@@ -301,7 +301,7 @@ static NSDictionary* extras;
 -(void)launchAppleMapsWithMapKit {
     NSDictionary* launchOptions;
     NSString* transportMode;
-    if (![self isNull:navigateParams[@"transportMode"]]) {
+    if(![self isNull:navigateParams[@"transportMode"]]) {
         if([navigateParams[@"transportMode"] isEqual: @"walking"]){
             transportMode = MKLaunchOptionsDirectionsModeWalking;
         }else if([navigateParams[@"transportMode"] isEqual: @"transit"]){
@@ -323,10 +323,10 @@ static NSDictionary* extras;
         }
     }
     
-    if(!destAddress){
+    if([self isNull:destAddress]){
         MKPlacemark* placemark = [[MKPlacemark alloc] initWithCoordinate:destCoord addressDictionary:nil];
         dest_mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
-        if(destName){
+        if(![self isNull:destName]){
             [dest_mapItem setName:destName];
         }
     }
@@ -334,9 +334,9 @@ static NSDictionary* extras;
     if([navigateParams[@"startType"] isEqual: LNLocTypeNone]){
         [MKMapItem openMapsWithItems:@[dest_mapItem] launchOptions:launchOptions];
     }else{
-        if(!startAddress){
+        if([self isNull:startAddress]){
             start_mapItem = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:startCoord addressDictionary:nil]];
-            if(startName){
+            if(![self isNull:startName]){
                 [start_mapItem setName:startName];
             }
         }
@@ -364,7 +364,7 @@ static NSDictionary* extras;
         }
     }
     
-    if (navigateParams[@"transportMode"]) {
+    if(navigateParams[@"transportMode"]) {
         [url appendFormat:@"&directionsmode=%@", navigateParams[@"transportMode"]];
     }
     
@@ -378,21 +378,21 @@ static NSDictionary* extras;
 
 -(void)launchCitymapper {
     NSMutableArray* params = [NSMutableArray arrayWithCapacity:10];
-    if (!startIsCurrentLocation) {
+    if(!startIsCurrentLocation) {
         [params addObject:[NSString stringWithFormat:@"startcoord=%f,%f", startCoord.latitude, startCoord.longitude]];
-        if(startName){
+        if(![self isNull:startName]){
             [params addObject:[NSString stringWithFormat:@"startname=%@", [self urlEncode:startName]]];
         }
-        if(startAddress){
+        if(![self isNull:startAddress]){
             [params addObject:[NSString stringWithFormat:@"startaddress=%@", [self urlEncode:startAddress]]];
         }
     }
     
     [params addObject:[NSString stringWithFormat:@"endcoord=%f,%f", destCoord.latitude, destCoord.longitude]];
-    if(destName){
+    if(![self isNull:destName]){
         [params addObject:[NSString stringWithFormat:@"endname=%@", [self urlEncode:destName]]];
     }
-    if(destAddress){
+    if(![self isNull:destAddress]){
         [params addObject:[NSString stringWithFormat:@"endaddress=%@", [self urlEncode:destAddress]]];
     }
     
@@ -409,7 +409,7 @@ static NSDictionary* extras;
     // http://thetransitapp.com/developers
     
     NSMutableArray* params = [NSMutableArray arrayWithCapacity:2];
-    if (!startIsCurrentLocation) {
+    if(!startIsCurrentLocation) {
         [params addObject:[NSString stringWithFormat:@"from=%f,%f", startCoord.latitude, startCoord.longitude]];
     }
     
@@ -429,7 +429,7 @@ static NSDictionary* extras;
     // http://www.navigon.com/portal/common/faq/files/NAVIGON_AppInteract.pdf
     
     NSString* name = @"Destination";  // Doc doesn't say whether name can be omitted
-    if (destName) {
+    if(![self isNull:destName]){
         name = destName;
     }
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@coordinate/%@/%f/%f",
@@ -455,7 +455,7 @@ static NSDictionary* extras;
 
 -(void)launchYandex {
     NSMutableString* url = nil;
-    if (startIsCurrentLocation) {
+    if(startIsCurrentLocation) {
         url = [NSMutableString stringWithFormat:@"%@build_route_on_map?lat_to=%f&lon_to=%f",
                [self urlPrefixForMapApp:LNAppYandex],
                destCoord.latitude, destCoord.longitude];
@@ -473,13 +473,13 @@ static NSDictionary* extras;
 
 -(void)launchUber {
     NSMutableString* url = nil;
-    if (startIsCurrentLocation) {
+    if(startIsCurrentLocation) {
         url = [NSMutableString stringWithFormat:@"%@?action=setPickup&pickup=my_location&dropoff[latitude]=%f&dropoff[longitude]=%f",
                [self urlPrefixForMapApp:LNAppUber],
                destCoord.latitude,
                destCoord.longitude];
         
-        if(destName){
+        if(![self isNull:destName]){
             url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
         
@@ -491,11 +491,11 @@ static NSDictionary* extras;
                destCoord.latitude,
                destCoord.longitude];
         
-        if(destName){
+        if(![self isNull:destName]){
             url = [NSMutableString stringWithFormat:@"%@&dropoff[nickname]=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
         
-        if(startName){
+        if(![self isNull:startName]){
             url = [NSMutableString stringWithFormat:@"%@&pickup[nickname]=%@",url,[startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
@@ -510,7 +510,7 @@ static NSDictionary* extras;
     NSMutableString* url = [NSMutableString stringWithFormat:@"tomtomhome:geo:action=navigateto&lat=%f&long=%f",
                             destCoord.latitude,
                             destCoord.longitude];
-    if(destName){
+    if(![self isNull:destName]){
         url = [NSMutableString stringWithFormat:@"%@&name=%@",url,[destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     if(![self isEmptyDictionary:extras]){
@@ -542,13 +542,13 @@ static NSDictionary* extras;
 
 -(void)launchHereMaps {
     NSMutableString* startParam;
-    if (startIsCurrentLocation) {
+    if(startIsCurrentLocation) {
         startParam = (NSMutableString*) @"mylocation";
     } else {
         startParam = [NSMutableString stringWithFormat:@"%f,%f",
                       startCoord.latitude, startCoord.longitude];
         
-        if (startName) {
+        if(![self isNull:startName]) {
             [startParam appendFormat:@",%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
@@ -556,7 +556,7 @@ static NSDictionary* extras;
     NSMutableString* destParam = [NSMutableString stringWithFormat:@"%f,%f",
                                   destCoord.latitude, destCoord.longitude];
     
-    if (destName) {
+    if(![self isNull:destName]){
         [destParam appendFormat:@",%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     
@@ -578,15 +578,15 @@ static NSDictionary* extras;
     [url appendFormat:@"?dest_lat=%f&dest_lon=%f",
      destCoord.latitude, destCoord.longitude];
     
-    if (destName) {
+    if(![self isNull:destName]) {
         [url appendFormat:@"&dest_name=%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     
-    if (!startIsCurrentLocation) {
+    if(!startIsCurrentLocation) {
         [url appendFormat:@"&orig_lat=%f&orig_lon=%f",
          startCoord.latitude, startCoord.longitude];
         
-        if (startName) {
+        if(![self isNull:startName]) {
             [url appendFormat:@"&orig_name=%@", [startName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         }
     }
@@ -611,7 +611,7 @@ static NSDictionary* extras;
     [url appendFormat:@"&destination[latitude]=%f&destination[longitude]=%f",
      destCoord.latitude, destCoord.longitude];
     
-    if (!startIsCurrentLocation) {
+    if(!startIsCurrentLocation) {
         [url appendFormat:@"&pickup[latitude]=%f&pickup[longitude]=%f",
          startCoord.latitude, startCoord.longitude];
     }
@@ -626,7 +626,7 @@ static NSDictionary* extras;
     [url appendFormat:@"sll=%f,%f",
      startCoord.latitude, startCoord.longitude];
     
-    if(!startName){
+    if([self isNull:startName]){
         startName = @"Start";
     }
     [url appendFormat:@"&saddr=%@",[self urlEncode:startName]];
@@ -634,7 +634,7 @@ static NSDictionary* extras;
     [url appendFormat:@"&dll=%f,%f",
      destCoord.latitude, destCoord.longitude];
     
-    if(!destName){
+    if([self isNull:destName]){
         destName = @"Destination";
     }
     [url appendFormat:@"&daddr=%@",[self urlEncode:destName]];
@@ -666,13 +666,13 @@ static NSDictionary* extras;
     [dDest setObject:dDestLoc forKey:@"loc"];
 
 
-    if (destName) {
+    if(![self isNull:destName]) {
         [dDest setValue:destName forKey:@"name"];
     }
 
     NSMutableDictionary* dStart = [NSMutableDictionary new];
     NSMutableDictionary* dStartLoc = [NSMutableDictionary new];
-    if (startIsCurrentLocation) {
+    if(startIsCurrentLocation) {
         [dDest setValue:@"current" forKey:@"loc"];
     }else{
         dStartLoc[@"latitude"] = @((float)startCoord.latitude);
@@ -680,7 +680,7 @@ static NSDictionary* extras;
         [dStart setObject:dStartLoc forKey:@"loc"];
     }
 
-    if (startName) {
+    if(![self isNull:startName]) {
         [dStart setValue:startName  forKey:@"name"];
     }
 
@@ -711,7 +711,7 @@ static NSDictionary* extras;
     NSString* dest;
     if(![self isEmptyCoordinate:destCoord]){
         dest = [NSString stringWithFormat:@"%f,%f", destCoord.latitude, destCoord.longitude];
-        if(destName){
+        if(![self isNull:destName]){
             dest = [NSString stringWithFormat:@"name:%@|latlng:%f,%f", [self urlEncode:destName], destCoord.latitude, destCoord.longitude];
         }
     }else{
@@ -722,7 +722,7 @@ static NSDictionary* extras;
     NSString* start;
     if(![self isEmptyCoordinate:startCoord]){
         start = [NSString stringWithFormat:@"%f,%f", startCoord.latitude, startCoord.longitude];
-        if(startName){
+        if(![self isNull:startName]){
             start = [NSString stringWithFormat:@"name:%@|latlng:%f,%f", [self urlEncode:startName], startCoord.latitude, startCoord.longitude];
         }
     }else{
@@ -741,7 +741,7 @@ static NSDictionary* extras;
         [url appendFormat:@"&mode=driving"];
     }
     
-    if(!extras){
+    if([self isEmptyDictionary:extras]){
         extras = [[NSMutableDictionary alloc] init];
         [extras setValue:@"wgs84" forKey:@"coord_type"];
     }
@@ -825,7 +825,7 @@ static NSDictionary* extras;
     }
     
     // Start
-    if (![self isNull:startName]) {
+    if(![self isNull:startName]) {
         // use it
     }else if(![self isNull:startAddress]){
         startName = startAddress;
@@ -871,7 +871,7 @@ static NSDictionary* extras;
                         destAddress = [self getAddressFromPlacemark:dest_placemark];
                         logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, destAddress];
                         
-                        if(destName){
+                        if(![self isNull:destName]){
                             [dest_mapItem setName:destName];
                         }else{
                             [dest_mapItem setName:destPlacemark.name];
@@ -903,7 +903,7 @@ static NSDictionary* extras;
                         destCoord = dest_placemark.coordinate;
                         logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, [self coordsToString:destCoord]];
                         
-                        if(destName){
+                        if(![self isNull:destName]){
                             [dest_mapItem setName:destName];
                         }else{
                             [dest_mapItem setName:destPlacemark.name];
@@ -940,7 +940,7 @@ static NSDictionary* extras;
                         startAddress = [self getAddressFromPlacemark:start_placemark];
                         logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, startAddress];
                         
-                        if(startName){
+                        if(![self isNull:startName]){
                             [start_mapItem setName:startName];
                         }else{
                             [start_mapItem setName:startPlacemark.name];
@@ -973,7 +973,7 @@ static NSDictionary* extras;
                         startCoord = start_placemark.coordinate;
                         logMsg = [NSString stringWithFormat:@"%@ [%@]", logMsg, [self coordsToString:startCoord]];
                         
-                        if(startName){
+                        if(![self isNull:startName]){
                             [start_mapItem setName:startName];
                         }else{
                             [start_mapItem setName:startPlacemark.name];
@@ -998,7 +998,7 @@ static NSDictionary* extras;
     // Extras
     if(![self isNull:navigateParams[@"extras"]]){
         extras = [self jsonStringToDictionary:navigateParams[@"extras"]];
-        if (extras == nil){
+        if(extras == nil){
             [logger error:@"Failed to parse extras parameter as valid JSON"];
         }else{
             logMsg = [NSString stringWithFormat:@"%@ - extras=%@", logMsg, navigateParams[@"extras"]];
@@ -1199,7 +1199,7 @@ static NSDictionary* extras;
     [logger debug:[NSString stringWithFormat:@"Attempting to reverse geocode coords: %@", coords]];
     CLLocation* location = [[CLLocation alloc]initWithLatitude:[lat doubleValue] longitude:[lon doubleValue]];
     [geocoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error) {
-        if (error == nil && [placemarks count] > 0) {
+        if(error == nil && [placemarks count] > 0) {
             CLPlacemark* geocodedPlacemark = [placemarks lastObject];
             NSString* address = [self getAddressFromPlacemark:geocodedPlacemark];
             [logger debug:[NSString stringWithFormat:@"Reverse geocoded coords '%@' to address '%@'", [self coordsToString:coordinate], address]];
@@ -1210,7 +1210,7 @@ static NSDictionary* extras;
                                       addressDictionary:geocodedPlacemark.addressDictionary];
             
             successBlock(mapItem, placemark);
-        }else if (error != nil){
+        }else if(error != nil){
             failBlock([error localizedDescription]);
         }else{
             failBlock(@"No address found at given coordinates");
@@ -1223,31 +1223,31 @@ static NSDictionary* extras;
 {
     NSString* address = @"";
     
-    if (placemark.subThoroughfare){
+    if(placemark.subThoroughfare){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.subThoroughfare];
     }
     
-    if (placemark.thoroughfare){
+    if(placemark.thoroughfare){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.thoroughfare];
     }
     
-    if (placemark.locality){
+    if(placemark.locality){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.locality];
     }
     
-    if (placemark.subAdministrativeArea){
+    if(placemark.subAdministrativeArea){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.subAdministrativeArea];
     }
     
-    if (placemark.administrativeArea){
+    if(placemark.administrativeArea){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.administrativeArea];
     }
     
-    if (placemark.postalCode){
+    if(placemark.postalCode){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.postalCode];
     }
     
-    if (placemark.country){
+    if(placemark.country){
         address = [NSString stringWithFormat:@"%@%@, ", address, placemark.country];
     }
     
@@ -1302,12 +1302,12 @@ static NSDictionary* extras;
 }
 
 - (BOOL)isMapAppInstalled:(LNApp)mapApp {
-    if (mapApp == LNAppAppleMaps) {
+    if(mapApp == LNAppAppleMaps) {
         return YES;
     }
     
     NSString* urlPrefix = [self urlPrefixForMapApp:mapApp];
-    if (!urlPrefix) {
+    if(!urlPrefix) {
         return NO;
     }
     
@@ -1404,7 +1404,7 @@ static NSDictionary* extras;
     // (<http://www.ietf.org/rfc/rfc3986.txt>)
     NSString* newString = (__bridge_transfer NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (__bridge CFStringRef)queryParam, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8);
     
-    if (newString) {
+    if(![self isNull:newString]) {
         return newString;
     }
     
@@ -1424,7 +1424,7 @@ static NSDictionary* extras;
 }
 
 - (NSString*)stringForCoord:(CLLocationCoordinate2D)coordinate {
-    if ([self isEmptyCoordinate:coordinate]) {
+    if([self isEmptyCoordinate:coordinate]) {
         return @"";
     }
     
@@ -1447,7 +1447,7 @@ static NSDictionary* extras;
     [self.locationManager setDistanceFilter:kCLDistanceFilterNone];
     [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
     #if defined(__IPHONE_8_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_8_0
-        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+        if([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
             [self.locationManager requestWhenInUseAuthorization];
         }
     #endif
@@ -1473,7 +1473,7 @@ static NSDictionary* extras;
 {
     NSError* error = nil;
     NSArray* array = [NSJSONSerialization JSONObjectWithData:[jsonStr dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
-    if (error != nil){
+    if(error != nil){
         array = nil;
     }
     return array;
@@ -1509,7 +1509,7 @@ static NSDictionary* extras;
   NSURL *URL = [NSURL URLWithString:scheme];
 
     #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_10_0
-      if ([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
+      if([application respondsToSelector:@selector(openURL:options:completionHandler:)]) {
         [application openURL:URL options:@{}
            completionHandler:^(BOOL success) {
            [self onOpenSchemeResult:scheme schemeResult:success];
