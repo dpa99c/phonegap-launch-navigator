@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 5.0.4
+- Fix checks for empty strings/objects on iOS. Resolves [#216](https://github.com/dpa99c/phonegap-launch-navigator/issues/216).
+- Make LNEmptyCoord static to scope it to the class. Prevents build failures with `cordova-ios@5`. Fixes [#217](https://github.com/dpa99c/phonegap-launch-navigator/issues/217).
+
 ## 5.0.3
 - Pass `navigate=yes` to Waze on Android if input type is an address. Resolves [#213](https://github.com/dpa99c/phonegap-launch-navigator/issues/213).
 - Pass the now required FLAG_ACTIVITY_NEW_TASK intent flag on Android. Fixes [#215](https://github.com/dpa99c/phonegap-launch-navigator/issues/215).
