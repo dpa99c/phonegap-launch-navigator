@@ -556,7 +556,7 @@ static NSDictionary* extras;
     NSMutableString* destParam = [NSMutableString stringWithFormat:@"%f,%f",
                                   destCoord.latitude, destCoord.longitude];
     
-    if (destName) {
+    if (![self isNull:destName]) {
         [destParam appendFormat:@",%@", [destName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     }
     
