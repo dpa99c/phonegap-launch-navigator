@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 5.0.3
+- Pass `navigate=yes` to Waze on Android if input type is an address. Resolves [#213](https://github.com/dpa99c/phonegap-launch-navigator/issues/213).
+- Pass the now required FLAG_ACTIVITY_NEW_TASK intent flag on Android. Fixes [#215](https://github.com/dpa99c/phonegap-launch-navigator/issues/215).
+
 ## 5.0.2
 - Pin default OKHTTP version to 3.12.0 since 3.13.0 contains JDK 1.8 bytecode with which cordova-android@7.1.4 (and below) is incompatible so it causes build failure.
 
