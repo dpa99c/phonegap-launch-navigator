@@ -271,7 +271,7 @@ export interface LaunchNavigator {
      */
     enableDebug: (
         enabled: boolean,
-        successCallback: (any) => void,
+        successCallback: (success: any) => void,
         errorCallback?: (error: string) => void
     ) => void;
 
