@@ -1,16 +1,30 @@
+---
+name: Bug report
+about: Report a problem
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 <!--
+IMPORTANT: PLEASE READ
+
 WARNING: Failure to follow the issue template guidelines below will result in the issue being immediately closed.
 
-Only bug reports/feature request/documentation issues should be opened here.
+Only bug reports should be opened here.
 
-Before opening an issue, please check a similar issue is not already open (or closed). Duplicates or near-duplicates will be closed immediately.
+Before opening an issue, please do the following:
+- check a similar issue is not already open (or closed) against this plugin.
+	- Duplicates or near-duplicates will be closed immediately.
+- try to reproduce the issue using the example project
+	- or if that's not possible, using an isolated test project that you are able to share
+	- this will eliminate bugs in your code or conflicts with other code as possible causes of the issue
+- any issue which is suspected of being caused by the Ionic Native wrapper should be [reported against Ionic Native](https://github.com/ionic-team/ionic-native/issues/new)
+	- Ionic Native Typescript wrappers are maintained by the Ionic Team
+	- To verify an if an issue is caused by this plugin or its Typescript wrapper, please re-test using the vanilla Javascript plugin interface (without the Ionic Native wrapper).
+	- Any issue opened here which is obviously an Ionic Typescript wrapper issue will be closed immediately.
 -->
-
-**I'm submitting a ...**  (check one with "x"):
-- [ ] bug report
-- [ ] feature request
-- [ ] documentation issue
-
 
 <!-- Fill out the relevant sections below and delete irrelevant sections. -->
 
@@ -26,15 +40,15 @@ Before opening an issue, please check a similar issue is not already open (or cl
  -->
 
 **Expected behavior:**
-
 <!-- Describe what the behavior should be without the bug. -->
 
 **Steps to reproduce:**
-
 <!-- If you are able to illustrate the bug with an example, please provide steps to reproduce. -->
 
-**Environment information**
+**Screenshots**
+<!-- If applicable, add screenshots to help explain your problem. -->
 
+**Environment information**
 <!-- Please supply full details of your development environment including: -->
 - Cordova CLI version 
 	- `cordova -v`
@@ -50,9 +64,9 @@ Before opening an issue, please check a similar issue is not already open (or cl
         
 _Runtime issue_
 - Device details
-    - _e.g. iPhone 7, Samsung Galaxy S8, iPhone X Simulator, Pixel XL Emulator_
+    - _e.g. iPhone X, Samsung Galaxy S8, iPhone X Simulator, Pixel XL Emulator_
 - OS details
-    - _e.g. iOS 11.2, Android 8.1_	
+    - _e.g. iOS 12.2, Android 9.0_	
 	
 _Android build issue:_	
 - Node JS version
@@ -69,27 +83,13 @@ _iOS build issue:_
     - `node -v`
 - XCode version
 
-_If using an [Ionic Native Typescript wrapper]() for this plugin:_
-- Ionic environment info
-    - `ionic info`
-- Installed Ionic Native modules and versions
-    - `npm list | grep "@ionic-native"`
-
-<!--
-NOTE: Ionic Native Typescript wrappers are maintained by the Ionic Team:
-- Any issue which is suspected of being caused by the Ionic Native wrapper should be reported against Ionic Native (https://github.com/ionic-team/ionic-native/issues)
-- To verify an if an issue is caused by this plugin or its Typescript wrapper, please re-test using the vanilla Javascript plugin interface (without the Ionic Native wrapper).
-- Any issue opened here which is obviously an Ionic Typescript wrapper issue will be closed immediately.
--->
 
 **Related code:**
-
 ```
 insert any relevant code here such as plugin API calls / input parameters
 ```
 
 **Console output**
-
 <details>
 <summary>console output</summary>
 
@@ -105,27 +105,6 @@ insert any relevant code here such as plugin API calls / input parameters
 
 <!-- List any other information that is relevant to your issue. Stack traces, related issues, suggestions on how to fix, Stack Overflow links, forum links, etc. -->
 
-# Feature request
-<!--
-Feature requests should include as much detail as possible:
-
-- A descriptive title 
-- A description of the problem you're trying to solve, including why you think this is a problem
-- An overview of the suggested solution
-- Use case: why should this be implemented?
-- If the feature changes current behavior, reasons why your solution is better
-- Relevant links, e.g.
-    - Stack Overflow post illustrating a solution
-    - Code within a Github repo that illustrates a solution
-    - Native API documentation for proposed feature
--->
-
-# Documentation issue
-<!-- 
-Describe the issue with the documentation or the request for documentation changes.
-- Please give reasons why the change is necessary.
-- If the change is trivial or you are able to make it, please consider making a Pull Request containing the necessary changes.
--->
 
 
 
