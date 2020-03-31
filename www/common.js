@@ -180,9 +180,9 @@ ln.STOCK_APP[ln.PLATFORM.WINDOWS] = ln.APP.BING_MAPS;
  */
 ln.APP_NAMES = {};
 ln.APP_NAMES[ln.APP.USER_SELECT] = "[User select]";
-ln.APP_NAMES[ln.APP.APPLE_MAPS] = "Apple Maps";
-ln.APP_NAMES[ln.APP.GOOGLE_MAPS] = "Google Maps";
-ln.APP_NAMES[ln.APP.WAZE] = "Waze";
+ln.APP_NAMES[ln.APP.APPLE_MAPS] = "苹果地图 ( Apple Maps )";
+ln.APP_NAMES[ln.APP.GOOGLE_MAPS] = " 谷歌地图 (Google Maps)";
+ln.APP_NAMES[ln.APP.WAZE] = " 位智 (Waze)";
 ln.APP_NAMES[ln.APP.CITYMAPPER] = "Citymapper";
 ln.APP_NAMES[ln.APP.NAVIGON] = "Navigon";
 ln.APP_NAMES[ln.APP.TRANSIT_APP] = "Transit App";
