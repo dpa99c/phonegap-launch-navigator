@@ -179,26 +179,26 @@ ln.STOCK_APP[ln.PLATFORM.WINDOWS] = ln.APP.BING_MAPS;
  * @type {object}
  */
 ln.APP_NAMES = {};
-ln.APP_NAMES[ln.APP.USER_SELECT] = "[User select]";
-ln.APP_NAMES[ln.APP.APPLE_MAPS] = "苹果地图 ( Apple Maps )";
-ln.APP_NAMES[ln.APP.GOOGLE_MAPS] = " 谷歌地图 (Google Maps)";
-ln.APP_NAMES[ln.APP.WAZE] = " 位智 (Waze)";
+ln.APP_NAMES[ln.APP.APPLE_MAPS] = "Apple Map 萍果地圖";
+ln.APP_NAMES[ln.APP.GOOGLE_MAPS] = "Google Map 谷歌地圖";
+ln.APP_NAMES[ln.APP.WAZE] = "Waze";
 ln.APP_NAMES[ln.APP.CITYMAPPER] = "Citymapper";
 ln.APP_NAMES[ln.APP.NAVIGON] = "Navigon";
 ln.APP_NAMES[ln.APP.TRANSIT_APP] = "Transit App";
 ln.APP_NAMES[ln.APP.YANDEX] = "Yandex Navigator";
 ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
-ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
+ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Map";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
-ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
+ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Map";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
 ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
-ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Maps";
+ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Map 百度地圖";
 ln.APP_NAMES[ln.APP.TAXIS_99] = "99 Taxi";
-ln.APP_NAMES[ln.APP.GAODE] = "Gaode Maps (Amap)";
+ln.APP_NAMES[ln.APP.GAODE] = "Gaode Map 高德地圖";
+ln.APP_NAMES[ln.APP.XXXXX] = "Tencent Map 騰訊地圖";
 
 /**
  * All possible transport modes
