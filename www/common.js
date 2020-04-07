@@ -33,7 +33,7 @@ var ln = {};
  *********************/
 
 var DEFAULT_appSelectionDialogHeaderText = "Select app for navigation"+"\n"+"請選擇地圖導航APP",
-    DEFAULT_appSelectionCancelButtonText = "X",
+    DEFAULT_appSelectionCancelButtonText = "[ X ]",
     DEFAULT_rememberChoicePromptDialogHeaderText = "Remember your choice?",
     DEFAULT_rememberChoicePromptDialogBodyText = "Use the same app for navigating next time?",
     DEFAULT_rememberChoicePromptDialogYesButtonText = "Yes",
