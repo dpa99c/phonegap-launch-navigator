@@ -52,6 +52,9 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [Navigate using a specific app](#navigate-using-a-specific-app)
     - [List all of the apps supported by the current platform](#list-all-of-the-apps-supported-by-the-current-platform)
     - [List apps available on the current device](#list-apps-available-on-the-current-device)
+- [Reporting issues](#reporting-issues)
+  - [Reporting a bug or problem](#reporting-a-bug-or-problem)
+  - [Requesting a new feature](#requesting-a-new-feature)
 - [Supported parameters](#supported-parameters)
   - [Transport modes](#transport-modes)
 - [Plugin API](#plugin-api)
@@ -63,24 +66,43 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
     - [LAUNCH_MODE](#launch_mode)
   - [API methods](#api-methods)
     - [navigate()](#navigate)
+      - [Parameters](#parameters)
     - [enableDebug()](#enabledebug)
+      - [Parameters](#parameters-1)
     - [isAppAvailable()](#isappavailable)
+      - [Parameters](#parameters-2)
     - [availableApps()](#availableapps)
+      - [Parameters](#parameters-3)
     - [getAppDisplayName()](#getappdisplayname)
+      - [Parameters](#parameters-4)
     - [getAppsForPlatform()](#getappsforplatform)
+      - [Parameters](#parameters-5)
     - [supportsTransportMode()](#supportstransportmode)
+      - [Parameters](#parameters-6)
     - [getTransportModes()](#gettransportmodes)
+      - [Parameters](#parameters-7)
     - [supportsDestName()](#supportsdestname)
+      - [Parameters](#parameters-8)
     - [supportsStart()](#supportsstart)
+      - [Parameters](#parameters-9)
     - [supportsStartName()](#supportsstartname)
+      - [Parameters](#parameters-10)
     - [supportsLaunchMode()](#supportslaunchmode)
+      - [Parameters](#parameters-11)
     - [appSelection.userChoice.exists()](#appselectionuserchoiceexists)
+      - [Parameters](#parameters-12)
     - [appSelection.userChoice.get()](#appselectionuserchoiceget)
+      - [Parameters](#parameters-13)
     - [appSelection.userChoice.set()](#appselectionuserchoiceset)
+      - [Parameters](#parameters-14)
     - [appSelection.userChoice.clear()](#appselectionuserchoiceclear)
+      - [Parameters](#parameters-15)
     - [appSelection.userPrompted.get()](#appselectionuserpromptedget)
+      - [Parameters](#parameters-16)
     - [appSelection.userPrompted.set()](#appselectionuserpromptedset)
+      - [Parameters](#parameters-17)
     - [appSelection.userPrompted.clear()](#appselectionuserpromptedclear)
+      - [Parameters](#parameters-18)
 - [Example projects](#example-projects)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
@@ -88,10 +110,11 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
   - [iOS](#ios)
     - ["Removing" Apple Maps](#removing-apple-maps)
     - [Apple Maps launch method](#apple-maps-launch-method)
+      - [URI scheme launch method](#uri-scheme-launch-method)
+      - [MapKit class launch method](#mapkit-class-launch-method)
 - [App-specifics](#app-specifics)
   - [Lyft](#lyft)
   - [99 Taxi](#99-taxi)
-- [Reporting issues](#reporting-issues)
 - [Credits](#credits)
 - [License](#license)
 
@@ -284,6 +307,58 @@ Coordinates can be specified as a string or array
             console.log(launchnavigator.getAppDisplayName(app) + (results[app] ? " is" : " isn't") +" available");
         }
     });
+    
+# Reporting issues
+**IMPORTANT:** Please read the following carefully. 
+Failure to follow the issue template guidelines below will result in the issue being immediately closed.
+
+## Reporting a bug or problem
+Before [opening a bug issue](https://github.com/dpa99c/phonegap-launch-navigator/issues/new?assignees=&labels=&template=bug_report.md&title=), please do the following:
+- *DO NOT* open issues asking for support in using/integrating the plugin into your project
+    - Only open issues for suspected bugs/issues with the plugin that are generic and will affect other users
+    - I don't have time to offer free technical support: this is free open-source software
+    - Ask for help on StackOverflow, Ionic Forums, etc.
+    - Use the [example project](https://github.com/dpa99c/phonegap-launch-navigator-example) as a known working reference
+    - Any issues requesting support will be closed immediately.
+- *DO NOT* open issues related to the  [Ionic Typescript wrapper for this plugin](https://github.com/ionic-team/ionic-native/blob/master/src/%40ionic-native/plugins/launch-navigator/index.ts)
+    - This is owned/maintained by [Ionic](https://github.com/ionic-team) and is not part of this plugin
+    - Please raise such issues/PRs against [Ionic Native](https://github.com/ionic-team/ionic-native/) instead.
+	- To verify an if an issue is caused by this plugin or its Typescript wrapper, please re-test using the vanilla Javascript plugin interface (without the Ionic Native wrapper).
+	- Any issue opened here which is obviously an Ionic Typescript wrapper issue will be closed immediately.
+- Read the above documentation thoroughly
+- Check your target country is supported for turn-by-turn by the native navigation app
+  - [Apple Maps country list for iOS](https://www.apple.com/ios/feature-availability/#maps-turn-by-turn-navigation)
+  - [Google Maps country list for Android](https://support.google.com/gmm/answer/3137767?hl=en-GB)
+  - [Bing Maps country list for Windows Phone](https://msdn.microsoft.com/en-us/library/dd435699.aspx)
+- Check the [CHANGELOG](https://github.com/dpa99c/phonegap-launch-navigator/blob/master/CHANGELOG.md) for any breaking changes that may be causing your issue.
+- Check a similar issue (open or closed) does not already exist against this plugin.
+	- Duplicates or near-duplicates will be closed immediately.
+- When [creating a new issue](https://github.com/dpa99c/phonegap-launch-navigator/issues/new/choose)
+    - Choose the "Bug report" template
+    - Fill out the relevant sections of the template and delete irrelevant sections
+    - *WARNING:* Failure to complete the issue template will result in the issue being closed immediately. 
+- Reproduce the issue using the [example project](https://github.com/dpa99c/phonegap-launch-navigator-example)
+	- This will eliminate bugs in your code or conflicts with other code as possible causes of the issue
+	- This will also validate your development environment using a known working codebase
+	- If reproducing the issue using the example project is not possible, create an isolated test project that you are able to share
+- Include full verbose console output when reporting build issues
+    - If the full console output is too large to insert directly into the Github issue, then post it on an external site such as [Pastebin](https://pastebin.com/) and link to it from the issue 
+    - Often the details of an error causing a build failure is hidden away when building with the CLI
+        - To get the full detailed console output, append the `--verbose` flag to CLI build commands
+        - e.g. `cordova build ios --verbose`
+    - Failure to include the full console output will result in the issue being closed immediately
+- If the issue relates to the plugin documentation (and not the code), please of a [documentation issue](https://github.com/dpa99c/phonegap-launch-navigator/issues/new?assignees=&labels=&template=documentation-issue.md&title=)
+
+## Requesting a new feature
+Before [opening a feature request issue](https://github.com/dpa99c/phonegap-launch-navigator/issues/new?assignees=&labels=&template=feature_request.md&title=), please do the following:
+- Check the above documentation to ensure the feature you are requesting doesn't already exist
+- Check the list if open/closed issues to check if there's a reason that feature hasn't been included already
+- Ensure the feature you are requesting is actually possible to implement and generically useful to other users than yourself
+- Where possible, post a link to the documentation related to the feature you are requesting
+- Include other relevant links, e.g.
+    - Stack Overflow post illustrating a solution
+    - Code within another Github repo that illustrates a solution 
+    
 
 # Supported parameters
 
@@ -824,29 +899,6 @@ On Android, 99 Taxi is currently the only app where `options.start` is a **requi
 - Otherwise/until then, you'll need to manually specify the start location for 99 Taxi
     - If the current user location is required, you can use `cordova-plugin-geolocation` to find this.
 
-# Reporting issues
-
-Before reporting issues with this plugin, please first do the following:
-
-- Check the existing lists of [open issues](https://github.com/dpa99c/phonegap-launch-navigator/issues) and [closed issues](https://github.com/dpa99c/phonegap-launch-navigator/issues?q=is%3Aissue+is%3Aclosed)
-- Check your target country is supported for turn-by-turn by the native navigation app
-  - [Apple Maps country list for iOS](https://www.apple.com/ios/feature-availability/#maps-turn-by-turn-navigation)
-  - [Google Maps country list for Android](https://support.google.com/gmm/answer/3137767?hl=en-GB)
-  - [Bing Maps country list for Windows Phone](https://msdn.microsoft.com/en-us/library/dd435699.aspx)
-- If possible, test using the [example project](https://github.com/dpa99c/phonegap-launch-navigator-example) to eliminate the possibility of a bug in your code rather than the plugin.
-
-
-When reporting issues, please give the following information:
-
-- A clear description of the problem
-
-- OS version(s) and device (or emulator) model(s) on which the problem was observed
-
-- Code example of calling the plugin which results in the observed issue
-
-- Example parameters (locations or place names) which results in the observed issue
-
-**Issues which fail to give a clear description of the problem as described above will be closed immediately**
 
 # Credits
 
