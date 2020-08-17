@@ -71,7 +71,7 @@ ln.enableDebug = function(enabled, success, error){
 
 /**
  * Sets google api key. 
- * @param {String} apiKey - apikey.
+ * @param {String} apiKey - Google API key.
  * @param {function} success - callback to invoke on successfully setting api key.
  * @param {function} error - callback to invoke on error while setting api key. Will be passed a single string argument containing the error message.
  */
