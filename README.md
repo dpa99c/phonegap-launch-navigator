@@ -103,6 +103,8 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
       - [Parameters](#parameters-17)
     - [appSelection.userPrompted.clear()](#appselectionuserpromptedclear)
       - [Parameters](#parameters-18)
+    - [setApiKey()](#setapikey)
+      - [Parameters](#parameters-19)
 - [Example projects](#example-projects)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
@@ -799,6 +801,16 @@ Clears flag which indicates if user has already been prompted whether to remembe
     });
 #### Parameters
 - [function} cb - function to call once operation is complete.
+
+### setApiKey()
+Sets the Google API Key for Android.
+Note: This function is also available in iOS but it does nothing. This is to keep the interface consistent between the platforms.
+
+    launchnavigator.setApiKey(api_key, success, error);
+#### Parameters
+- {String} apiKey - Google API Key.
+- {function} success - callback to invoke on successfully setting api key.
+- {function} error - callback to invoke on error while setting api key. Will be passed a single string argument containing the error message.
 
 # Example projects
 
