@@ -76,6 +76,10 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
                 boolean debugEnabled = args.getBoolean(0);
                 setDebug(debugEnabled);
                 callbackContext.success();
+            } else if ("setApiKey".equals(action)) {
+                String apiKey = args.getString(0);
+                setApiKey(apiKey);
+                callbackContext.success();
             } else if ("navigate".equals(action)) {
                 /**
                  * args[]
@@ -143,6 +147,10 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
     private void setDebug(boolean enabled){
         this.logger.setEnabled(enabled);
         this.launchNavigator.getLogger().setEnabled(enabled);
+    }
+
+    private void setApiKey(String apiKey){
+        this.launchNavigator.setGoogleApiKey(apiKey);
     }
 
     private void handleError(String msg, CallbackContext callbackContext){
