@@ -60,7 +60,9 @@ public class LaunchNavigatorPlugin extends CordovaPlugin {
             logger = new CordovaLogger(cordova, webView, LOG_TAG);
             launchNavigator = new LaunchNavigator(cordova.getActivity().getApplicationContext(), new CordovaLogger(cordova, webView, LaunchNavigator.LOG_TAG));
             String googleApiKey = cordova.getActivity().getPackageManager().getApplicationInfo(cordova.getActivity().getPackageName(), PackageManager.GET_META_DATA).metaData.getString(MANIFEST_API_KEY);
-            launchNavigator.setGoogleApiKey(googleApiKey);
+            if(googleApiKey != null){
+                launchNavigator.setGoogleApiKey(googleApiKey);
+            }
         }catch (Exception e){
             Log.e(LOG_TAG, e.getMessage());
         }

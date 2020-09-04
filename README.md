@@ -235,9 +235,15 @@ Add the following xml to your config.xml to use the latest version of this plugi
 
 ## Google API key for Android
 - On Android, this plugin uses [Google's Geocoding API](https://developers.google.com/maps/documentation/geocoding/intro) to geocode input addresses to lat/lon coordinates in order to support navigation apps which only allow input locations to be specified as lat/lon coordinates.
-- Google now requires that an API key be specified in order to use the Geocoding API, so you'll need to obtain an API key and specify it via the `GOOGLE_API_KEY_FOR_ANDROID` plugin variable during plugin installation.
-- For more information on how to obtain an API key, see the [Google documentation](https://developers.google.com/maps/documentation/geocoding/get-api-key).
-- Don't place any application restrictions on the key, otherwise geodecoding will fail.
+- Google now requires that an API key be specified in order to use the Geocoding API
+    - For more information on how to obtain an API key, see the [Google documentation](https://developers.google.com/maps/documentation/geocoding/get-api-key).
+    - Don't place any application restrictions on the key, otherwise geocoding will fail.
+- You'll need to provide your Google API key to the plugin by either:
+    - setting the `GOOGLE_API_KEY_FOR_ANDROID` plugin variable during plugin installation
+        - Note: this method places your API in the `AndroidManifest.xml` in cleartext so carries the possible security risk of a malicious party decompiling your app to obtain your API key (see [#249](https://github.com/dpa99c/phonegap-launch-navigator/issues/249))
+    - setting it at runtime by calling the [setApiKey()](#setapikey) function
+        - this method is secure from a security perspective.
+        - you must call this method in each app session (e.g. at app startup) before attempting to use the plugin's geocoding features on Android.
 
 ## OKHTTP Library
 - This plugin uses the [OKHTTP library](https://square.github.io/okhttp/) on Android to access Google's remote Geocoding API service
@@ -803,8 +809,8 @@ Clears flag which indicates if user has already been prompted whether to remembe
 - [function} cb - function to call once operation is complete.
 
 ### setApiKey()
-Sets the Google API Key for Android.
-Note: This function is also available in iOS but it does nothing. This is to keep the interface consistent between the platforms.
+Sets the [Google API key for Android](#google-api-key-for-android).
+Note: This function is also available on iOS but it does nothing. This is to keep the interface consistent between the platforms.
 
     launchnavigator.setApiKey(api_key, success, error);
 #### Parameters
