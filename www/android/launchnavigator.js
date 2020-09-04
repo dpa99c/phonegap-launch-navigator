@@ -44,6 +44,16 @@ common.SUPPORTS_DEST_NAME[common.PLATFORM.ANDROID].push(common.APP.GEO);
 common.APPS_BY_PLATFORM[common.PLATFORM.ANDROID].splice(1, 0, common.APP.GEO); //insert at [1] below [User select]
 common.APP_NAMES[common.APP.GEO] = "[Geo intent chooser]";
 
+function discoverSupportedApps(){
+    cordova.exec(
+        onDiscoverSupportedApps,
+        onDiscoverSupportedAppsError,
+        'LaunchNavigator',
+        'discoverSupportedApps',
+        []
+    );
+}
+
 // Add apps that support the geo: protocol
 function onDiscoverSupportedApps(supportedApps){
     for(var appName in supportedApps){
@@ -330,14 +340,8 @@ common._supportsDestName = common.supportsDestName;
 /************
  * Bootstrap
  ************/
+discoverSupportedApps(); // app startup
+document.addEventListener('resume', discoverSupportedApps, false); // resume from background
 
-// Discover supported apps
-cordova.exec(
-    onDiscoverSupportedApps,
-    onDiscoverSupportedAppsError,
-    'LaunchNavigator',
-    'discoverSupportedApps',
-    []
-);
 
 module.exports = ln;

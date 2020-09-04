@@ -206,6 +206,8 @@ public class LaunchNavigator {
     public JSONObject getAvailableApps() throws Exception{
         JSONObject apps = new JSONObject();
 
+        discoverAvailableApps(); //refresh
+
         // Add explicitly supported apps first
         for (Map.Entry<String, String> entry : supportedAppPackages.entrySet()) {
             String _appName = entry.getKey();
@@ -225,6 +227,8 @@ public class LaunchNavigator {
     }
 
     public boolean isAppAvailable(String appName){
+        discoverAvailableApps(); //refresh
+
         if(supportedAppPackages.containsKey(appName)){
             appName = supportedAppPackages.get(appName);
         }
