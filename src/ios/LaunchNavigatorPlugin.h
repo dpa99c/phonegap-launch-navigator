@@ -45,6 +45,7 @@
  * Plugin API
  **************/
 - (void) enableDebug:(CDVInvokedUrlCommand*)command;
+- (void) setApiKey:(CDVInvokedUrlCommand*)command;
 - (void) navigate:(CDVInvokedUrlCommand*)command;
 - (void) isAppAvailable:(CDVInvokedUrlCommand*)command;
 - (void) availableApps:(CDVInvokedUrlCommand*)command;

@@ -45,6 +45,16 @@ ln.enableDebug = function(enabled, success, error){
 };
 
 /**
+ * Sets google api key. 
+ * @param {String} apiKey - Google API key.
+ * @param {function} success - callback to invoke on successfully setting api key.
+ * @param {function} error - callback to invoke on error while setting api key. Will be passed a single string argument containing the error message.
+ */
+ln.setApiKey = function(apiKey, success, error){
+    cordova.exec(success, error, 'LaunchNavigator', 'setApiKey', [apiKey]);
+};
+
+/**
  * Determines if the given app is installed and available on the current device.
  * @param {string} appName - name of the app to check availability for. Define as a constant using ln.APP
  * @param {function} success - callback to invoke on successful determination of availability. Will be passed a single boolean argument indicating the availability of the app.
