@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 5.0.5
+- (Android) Enable Google API key for Android to be set at runtime.
+    - Resolves [#249](https://github.com/dpa99c/phonegap-launch-navigator/issues/249)
+    - Merged from [#250](https://github.com/dpa99c/phonegap-launch-navigator/pull/250)
+- (iOS) Add namespace prefix to `NetworkStatus` enum to prevent collision with cordova-plugin-network-information. 
+    - Resolves [#248](https://github.com/dpa99c/phonegap-launch-navigator/issues/248)
+- (Android) Re-discover available apps when resuming from background or querying available apps.
+    - Resolves [#242](https://github.com/dpa99c/phonegap-launch-navigator/issues/242)
+
 ## 5.0.4
 - Fix checks for empty strings/objects on iOS. Resolves [#216](https://github.com/dpa99c/phonegap-launch-navigator/issues/216).
 - Make LNEmptyCoord static to scope it to the class. Prevents build failures with `cordova-ios@5`. Fixes [#217](https://github.com/dpa99c/phonegap-launch-navigator/issues/217).
