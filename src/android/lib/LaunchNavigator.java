@@ -70,6 +70,7 @@ public class LaunchNavigator {
     public final String WAZE = "waze";
     public final String YANDEX = "yandex";
     public final String SYGIC = "sygic";
+    public final String SYGIC_NAVIGATION = "sygic_navigation";
     public final String HERE_MAPS = "here_maps";
     public final String MOOVIT = "moovit";
     public final String LYFT = "lyft";
@@ -89,6 +90,7 @@ public class LaunchNavigator {
         _supportedAppPackages.put(WAZE, "com.waze");
         _supportedAppPackages.put(YANDEX, "ru.yandex.yandexnavi");
         _supportedAppPackages.put(SYGIC, "com.sygic.aura");
+        _supportedAppPackages.put(SYGIC_NAVIGATION, "com.sygic.aura");
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         _supportedAppPackages.put(LYFT, "me.lyft.android");
@@ -109,6 +111,7 @@ public class LaunchNavigator {
         _supportedAppNames.put(WAZE, "Waze");
         _supportedAppNames.put(YANDEX, "Yandex Navigator");
         _supportedAppNames.put(SYGIC, "Sygic");
+        _supportedAppNames.put(SYGIC_NAVIGATION, "Sygic Navigation");
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
         _supportedAppNames.put(LYFT, "Lyft");
@@ -256,7 +259,7 @@ public class LaunchNavigator {
             error = launchWaze(params);
         }else if(appName.equals(YANDEX)){
             error = launchYandex(params);
-        }else if(appName.equals(SYGIC)){
+        }else if(appName.equals(SYGIC) || appName.equals(SYGIC_NAVIGATION)){
             error = launchSygic(params);
         }else if(appName.equals(HERE_MAPS)){
             error = launchHereMaps(params);
@@ -777,7 +780,7 @@ public class LaunchNavigator {
 
             logMsg += " by " + transportMode;
 
-            String extras = parseExtrasToUrl(params);
+            String extras = parseExtrasToUrl(params, "&&&", "|");
             if(!isNull(extras)){
                 url += extras;
                 logMsg += " - extras="+extras;
@@ -1568,8 +1571,12 @@ public class LaunchNavigator {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
-
+    
     private String parseExtrasToUrl(JSONObject params) throws JSONException{
+        return parseExtrasToUrl(params, "&", "=");
+    }
+
+    private String parseExtrasToUrl(JSONObject params, String charAnd, String charEqual) throws JSONException{
         String extras = null;
         String jsonStringExtras = params.getString("extras");
         JSONObject oExtras = null;
@@ -1583,7 +1590,7 @@ public class LaunchNavigator {
             while( keys.hasNext() ) {
                 String key = (String)keys.next();
                 String value = oExtras.getString(key);
-                extras += "&"+key+"="+value;
+                extras += charAnd + key + charEqual + value;
             }
         }
         return extras;

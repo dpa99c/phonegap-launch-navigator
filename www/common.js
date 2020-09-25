@@ -108,6 +108,7 @@ ln.APP = {
     TOMTOM: "tomtom",
     BING_MAPS: "bing_maps",
     SYGIC: "sygic",
+    SYGIC_NAVIGATION: "sygic_navigation",
     HERE_MAPS: "here_maps",
     MOOVIT: "moovit",
     LYFT: "lyft",
@@ -131,6 +132,7 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.WAZE,
     ln.APP.YANDEX,
     ln.APP.SYGIC,
+    ln.APP.SYGIC_NAVIGATION,
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
@@ -191,6 +193,7 @@ ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
 ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
+ln.APP_NAMES[ln.APP.SYGIC_NAVIGATION] = "Sygic Navigation";
 ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
@@ -231,6 +234,10 @@ ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.GOOGLE_MAPS] = [ // Only launchMo
     ln.TRANSPORT_MODE.TRANSIT
 ];
 ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.SYGIC] = [
+    ln.TRANSPORT_MODE.DRIVING,
+    ln.TRANSPORT_MODE.WALKING
+];
+ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.SYGIC_NAVIGATION] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING
 ];
@@ -861,3 +868,5 @@ ln.util.conformNavigateOptions = function(args){
 
 
 module.exports = ln;
+
+});
