@@ -259,8 +259,10 @@ public class LaunchNavigator {
             error = launchWaze(params);
         }else if(appName.equals(YANDEX)){
             error = launchYandex(params);
-        }else if(appName.equals(SYGIC) || appName.equals(SYGIC_NAVIGATION)){
+        }else if(appName.equals(SYGIC)){
             error = launchSygic(params);
+        }else if(appName.equals(SYGIC_NAVIGATION)){
+            error = launchSygicNavigation(params);
         }else if(appName.equals(HERE_MAPS)){
             error = launchHereMaps(params);
         }else if(appName.equals(MOOVIT)){
@@ -746,6 +748,61 @@ public class LaunchNavigator {
     }
 
     private String launchSygic(JSONObject params) throws Exception{
+        try {
+            String destAddress = null;
+            String destLatLon = null;
+
+            String dType = params.getString("dType");
+            String transportMode = params.getString("transportMode");
+            String url = supportedAppPackages.get(SYGIC)+"://coordinate|";
+            String logMsg = "Using Sygic to navigate to";
+
+            if(transportMode.equals("w")){
+                transportMode = "walk";
+            }else{
+                transportMode = "drive";
+            }
+
+            if(dType.equals("name")){
+                destAddress = getLocationFromName(params, "dest");
+                logMsg += " '"+destAddress+"'";
+                try{
+                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
+                }catch(Exception e){
+                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
+                }
+            }else{
+                destLatLon = getLocationFromPos(params, "dest");
+            }
+
+            logMsg += " ["+destLatLon+"]";
+
+            String[] pos = splitLatLon(destLatLon);
+            url += pos[1]+"|"+pos[0]+"|"+transportMode;
+
+            logMsg += " by " + transportMode;
+
+            String extras = parseExtrasToUrl(params, "|", "|");
+            if(!isNull(extras)){
+                url += extras;
+                logMsg += " - extras="+extras;
+            }
+
+            logger.debug(logMsg);
+            logger.debug("URI: " + url);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            invokeIntent(intent);
+            return null;
+        }catch( JSONException e ) {
+            String msg = e.getMessage();
+            if(msg.contains(NO_APP_FOUND)){
+                msg = "Sygic app is not installed on this device";
+            }
+            return msg;
+        }
+    }
+
+    private String launchSygicNavigation(JSONObject params) throws Exception{
         try {
             String destAddress = null;
             String destLatLon = null;
