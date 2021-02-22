@@ -179,7 +179,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
         /*
          If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
          */
-        returnValue = ReachableViaWiFi;
+        returnValue = LN_ReachableViaWiFi;
     }
 
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
@@ -194,7 +194,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
             /*
              ... and no [user] intervention is needed...
              */
-            returnValue = ReachableViaWiFi;
+            returnValue = LN_ReachableViaWiFi;
         }
     }
 
@@ -203,7 +203,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
          */
-        returnValue = ReachableViaWWAN;
+        returnValue = LN_ReachableViaWWAN;
     }
     
     return returnValue;
