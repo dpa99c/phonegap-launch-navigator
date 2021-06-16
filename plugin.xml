@@ -55,6 +55,12 @@
 
     <config-file target="AndroidManifest.xml" parent="/*">
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+      <queries>
+        <intent>
+          <action android:name="android.intent.action.VIEW"/>
+          <data android:scheme="geo" />
+        </intent>
+      </queries>
     </config-file>
 
     <preference name="OKHTTP_VERSION" default="3.12.0" />
