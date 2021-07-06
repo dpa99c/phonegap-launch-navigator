@@ -1,4 +1,10 @@
 # CHANGELOG
+## 5.0.6
+- (iOS) Fix enum naming collision
+    - Resolves [#258](https://github.com/dpa99c/phonegap-launch-navigator/issues/258)
+    - Merged from [#262](https://github.com/dpa99c/phonegap-launch-navigator/pull/262) 
+- (Android) Add package visibility config to support Android 11
+    - Resolves [#266](https://github.com/dpa99c/phonegap-launch-navigator/issues/266)    
 
 ## 5.0.5
 - (Android) Enable Google API key for Android to be set at runtime.
