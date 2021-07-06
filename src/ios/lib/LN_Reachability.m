@@ -169,17 +169,17 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
     if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
     {
         // The target host is not reachable.
-        return NotReachable;
+        return LN_NotReachable;
     }
 
-    LN_NetworkStatus returnValue = NotReachable;
+    LN_NetworkStatus returnValue = LN_NotReachable;
 
     if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
     {
         /*
          If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
          */
-        returnValue = ReachableViaWiFi;
+        returnValue = LN_ReachableViaWiFi;
     }
 
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
@@ -194,7 +194,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
             /*
              ... and no [user] intervention is needed...
              */
-            returnValue = ReachableViaWiFi;
+            returnValue = LN_ReachableViaWiFi;
         }
     }
 
@@ -203,7 +203,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
          */
-        returnValue = ReachableViaWWAN;
+        returnValue = LN_ReachableViaWWAN;
     }
     
     return returnValue;
@@ -227,7 +227,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 - (LN_NetworkStatus)currentReachabilityStatus
 {
     NSAssert(_reachabilityRef != NULL, @"currentNetworkStatus called with NULL SCNetworkReachabilityRef");
-    LN_NetworkStatus returnValue = NotReachable;
+    LN_NetworkStatus returnValue = LN_NotReachable;
     SCNetworkReachabilityFlags flags;
     
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags))
