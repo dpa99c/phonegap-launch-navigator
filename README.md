@@ -225,6 +225,8 @@ This plugin is intended to launch **native** navigation apps and therefore will 
     $ phonegap plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}"
     $ ionic cordova plugin add uk.co.workingedge.phonegap.plugin.launchnavigator --variable GOOGLE_API_KEY_FOR_ANDROID="{your_api_key}"
 
+**Note:** `GOOGLE_API_KEY_FOR_ANDROID=""` is safe to use if navigation is only being performed with latitude/longitude coordinates.
+
 ## PhoneGap Build
 
 Add the following xml to your config.xml to use the latest version of this plugin from [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator):
@@ -238,12 +240,13 @@ Add the following xml to your config.xml to use the latest version of this plugi
 - Google now requires that an API key be specified in order to use the Geocoding API
     - For more information on how to obtain an API key, see the [Google documentation](https://developers.google.com/maps/documentation/geocoding/get-api-key).
     - Don't place any application restrictions on the key, otherwise geocoding will fail.
-- You'll need to provide your Google API key to the plugin by either:
+- You can provide your Google API key to the plugin by either:
     - setting the `GOOGLE_API_KEY_FOR_ANDROID` plugin variable during plugin installation
         - Note: this method places your API in the `AndroidManifest.xml` in cleartext so carries the possible security risk of a malicious party decompiling your app to obtain your API key (see [#249](https://github.com/dpa99c/phonegap-launch-navigator/issues/249))
     - setting it at runtime by calling the [setApiKey()](#setapikey) function
         - this method is secure from a security perspective.
         - you must call this method in each app session (e.g. at app startup) before attempting to use the plugin's geocoding features on Android.
+- If you are only navigating via latitude/longitude coordinates and therefore not using Google's Geocoding API, **you can safely set the API Key to an empty string**.
 
 ## OKHTTP Library
 - This plugin uses the [OKHTTP library](https://square.github.io/okhttp/) on Android to access Google's remote Geocoding API service
