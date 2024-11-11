@@ -1701,7 +1701,13 @@ public class LaunchNavigator {
         if(oResponse.has("error_message")){
             throw new Exception(oResponse.getString("error_message"));
         }
-        return ((JSONArray)oResponse.get("results")).getJSONObject(0);
+        JSONArray results = ((JSONArray)oResponse.get("results"));
+        String status = oResponse.getString("status");
+        if (status.equals("OK") && results.length() > 0) {
+            return results.getJSONObject(0);
+        } else {
+            throw new Exception("No geocoding results found or invalid status: '" + status);
+        }
     }
 
     private boolean isNull(String arg){
