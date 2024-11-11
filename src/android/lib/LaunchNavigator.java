@@ -1706,7 +1706,7 @@ public class LaunchNavigator {
         if (status.equals("OK") && results.length() > 0) {
             return results.getJSONObject(0);
         } else {
-            throw new Exception("No geocoding results found or invalid status: '" + status);
+            throw new Exception("No geocoding results found or invalid status - " + status);
         }
     }
 
