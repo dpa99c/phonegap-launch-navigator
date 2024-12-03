@@ -1,4 +1,9 @@
 # CHANGELOG
+## 5.0.7
+- (Android) bugfix: Unable to geocode destination address to coordinates: Index 0 out of range [0..0) error
+	- Resolves [#281](https://github.com/dpa99c/phonegap-launch-navigator/issues/281)
+    - Merged from [#283](https://github.com/dpa99c/phonegap-launch-navigator/pull/283) 
+
 ## 5.0.6
 - (iOS) Fix enum naming collision
     - Resolves [#258](https://github.com/dpa99c/phonegap-launch-navigator/issues/258)
