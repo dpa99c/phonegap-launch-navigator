@@ -1,7 +1,7 @@
 Launch Navigator Cordova/Phonegap Plugin
 =================================
 
-For from forked from [dpa99c/phonegap-launch-navigator](https://github.com/dpa99c/phonegap-launch-navigator) to handle issue with iOS 18+
+Forked from [dpa99c/phonegap-launch-navigator](https://github.com/dpa99c/phonegap-launch-navigator) to handle issue with iOS 18+
 
 
 Cordova/Phonegap plugin for launching today's most popular navigation/ride apps to navigate to a destination.
