@@ -1,5 +1,8 @@
-Launch Navigator Cordova/Phonegap Plugin [![Latest Stable Version](https://img.shields.io/npm/v/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) [![Total Downloads](https://img.shields.io/npm/dt/uk.co.workingedge.phonegap.plugin.launchnavigator.svg)](https://npm-stat.com/charts.html?package=uk.co.workingedge.phonegap.plugin.launchnavigator)
+Launch Navigator Cordova/Phonegap Plugin
 =================================
+
+For from forked from [dpa99c/phonegap-launch-navigator](https://github.com/dpa99c/phonegap-launch-navigator) to handle issue with iOS 18+
+
 
 Cordova/Phonegap plugin for launching today's most popular navigation/ride apps to navigate to a destination.
 
