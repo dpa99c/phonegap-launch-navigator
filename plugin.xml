@@ -3,14 +3,14 @@
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="uk.co.workingedge.phonegap.plugin.launchnavigator"
-    version="5.0.7">
+    version="5.0.8">
 
   <name>Launch Navigator</name>
   <description>Cordova/Phonegap plugin to navigate to a destination using native navigation apps on Android, iOS, and Windows</description>
   <author>Dave Alden</author>
 
-  <repo>https://github.com/dpa99c/phonegap-launch-navigator.git</repo>
-  <issue>https://github.com/dpa99c/phonegap-launch-navigator/issues</issue>
+  <repo>https://github.com/michelkuehn/cordova-launch-navigator.git</repo>
+  <issue>https://github.com/michelkuehn/cordova-launch-navigator/issues</issue>
 
   <license>MIT</license>
   <keywords>cordova,phonegap,ios,android,windows,navigation,navigator</keywords>
