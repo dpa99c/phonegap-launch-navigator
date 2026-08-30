@@ -88,7 +88,6 @@ var itemExists = function(key, callback){
 ln.PLATFORM = {
     ANDROID: "android",
     IOS: "ios",
-    WINDOWS: "windows"
 };
 
 /**
@@ -161,9 +160,6 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.TAXIS_99,
     ln.APP.GAODE
 ];
-ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
-    ln.APP.BING_MAPS
-];
 
 /**
  * Stock maps app that is always present on each platform
@@ -172,7 +168,6 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.WINDOWS] = [
 ln.STOCK_APP = {};
 ln.STOCK_APP[ln.PLATFORM.ANDROID] = ln.APP.GOOGLE_MAPS;
 ln.STOCK_APP[ln.PLATFORM.IOS] = ln.APP.APPLE_MAPS;
-ln.STOCK_APP[ln.PLATFORM.WINDOWS] = ln.APP.BING_MAPS;
 
 /**
  * Display names for supported apps
@@ -250,14 +245,6 @@ ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.GAODE] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING,
     ln.TRANSPORT_MODE.BICYCLING,
-    ln.TRANSPORT_MODE.TRANSIT
-];
-
-// Windows
-ln.TRANSPORT_MODES[ln.PLATFORM.WINDOWS] = {};
-ln.TRANSPORT_MODES[ln.PLATFORM.WINDOWS][ln.APP.BING_MAPS] = [
-    ln.TRANSPORT_MODE.DRIVING,
-    ln.TRANSPORT_MODE.WALKING,
     ln.TRANSPORT_MODE.TRANSIT
 ];
 
@@ -339,9 +326,6 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.BAIDU,
     ln.APP.TAXIS_99,
     ln.APP.GAODE
-];
-ln.SUPPORTS_START[ln.PLATFORM.WINDOWS] = [
-    ln.APP.BING_MAPS
 ];
 
 /**

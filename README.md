@@ -3,7 +3,7 @@ Launch Navigator Cordova/Phonegap Plugin [![Latest Stable Version](https://img.s
 
 Cordova/Phonegap plugin for launching today's most popular navigation/ride apps to navigate to a destination.
 
-Platforms: Android, iOS and Windows.
+Platforms: Android and iOS.
 
 Key features:
 
@@ -108,7 +108,6 @@ To help ensure this plugin is kept updated, new features are added and bugfixes 
 - [Example projects](#example-projects)
 - [Platform-specifics](#platform-specifics)
   - [Android](#android)
-  - [Windows](#windows)
   - [iOS](#ios)
     - ["Removing" Apple Maps](#removing-apple-maps)
     - [Apple Maps launch method](#apple-maps-launch-method)
@@ -197,10 +196,6 @@ iOS
 * [Gaode](https://itunes.apple.com/cn/app/%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BE-%E7%B2%BE%E5%87%86%E5%9C%B0%E5%9B%BE-%E5%AF%BC%E8%88%AA%E5%BF%85%E5%A4%87/id461703208?mt=8)
 
 
-Windows
-
-* [Bing Maps](https://www.microsoft.com/en-us/store/apps/maps/9wzdncrfj224)
-
 ## Adding support for more apps
 
 This plugin is a work in progress. I'd like it to support launching of as many popular navigation apps as possible.
@@ -216,7 +211,7 @@ I don't have time to research launch mechanisms for every suggested app, so I wi
 The plugin is registered on [npm](https://www.npmjs.com/package/uk.co.workingedge.phonegap.plugin.launchnavigator) as `uk.co.workingedge.phonegap.plugin.launchnavigator`
 
 **IMPORTANT:** Note that the plugin will **NOT** work in a browser-emulated Cordova environment, for example by running `cordova serve` or using the [Ripple emulator](https://github.com/ripple-emulator/ripple).
-This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS/Windows).
+This plugin is intended to launch **native** navigation apps and therefore will only work on native mobile platforms (i.e. Android/iOS).
 
 
 ## Using the CLI
@@ -304,8 +299,6 @@ Coordinates can be specified as a string or array
         platform = launchnavigator.PLATFORM.ANDROID;
     }else if(platform == "ios"){
         platform = launchnavigator.PLATFORM.IOS;
-    }else if(platform.match(/win/)){
-        platform = launchnavigator.PLATFORM.WINDOWS;
     }
 
     launchnavigator.getAppsForPlatform(platform).forEach(function(app){
@@ -341,7 +334,6 @@ Before [opening a bug issue](https://github.com/dpa99c/phonegap-launch-navigator
 - Check your target country is supported for turn-by-turn by the native navigation app
   - [Apple Maps country list for iOS](https://www.apple.com/ios/feature-availability/#maps-turn-by-turn-navigation)
   - [Google Maps country list for Android](https://support.google.com/gmm/answer/3137767?hl=en-GB)
-  - [Bing Maps country list for Windows Phone](https://msdn.microsoft.com/en-us/library/dd435699.aspx)
 - Check the [CHANGELOG](https://github.com/dpa99c/phonegap-launch-navigator/blob/master/CHANGELOG.md) for any breaking changes that may be causing your issue.
 - Check a similar issue (open or closed) does not already exist against this plugin.
 	- Duplicates or near-duplicates will be closed immediately.
@@ -417,7 +409,6 @@ The following table enumerates which apps support which parameters.
 | iOS      | Baidu Maps                     |   X  |     X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |   X   |      X<sup>[\[1\]](#apple_baidu_maps_nicknames_uri)</sup>     |        X       |   X  |
 | iOS      | 99 Taxi                        |   X  |     X     |   X   |      X     |                |   X  |
 | iOS      | Gaode Maps                     |   X  |     X     |   X   |      X     |        X       |   X  |
-| Windows  | Bing Maps                      |   X  |     X     |   X   |      X     |        X       |   X  |
 
 <a name="baidu_maps_nicknames">[1]</a>: Only supported when Start or Dest is specified as lat/lon (e.g. "50,-4")
 
@@ -448,7 +439,6 @@ Apps that support specifying transport mode.
 | iOS      | MAPS.ME                        |    X    |    X    |     X     |    X    |
 | iOS      | Baidu Maps                     |    X    |    X    |     X     |    X    |
 | iOS      | Gaode Maps                     |    X    |    X    |     X     |    X    |
-| Windows  | Bing Maps                      |    X    |    X    |           |    X    |
 
 
 # Plugin API
@@ -465,7 +455,6 @@ Supported platforms:
 
 - `launchnavigator.PLATFORM.ANDROID`
 - `launchnavigator.PLATFORM.IOS`
-- `launchnavigator.PLATFORM.WINDOWS`
 
 ### APP
 
@@ -482,7 +471,6 @@ Supported apps:
 - `launchnavigator.APP.TRANSIT_APP` (iOS)
 - `launchnavigator.APP.YANDEX` (Android & iOS)
 - `launchnavigator.APP.TOMTOM` (iOS)
-- `launchnavigator.APP.BING_MAPS` (Windows)
 - `launchnavigator.APP.SYGIC` (Android & iOS)
 - `launchnavigator.APP.HERE_MAPS` (Android & iOS)
 - `launchnavigator.APP.MOOVIT` (Android & iOS)
@@ -555,7 +543,6 @@ Either:
     Defaults to "driving" if not specified.
     Specify using `launchnavigator.TRANSPORT_MODE` constants.
     - {boolean} enableGeocoding - (Android and iOS only) if true, and input location type(s) doesn't match those required by the app, use geocoding to obtain the address/coords as required. Defaults to true.
-    - {boolean} enableGeolocation - (Windows only) if false, the plugin will NOT attempt to use the geolocation plugin to determine the current device position when the start location parameter is omitted. Defaults to true. 
     - {object} extras - a key/value map of extra app-specific parameters. For example, to tell Google Maps on Android to display Satellite view in "maps" launch mode: `{"t": "k"}`
         - These will be appended to the URL used to invoke the app, e.g. `google_maps://?t=k&...`
         - See [Supported app URL scheme documentation wiki page](https://github.com/dpa99c/phonegap-launch-navigator/wiki/Supported-app-URL-scheme-documentation) for links to find app-specific parameters.
@@ -842,16 +829,6 @@ There are several example projects in the [example repo](https://github.com/dpa9
     - Turn-by-turn mode (`launchnavigator.LAUNCH_MODE.TURN_BY_TURN`) - launches in Navigation view. Enables transport mode to be specified, but not start location or destination name.
     - Geo mode (`launchnavigator.LAUNCH_MODE.GEO`) - invokes Navigation view via `geo`: URI scheme. Enables destination name to be specified, but not start location or transport mode.
     - Launch mode can be specified via the `launchModeGoogleMaps` option, but defaults to Maps mode if not specified.
-
-
-## Windows
-
-- The plugin is compatible with Windows 10 on any PC or Windows 10 Mobile on a phone/tablet using the Universal .Net project generated by Cordova: `cordova platform add windows`
-
-- Bing Maps requires the user to press the enter key to initiate navigation if you don't provide the start location.
-Therefore, if a start location is not going to be passed to the plugin from your app, you should install the [Geolocation plugin](https://github.com/apache/cordova-plugin-geolocation) into your project.
-By default, if the geolocation plugin is detected, the plugin will attempt to retrieve the current device location using it, and use this as the start location.
-This can be disabled via the `enableGeolocation` option.
 
 
 ## iOS

@@ -1,4 +1,8 @@
 # CHANGELOG
+## Unreleased
+
+- Remove obsolete Windows Mobile platform.
+
 ## 5.0.7
 - (Android) bugfix: Unable to geocode destination address to coordinates: Index 0 out of range [0..0) error
 	- Resolves [#281](https://github.com/dpa99c/phonegap-launch-navigator/issues/281)
