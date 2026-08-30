@@ -108,7 +108,6 @@ static NSDictionary* extras;
          @"here_maps",
          @"moovit",
          @"lyft",
-         @"maps_me",
          @"cabify",
          @"baidu",
          @"taxis_99",
@@ -129,7 +128,6 @@ static NSDictionary* extras;
          @(LNAppHereMaps): LNLocTypeCoords,
          @(LNAppMoovit): LNLocTypeCoords,
          @(LNAppLyft): LNLocTypeCoords,
-         @(LNAppMapsMe): LNLocTypeCoords,
          @(LNAppCabify): LNLocTypeCoords,
          @(LNAppBaidu): LNLocTypeBoth,
          @(LNAppTaxis99): LNLocTypeCoords,
@@ -620,39 +618,6 @@ static NSDictionary* extras;
     [self openScheme:url];
 }
 
--(void)launchMapsMe {
-    NSMutableString* url = [NSMutableString stringWithFormat:@"%@route?", [self urlPrefixForMapApp:LNAppMapsMe]];
-    
-    [url appendFormat:@"sll=%f,%f",
-     startCoord.latitude, startCoord.longitude];
-    
-    if([self isNull:startName]){
-        startName = @"Start";
-    }
-    [url appendFormat:@"&saddr=%@",[self urlEncode:startName]];
-    
-    [url appendFormat:@"&dll=%f,%f",
-     destCoord.latitude, destCoord.longitude];
-    
-    if([self isNull:destName]){
-        destName = @"Destination";
-    }
-    [url appendFormat:@"&daddr=%@",[self urlEncode:destName]];
-    
-    
-    if([navigateParams[@"transportMode"] isEqual: @"walking"]){
-        [url appendFormat:@"&type=pedestrian"];
-    }else if([navigateParams[@"transportMode"] isEqual: @"transit"]){
-        [url appendFormat:@"&type=taxi"];
-    }else if([navigateParams[@"transportMode"] isEqual: @"bicycling"]){
-        [url appendFormat:@"&type=bicycle"];
-    }else{
-        [url appendFormat:@"&type=vehicle"];
-    }
-    
-    [self logDebugURI:url];
-    [self openScheme:url];
-}
 
 -(void)launchCabify {
     NSMutableString* url = [NSMutableString stringWithFormat:@"%@cabify/journey?json=", [self urlPrefixForMapApp:LNAppCabify]];
@@ -1034,8 +999,6 @@ static NSDictionary* extras;
         [self launchMoovit];
     }else if(app == LNAppLyft){
         [self launchLyft];
-    }else if(app == LNAppMapsMe){
-        [self launchMapsMe];
     }else if(app == LNAppCabify){
         [self launchCabify];
     }else if(app == LNAppBaidu){
@@ -1092,9 +1055,6 @@ static NSDictionary* extras;
         case LNAppLyft:
         name = @"lyft";
         break;
-        case LNAppMapsMe:
-        name = @"maps_me";
-        break;
         case LNAppCabify:
         name = @"cabify";
         case LNAppBaidu:
@@ -1140,8 +1100,6 @@ static NSDictionary* extras;
         cmmName = LNAppMoovit;
     }else if([lnName isEqual: @"lyft"]){
         cmmName = LNAppLyft;
-    }else if([lnName isEqual: @"maps_me"]){
-        cmmName = LNAppMapsMe;
     }else if([lnName isEqual: @"cabify"]){
         cmmName = LNAppCabify;
     }else if([lnName isEqual: @"baidu"]){
@@ -1364,9 +1322,6 @@ static NSDictionary* extras;
         case LNAppLyft:
         return @"lyft://";
             
-        case LNAppMapsMe:
-        return @"mapsme://";
-        
         case LNAppCabify:
         return @"cabify://";
             
@@ -1388,9 +1343,6 @@ static NSDictionary* extras;
 - (BOOL)requiresStartLocation:(LNApp)mapApp {
     switch (mapApp) {
             
-        case LNAppMapsMe:
-            return YES;
-
         case LNAppTaxis99:
             return YES;        
             

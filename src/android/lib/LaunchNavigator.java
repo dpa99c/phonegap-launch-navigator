@@ -73,7 +73,6 @@ public class LaunchNavigator {
     public final String HERE_MAPS = "here_maps";
     public final String MOOVIT = "moovit";
     public final String LYFT = "lyft";
-    public final String MAPS_ME = "maps_me";
     public final String CABIFY = "cabify";
     public final String BAIDU = "baidu";
     public final String TAXIS_99 = "taxis_99";
@@ -92,7 +91,6 @@ public class LaunchNavigator {
         _supportedAppPackages.put(HERE_MAPS, "com.here.app.maps");
         _supportedAppPackages.put(MOOVIT, "com.tranzmate");
         _supportedAppPackages.put(LYFT, "me.lyft.android");
-        _supportedAppPackages.put(MAPS_ME, "com.mapswithme.maps.pro");
         _supportedAppPackages.put(CABIFY, "com.cabify.rider");
         _supportedAppPackages.put(BAIDU, "com.baidu.BaiduMap");
         _supportedAppPackages.put(TAXIS_99, "com.taxis99");
@@ -112,7 +110,6 @@ public class LaunchNavigator {
         _supportedAppNames.put(HERE_MAPS, "HERE Maps");
         _supportedAppNames.put(MOOVIT, "Moovit");
         _supportedAppNames.put(LYFT, "Lyft");
-        _supportedAppNames.put(MAPS_ME, "MAPS.ME");
         _supportedAppNames.put(CABIFY, "Cabify");
         _supportedAppNames.put(BAIDU, "Baidu Maps");
         _supportedAppNames.put(TAXIS_99, "99 Taxi");
@@ -268,8 +265,6 @@ public class LaunchNavigator {
             error = launchMoovit(params);
         }else if(appName.equals(LYFT)){
             error = launchLyft(params);
-        }else if(appName.equals(MAPS_ME)){
-            error = launchMapsMe(params);
         }else if(appName.equals(CABIFY)){
             error = launchCabify(params);
         }else if(appName.equals(BAIDU)){
@@ -1039,92 +1034,6 @@ public class LaunchNavigator {
             String msg = e.getMessage();
             if(msg.contains(NO_APP_FOUND)){
                 msg = "Lyft app is not installed on this device";
-            }
-            return msg;
-        }
-    }
-
-    private String launchMapsMe(JSONObject params) throws Exception{
-        try {
-            String destAddress;
-            String destLatLon = null;
-            String startAddress;
-            String startLatLon = null;
-
-            String dType = params.getString("dType");
-            String sType = params.getString("sType");
-            String transportMode = params.getString("transportMode");
-
-            Intent intent = new Intent(supportedAppPackages.get(MAPS_ME).concat(".action.BUILD_ROUTE"));
-            intent.setPackage(supportedAppPackages.get(MAPS_ME));
-
-            String logMsg = "Using MAPs.ME to navigate";
-
-            logMsg += " to";
-            if(dType.equals("name")){
-                destAddress = getLocationFromName(params, "dest");
-                logMsg += " '"+destAddress+"'";
-                try{
-                    destLatLon = geocodeAddressToLatLon(params.getString("dest"));
-                }catch(Exception e){
-                    return "Unable to geocode destination address to coordinates: " + e.getMessage();
-                }
-            }else{
-                destLatLon = getLocationFromPos(params, "dest");
-            }
-            logMsg += " ["+destLatLon+"]";
-
-            String[] destPos = splitLatLon(destLatLon);
-            intent.putExtra("lat_to", Double.parseDouble(destPos[0]));
-            intent.putExtra("lon_to", Double.parseDouble(destPos[1]));
-
-            logMsg += " from";
-            if(sType.equals("none")){
-                logMsg += " Current Location";
-            }else{
-                if(sType.equals("name")){
-                    startAddress = getLocationFromName(params, "start");
-                    logMsg += " '"+startAddress+"'";
-                    try{
-                        startLatLon = geocodeAddressToLatLon(params.getString("start"));
-                    }catch(Exception e){
-                        return "Unable to geocode start address to coordinates: " + e.getMessage();
-                    }
-                }else if(sType.equals("pos")){
-                    startLatLon = getLocationFromPos(params, "start");
-                }
-
-                String[] startPos = splitLatLon(startLatLon);
-                intent.putExtra("lat_from", Double.parseDouble(startPos[0]));
-                intent.putExtra("lon_from", Double.parseDouble(startPos[1]));
-                logMsg += " ["+startLatLon+"]";
-            }
-
-
-
-            if(transportMode.equals("d")){
-                transportMode = "vehicle";
-            }else if(transportMode.equals("w")){
-                transportMode = "pedestrian";
-            }else if(transportMode.equals("b")){
-                transportMode = "bicycle";
-            }else if(transportMode.equals("t")){
-                transportMode = "taxi";
-            }
-
-            if(!isNull(transportMode)){
-                intent.putExtra("router", transportMode);
-                logMsg += " by transportMode=" + transportMode;
-            }
-
-            logger.debug(logMsg);
-
-            invokeIntent(intent);
-            return null;
-        }catch( JSONException e ) {
-            String msg = e.getMessage();
-            if(msg.contains(NO_APP_FOUND)){
-                msg = "MAPS.ME app is not installed on this device";
             }
             return msg;
         }

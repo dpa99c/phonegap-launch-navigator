@@ -106,10 +106,6 @@
       </intent>
       <intent>
         <action android:name="android.intent.action.VIEW" />
-        <data android:scheme="mapsme" />
-      </intent>
-      <intent>
-        <action android:name="android.intent.action.VIEW" />
         <data android:scheme="com.sygic.aura" />
       </intent>
       <intent>
@@ -182,7 +178,6 @@
         <string>here-route</string>
         <string>moovit</string>
         <string>lyft</string>
-        <string>mapsme</string>
         <string>cabify</string>
         <string>baidumap</string>
         <string>taxis99</string>

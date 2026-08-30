@@ -105,12 +105,10 @@ ln.APP = {
     YANDEX: "yandex",
     UBER: "uber",
     TOMTOM: "tomtom",
-    BING_MAPS: "bing_maps",
     SYGIC: "sygic",
     HERE_MAPS: "here_maps",
     MOOVIT: "moovit",
     LYFT: "lyft",
-    MAPS_ME: "maps_me",
     CABIFY: "cabify",
     BAIDU: "baidu",
     TAXIS_99: "taxis_99",
@@ -133,7 +131,6 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME,
     ln.APP.CABIFY,
     ln.APP.BAIDU,
     ln.APP.TAXIS_99,
@@ -154,7 +151,6 @@ ln.APPS_BY_PLATFORM[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME,
     ln.APP.CABIFY,
     ln.APP.BAIDU,
     ln.APP.TAXIS_99,
@@ -184,12 +180,10 @@ ln.APP_NAMES[ln.APP.TRANSIT_APP] = "Transit App";
 ln.APP_NAMES[ln.APP.YANDEX] = "Yandex Navigator";
 ln.APP_NAMES[ln.APP.UBER] = "Uber";
 ln.APP_NAMES[ln.APP.TOMTOM] = "Tomtom";
-ln.APP_NAMES[ln.APP.BING_MAPS] = "Bing Maps";
 ln.APP_NAMES[ln.APP.SYGIC] = "Sygic";
 ln.APP_NAMES[ln.APP.HERE_MAPS] = "HERE Maps";
 ln.APP_NAMES[ln.APP.MOOVIT] = "Moovit";
 ln.APP_NAMES[ln.APP.LYFT] = "Lyft";
-ln.APP_NAMES[ln.APP.MAPS_ME] = "MAPS.ME";
 ln.APP_NAMES[ln.APP.CABIFY] = "Cabify";
 ln.APP_NAMES[ln.APP.BAIDU] = "Baidu Maps";
 ln.APP_NAMES[ln.APP.TAXIS_99] = "99 Taxi";
@@ -229,12 +223,6 @@ ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING
 ];
-ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.MAPS_ME] = [
-    ln.TRANSPORT_MODE.DRIVING,
-    ln.TRANSPORT_MODE.WALKING,
-    ln.TRANSPORT_MODE.BICYCLING,
-    ln.TRANSPORT_MODE.TRANSIT
-];
 ln.TRANSPORT_MODES[ln.PLATFORM.ANDROID][ln.APP.BAIDU] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING,
@@ -271,12 +259,6 @@ ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.SYGIC] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING
 ];
-ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.MAPS_ME] = [
-    ln.TRANSPORT_MODE.DRIVING,
-    ln.TRANSPORT_MODE.WALKING,
-    ln.TRANSPORT_MODE.BICYCLING,
-    ln.TRANSPORT_MODE.TRANSIT
-];
 ln.TRANSPORT_MODES[ln.PLATFORM.IOS][ln.APP.BAIDU] = [
     ln.TRANSPORT_MODE.DRIVING,
     ln.TRANSPORT_MODE.WALKING,
@@ -304,7 +286,6 @@ ln.SUPPORTS_START[ln.PLATFORM.ANDROID] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME,
     ln.APP.CABIFY,
     ln.APP.BAIDU,
     ln.APP.TAXIS_99,
@@ -321,7 +302,6 @@ ln.SUPPORTS_START[ln.PLATFORM.IOS] = [
     ln.APP.HERE_MAPS,
     ln.APP.MOOVIT,
     ln.APP.LYFT,
-    ln.APP.MAPS_ME,
     ln.APP.CABIFY,
     ln.APP.BAIDU,
     ln.APP.TAXIS_99,
