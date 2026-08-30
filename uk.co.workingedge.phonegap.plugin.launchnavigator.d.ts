@@ -402,6 +402,16 @@ export interface LaunchNavigator {
     ) => void;
 
     appSelection: AppSelection;
+
+    /**
+     * Sets the Google API key to use for geocoding addresses to coordinates.
+     * @param {string} apiKey - Google API key to use for geocoding.
+     */
+    setApiKey: (
+        apiKey: string,
+        successCallback: (success: any) => void,
+        errorCallback?: (error: string) => void
+    ) => void;
 }
 
 declare var launchnavigator: LaunchNavigator;
